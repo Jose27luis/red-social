@@ -1,0 +1,187 @@
+# ============================================
+# Compiled Output
+# ============================================
+/dist
+/build
+*.tsbuildinfo
+
+# ============================================
+# Dependencies
+# ============================================
+/node_modules
+/.pnp
+.pnp.js
+
+# ============================================
+# Environment Variables
+# ============================================
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*.local
+
+# Keep .env.example for reference
+!.env.example
+
+# ============================================
+# Logs
+# ============================================
+logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# ============================================
+# Testing & Coverage
+# ============================================
+/coverage
+/.nyc_output
+/test-results
+junit.xml
+
+# ============================================
+# Operating System
+# ============================================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+.directory
+
+# ============================================
+# IDEs and Editors
+# ============================================
+# VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# IntelliJ IDEA
+/.idea
+*.iml
+*.iws
+*.ipr
+
+# WebStorm
+.webstorm
+
+# Eclipse
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+
+# Sublime Text
+*.sublime-workspace
+*.sublime-project
+
+# Vim
+*.swp
+*.swo
+*~
+
+# ============================================
+# Prisma
+# ============================================
+# Keep migrations but you can ignore specific ones if needed
+# /prisma/migrations/*
+# !prisma/migrations/.gitkeep
+# !/prisma/migrations/migration_lock.toml
+
+# Prisma Studio
+.prisma/
+
+# Generated Prisma Client (usually in node_modules, but just in case)
+# /prisma/client
+
+# ============================================
+# Database Files
+# ============================================
+*.sqlite
+*.sqlite3
+*.db
+*.db-shm
+*.db-wal
+
+# PostgreSQL dumps
+*.sql
+*.dump
+
+# ============================================
+# Uploads & Media
+# ============================================
+/uploads
+/public/uploads
+/media
+
+# ============================================
+# Docker
+# ============================================
+docker-compose.override.yml
+
+# ============================================
+# Temporary Files
+# ============================================
+*.tmp
+*.temp
+*.bak
+*.backup
+.cache/
+tmp/
+temp/
+
+# ============================================
+# Build Artifacts
+# ============================================
+*.tgz
+
+# ============================================
+# Package Manager
+# ============================================
+.npm
+.eslintcache
+.stylelintcache
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+
+# ============================================
+# Misc
+# ============================================
+# Sentry
+.sentryclirc
+
+# DynamoDB
+.dynamodb/
+
+# TernJS
+.tern-port
+
+# Stores VSCode versions used for testing
+.vscode-test
+
+# Serverless
+.serverless/
+
+# FuseBox
+.fusebox/

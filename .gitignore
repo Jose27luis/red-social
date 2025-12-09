@@ -1,0 +1,305 @@
+# ============================================
+# Node.js & NPM
+# ============================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Dependency directories
+jspm_packages/
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional stylelint cache
+.stylelintcache
+
+# Microbundle cache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Optional REPL history
+.node_repl_history
+
+# Package-lock files (uncomment if using yarn exclusively)
+# package-lock.json
+# yarn.lock
+
+# ============================================
+# Environment Variables & Secrets
+# ============================================
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*.local
+
+# ============================================
+# Build Artifacts
+# ============================================
+dist/
+build/
+out/
+*.tsbuildinfo
+.cache/
+
+# Compiled binary addons
+build/Release
+
+# ============================================
+# Logs
+# ============================================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ============================================
+# Testing & Coverage
+# ============================================
+coverage/
+*.lcov
+.nyc_output/
+.coverage/
+htmlcov/
+.pytest_cache/
+.tox/
+.hypothesis/
+
+# Jest coverage
+coverage/
+junit.xml
+
+# ============================================
+# IDEs & Editors
+# ============================================
+
+# Visual Studio Code
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# WebStorm
+.webstorm/
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+*.swp
+*.swo
+*~
+.vim/
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+
+# ============================================
+# Operating System Files
+# ============================================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# ============================================
+# Docker
+# ============================================
+docker-compose.override.yml
+.dockerignore
+
+# ============================================
+# Prisma
+# ============================================
+# Keep migrations
+# prisma/migrations/
+# But ignore generated client in some setups
+# node_modules/.prisma/
+# node_modules/@prisma/
+
+# Prisma Studio
+.prisma/
+
+# ============================================
+# Database
+# ============================================
+*.sqlite
+*.sqlite3
+*.db
+*.db-shm
+*.db-wal
+
+# PostgreSQL
+*.psql
+pgdata/
+postgres-data/
+
+# ============================================
+# Backup & Temporary Files
+# ============================================
+*.bak
+*.backup
+*.tmp
+*.temp
+*~
+.#*
+\#*#
+.*.sw[a-z]
+*.un~
+Session.vim
+.netrwhist
+
+# ============================================
+# Archive Files
+# ============================================
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# ============================================
+# Project Specific
+# ============================================
+
+# Upload directories (if you have file uploads)
+uploads/
+public/uploads/
+
+# Generated documentation
+docs/_build/
+site/
+
+# Static files (generated)
+static/
+staticfiles/
+
+# Media files (if auto-generated)
+# media/
+
+# Sentry
+.sentryclirc
+
+# TypeScript
+*.tsbuildinfo
+
+# Next.js (if you add frontend later)
+.next/
+next-env.d.ts
+
+# Nuxt.js (if you add frontend later)
+.nuxt/
+.output/
+
+# Vuepress (if you add documentation)
+.vuepress/dist/
+
+# Serverless
+.serverless/
+
+# FuseBox
+.fusebox/
+
+# DynamoDB Local
+.dynamodb/
+
+# TernJS
+.tern-port
+
+# Stores VSCode versions used for testing VSCode extensions
+.vscode-test
+
+# Temporary folders
+tmp/
+temp/
+
+# ============================================
+# CI/CD
+# ============================================
+.github/workflows/*.local.yml
+
+# ============================================
+# Custom - Project Specific
+# ============================================
+
+# Archivos de documentación temporal
+nul
+seguirmañana.txt
+
+# Certificados y claves (si los usas)
+*.pem
+*.key
+*.crt
+*.cer
+*.p12
+*.pfx
+
+# Configuraciones locales de desarrollo
+.local/
+local/

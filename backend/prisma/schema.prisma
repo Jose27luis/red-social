@@ -1,0 +1,328 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Enums
+enum UserRole {
+  STUDENT
+  PROFESSOR
+  ADMIN
+  ALUMNI
+}
+
+enum PostType {
+  QUESTION
+  DISCUSSION
+  RESOURCE
+  EVENT
+  ANNOUNCEMENT
+}
+
+enum GroupType {
+  PUBLIC
+  PRIVATE
+  INVITE_ONLY
+}
+
+enum GroupMemberRole {
+  ADMIN
+  MODERATOR
+  MEMBER
+}
+
+enum PrivacyLevel {
+  PUBLIC
+  UNIVERSITY_ONLY
+  PRIVATE
+}
+
+// Models
+model User {
+  id              String        @id @default(uuid())
+  email           String        @unique
+  password        String
+  firstName       String
+  lastName        String
+  role            UserRole      @default(STUDENT)
+  department      String?
+  career          String?
+  profilePicture  String?
+  bio             String?       @db.VarChar(500)
+  interests       String[]      @default([])
+  privacyLevel    PrivacyLevel  @default(PUBLIC)
+  isVerified      Boolean       @default(false)
+  isActive        Boolean       @default(true)
+  verificationToken String?
+  resetPasswordToken String?
+  resetPasswordExpires DateTime?
+  refreshToken    String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  // Relations
+  posts           Post[]        @relation("UserPosts")
+  comments        Comment[]
+  likes           Like[]
+  createdGroups   Group[]       @relation("GroupCreator")
+  groupMemberships GroupMember[]
+  sentMessages    Message[]     @relation("MessageSender")
+  receivedMessages Message[]    @relation("MessageReceiver")
+  organizedEvents Event[]       @relation("EventOrganizer")
+  eventAttendances EventAttendance[]
+  uploadedResources Resource[]
+  notifications   Notification[] @relation("NotificationRecipient")
+  sentNotifications Notification[] @relation("NotificationSender")
+  followers       Follow[]      @relation("Following")
+  following       Follow[]      @relation("Follower")
+  reports         Report[]      @relation("ReportCreator")
+  reportedContent Report[]      @relation("ReportedUser")
+
+  @@index([email])
+  @@map("users")
+}
+
+model Post {
+  id            String    @id @default(uuid())
+  authorId      String
+  content       String    @db.VarChar(3000)
+  type          PostType  @default(DISCUSSION)
+  images        String[]  @default([])
+  likesCount    Int       @default(0)
+  commentsCount Int       @default(0)
+  isEdited      Boolean   @default(false)
+  groupId       String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  author        User      @relation("UserPosts", fields: [authorId], references: [id], onDelete: Cascade)
+  group         Group?    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  comments      Comment[]
+  likes         Like[]
+  reports       Report[]
+
+  @@index([authorId])
+  @@index([groupId])
+  @@index([createdAt])
+  @@index([type])
+  @@map("posts")
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  postId    String
+  authorId  String
+  content   String   @db.VarChar(1000)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([postId])
+  @@index([authorId])
+  @@map("comments")
+}
+
+model Like {
+  id        String   @id @default(uuid())
+  postId    String
+  userId    String
+  createdAt DateTime @default(now())
+
+  // Relations
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId])
+  @@index([postId])
+  @@index([userId])
+  @@map("likes")
+}
+
+model Group {
+  id            String    @id @default(uuid())
+  name          String
+  description   String    @db.Text
+  type          GroupType @default(PUBLIC)
+  creatorId     String
+  membersCount  Int       @default(0)
+  coverImage    String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  creator       User      @relation("GroupCreator", fields: [creatorId], references: [id], onDelete: Cascade)
+  members       GroupMember[]
+  posts         Post[]
+
+  @@index([creatorId])
+  @@index([type])
+  @@map("groups")
+}
+
+model GroupMember {
+  id        String          @id @default(uuid())
+  groupId   String
+  userId    String
+  role      GroupMemberRole @default(MEMBER)
+  joinedAt  DateTime        @default(now())
+
+  // Relations
+  group     Group           @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([groupId, userId])
+  @@index([groupId])
+  @@index([userId])
+  @@map("group_members")
+}
+
+model Message {
+  id         String   @id @default(uuid())
+  senderId   String
+  receiverId String
+  content    String   @db.VarChar(1000)
+  isRead     Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  // Relations
+  sender     User     @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver   User     @relation("MessageReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  @@index([senderId])
+  @@index([receiverId])
+  @@index([createdAt])
+  @@map("messages")
+}
+
+model Event {
+  id           String   @id @default(uuid())
+  title        String
+  description  String   @db.Text
+  organizerId  String
+  startDate    DateTime
+  endDate      DateTime
+  location     String?
+  maxAttendees Int      @default(500)
+  isOnline     Boolean  @default(false)
+  qrCode       String?
+  coverImage   String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  organizer    User     @relation("EventOrganizer", fields: [organizerId], references: [id], onDelete: Cascade)
+  attendances  EventAttendance[]
+
+  @@index([organizerId])
+  @@index([startDate])
+  @@map("events")
+}
+
+model EventAttendance {
+  id        String   @id @default(uuid())
+  eventId   String
+  userId    String
+  confirmed Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  // Relations
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, userId])
+  @@index([eventId])
+  @@index([userId])
+  @@map("event_attendances")
+}
+
+model Resource {
+  id            String   @id @default(uuid())
+  uploaderId    String
+  title         String
+  description   String?  @db.Text
+  fileUrl       String
+  fileType      String
+  fileSize      Int
+  downloadCount Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  uploader      User     @relation(fields: [uploaderId], references: [id], onDelete: Cascade)
+
+  @@index([uploaderId])
+  @@index([createdAt])
+  @@map("resources")
+}
+
+model Notification {
+  id         String   @id @default(uuid())
+  recipientId String
+  senderId   String?
+  type       String
+  title      String
+  message    String   @db.Text
+  isRead     Boolean  @default(false)
+  link       String?
+  createdAt  DateTime @default(now())
+
+  // Relations
+  recipient  User     @relation("NotificationRecipient", fields: [recipientId], references: [id], onDelete: Cascade)
+  sender     User?    @relation("NotificationSender", fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@index([recipientId])
+  @@index([isRead])
+  @@index([createdAt])
+  @@map("notifications")
+}
+
+model Follow {
+  id          String   @id @default(uuid())
+  followerId  String
+  followingId String
+  createdAt   DateTime @default(now())
+
+  // Relations
+  follower    User     @relation("Follower", fields: [followerId], references: [id], onDelete: Cascade)
+  following   User     @relation("Following", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, followingId])
+  @@index([followerId])
+  @@index([followingId])
+  @@map("follows")
+}
+
+model Report {
+  id          String   @id @default(uuid())
+  reporterId  String
+  reportedUserId String?
+  postId      String?
+  reason      String
+  description String?  @db.Text
+  status      String   @default("pending")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  reporter    User     @relation("ReportCreator", fields: [reporterId], references: [id], onDelete: Cascade)
+  reportedUser User?   @relation("ReportedUser", fields: [reportedUserId], references: [id], onDelete: Cascade)
+  post        Post?    @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([reporterId])
+  @@index([reportedUserId])
+  @@index([postId])
+  @@index([status])
+  @@map("reports")
+}
