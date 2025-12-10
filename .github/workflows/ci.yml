@@ -161,7 +161,12 @@ jobs:
     name: Build & Push Docker Image
     runs-on: ubuntu-latest
     needs: [build]
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
+    # Solo ejecutar si los secretos de Docker están configurados
+    if: |
+      github.event_name == 'push' &&
+      (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop') &&
+      secrets.DOCKER_USERNAME != '' &&
+      secrets.DOCKER_PASSWORD != ''
     defaults:
       run:
         working-directory: ./backend
@@ -233,7 +238,7 @@ jobs:
   notify:
     name: Notify Build Status
     runs-on: ubuntu-latest
-    needs: [lint, test, build, docker]
+    needs: [lint, test, build]
     if: always()
 
     steps:
