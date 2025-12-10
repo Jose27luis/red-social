@@ -136,10 +136,7 @@ export class MessagesService {
     // Get all messages where user is sender or receiver
     const messages = await this.prisma.message.findMany({
       where: {
-        OR: [
-          { senderId: userId },
-          { receiverId: userId },
-        ],
+        OR: [{ senderId: userId }, { receiverId: userId }],
       },
       orderBy: { createdAt: 'desc' },
       include: {

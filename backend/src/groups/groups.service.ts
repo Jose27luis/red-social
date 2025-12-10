@@ -287,7 +287,9 @@ export class GroupsService {
       });
 
       if (adminCount === 1) {
-        throw new BadRequestException('You cannot leave the group as the last admin. Please assign another admin first.');
+        throw new BadRequestException(
+          'You cannot leave the group as the last admin. Please assign another admin first.',
+        );
       }
     }
 
@@ -529,7 +531,7 @@ export class GroupsService {
       orderBy: { joinedAt: 'desc' },
     });
 
-    return memberships.map(m => ({
+    return memberships.map((m) => ({
       ...m.group,
       myRole: m.role,
       joinedAt: m.joinedAt,

@@ -68,11 +68,7 @@ export class EventsController {
   @ApiOperation({ summary: 'Update event' })
   @ApiResponse({ status: 200, description: 'Event updated successfully' })
   @ApiResponse({ status: 403, description: 'Forbidden - Only organizer can update' })
-  async update(
-    @Param('id') id: string,
-    @CurrentUser() user: any,
-    @Body() updateEventDto: UpdateEventDto,
-  ) {
+  async update(@Param('id') id: string, @CurrentUser() user: any, @Body() updateEventDto: UpdateEventDto) {
     return this.eventsService.update(id, user.id, updateEventDto);
   }
 
@@ -101,11 +97,7 @@ export class EventsController {
   @Post(':id/confirm')
   @ApiOperation({ summary: 'Confirm attendance with QR code' })
   @ApiResponse({ status: 200, description: 'Attendance confirmed successfully' })
-  async confirmAttendance(
-    @Param('id') eventId: string,
-    @CurrentUser() user: any,
-    @Body('qrCode') qrCode: string,
-  ) {
+  async confirmAttendance(@Param('id') eventId: string, @CurrentUser() user: any, @Body('qrCode') qrCode: string) {
     return this.eventsService.confirmAttendance(eventId, user.id, qrCode);
   }
 }

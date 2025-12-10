@@ -427,7 +427,7 @@ export class EventsService {
       },
     });
 
-    return attendances.map(a => ({
+    return attendances.map((a) => ({
       ...a.event,
       confirmed: a.confirmed,
       registeredAt: a.createdAt,

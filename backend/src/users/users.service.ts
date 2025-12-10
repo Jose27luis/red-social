@@ -334,7 +334,7 @@ export class UsersService {
       orderBy: { createdAt: 'desc' },
     });
 
-    return followers.map(f => f.follower);
+    return followers.map((f) => f.follower);
   }
 
   /**
@@ -360,7 +360,7 @@ export class UsersService {
       orderBy: { createdAt: 'desc' },
     });
 
-    return following.map(f => f.following);
+    return following.map((f) => f.following);
   }
 
   /**

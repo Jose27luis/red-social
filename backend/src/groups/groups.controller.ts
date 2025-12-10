@@ -70,11 +70,7 @@ export class GroupsController {
   @ApiResponse({ status: 200, description: 'Group updated successfully' })
   @ApiResponse({ status: 403, description: 'Forbidden - Only admins can update' })
   @ApiResponse({ status: 404, description: 'Group not found' })
-  async update(
-    @Param('id') id: string,
-    @CurrentUser() user: any,
-    @Body() updateGroupDto: UpdateGroupDto,
-  ) {
+  async update(@Param('id') id: string, @CurrentUser() user: any, @Body() updateGroupDto: UpdateGroupDto) {
     return this.groupsService.update(id, user.id, updateGroupDto);
   }
 
@@ -111,11 +107,7 @@ export class GroupsController {
   @ApiResponse({ status: 201, description: 'Member added successfully' })
   @ApiResponse({ status: 403, description: 'Forbidden - Only admins/moderators can add members' })
   @ApiResponse({ status: 404, description: 'Group not found' })
-  async addMember(
-    @Param('id') groupId: string,
-    @CurrentUser() user: any,
-    @Body() addMemberDto: AddMemberDto,
-  ) {
+  async addMember(@Param('id') groupId: string, @CurrentUser() user: any, @Body() addMemberDto: AddMemberDto) {
     return this.groupsService.addMember(groupId, user.id, addMemberDto);
   }
 
@@ -124,11 +116,7 @@ export class GroupsController {
   @ApiResponse({ status: 200, description: 'Member removed successfully' })
   @ApiResponse({ status: 403, description: 'Forbidden - Only admins/moderators can remove members' })
   @ApiResponse({ status: 404, description: 'Group or member not found' })
-  async removeMember(
-    @Param('id') groupId: string,
-    @Param('userId') userId: string,
-    @CurrentUser() user: any,
-  ) {
+  async removeMember(@Param('id') groupId: string, @Param('userId') userId: string, @CurrentUser() user: any) {
     return this.groupsService.removeMember(groupId, user.id, userId);
   }
 

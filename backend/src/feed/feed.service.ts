@@ -19,8 +19,8 @@ export class FeedService {
       throw new Error('User not found');
     }
 
-    const followingIds = user.following.map(f => f.followingId);
-    const groupIds = user.groupMemberships.map(m => m.groupId);
+    const followingIds = user.following.map((f) => f.followingId);
+    const groupIds = user.groupMemberships.map((m) => m.groupId);
 
     // Personalized algorithm: Posts from followed users, user's groups, and posts matching interests
     const posts = await this.prisma.post.findMany({
@@ -66,7 +66,7 @@ export class FeedService {
     if (posts.length < take) {
       const generalPosts = await this.prisma.post.findMany({
         where: {
-          id: { notIn: posts.map(p => p.id) },
+          id: { notIn: posts.map((p) => p.id) },
         },
         take: take - posts.length,
         orderBy: { createdAt: 'desc' },

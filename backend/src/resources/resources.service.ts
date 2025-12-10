@@ -12,7 +12,9 @@ export class ResourcesService {
     // Validate file type
     const fileExtension = data.fileType.toLowerCase();
     if (!ALLOWED_FILE_TYPES.includes(fileExtension)) {
-      throw new BadRequestException(`File type ${fileExtension} not allowed. Allowed types: ${ALLOWED_FILE_TYPES.join(', ')}`);
+      throw new BadRequestException(
+        `File type ${fileExtension} not allowed. Allowed types: ${ALLOWED_FILE_TYPES.join(', ')}`,
+      );
     }
 
     // Validate file size
