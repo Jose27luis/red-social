@@ -1,0 +1,91 @@
+# Configuración de Dependabot para mantener las dependencias actualizadas
+# Docs: https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+
+version: 2
+updates:
+  # Monitorear dependencias de npm en backend
+  - package-ecosystem: "npm"
+    directory: "/backend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "America/Lima"
+    open-pull-requests-limit: 10
+
+    # Agrupar actualizaciones menores y patches
+    groups:
+      development-dependencies:
+        dependency-type: "development"
+        update-types:
+          - "minor"
+          - "patch"
+      production-dependencies:
+        dependency-type: "production"
+        update-types:
+          - "patch"
+
+    # Configuración de commit y PR
+    commit-message:
+      prefix: "chore(deps)"
+      prefix-development: "chore(deps-dev)"
+      include: "scope"
+
+    labels:
+      - "dependencies"
+      - "automated"
+
+    reviewers:
+      - "Jose27luis"
+
+    # Ignorar actualizaciones específicas si es necesario
+    ignore:
+      # Ejemplo: ignorar actualizaciones mayores de typescript
+      # - dependency-name: "typescript"
+      #   update-types: ["version-update:semver-major"]
+
+    # Permitir actualizaciones de vulnerabilidades de seguridad
+    # incluso si están fuera del rango de versión especificado
+    versioning-strategy: increase
+
+  # Monitorear GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "America/Lima"
+    open-pull-requests-limit: 5
+
+    commit-message:
+      prefix: "ci"
+      include: "scope"
+
+    labels:
+      - "github-actions"
+      - "automated"
+
+    reviewers:
+      - "Jose27luis"
+
+  # Monitorear Dockerfile
+  - package-ecosystem: "docker"
+    directory: "/backend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "America/Lima"
+    open-pull-requests-limit: 5
+
+    commit-message:
+      prefix: "chore(docker)"
+      include: "scope"
+
+    labels:
+      - "docker"
+      - "automated"
+
+    reviewers:
+      - "Jose27luis"
