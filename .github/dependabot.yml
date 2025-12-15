@@ -48,6 +48,51 @@ updates:
     # incluso si están fuera del rango de versión especificado
     versioning-strategy: increase
 
+  # Monitorear dependencias de npm en frontend
+  - package-ecosystem: "npm"
+    directory: "/frontend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "America/Lima"
+    open-pull-requests-limit: 10
+
+    # Agrupar actualizaciones menores y patches
+    groups:
+      development-dependencies:
+        dependency-type: "development"
+        update-types:
+          - "minor"
+          - "patch"
+      production-dependencies:
+        dependency-type: "production"
+        update-types:
+          - "patch"
+
+    # Configuración de commit y PR
+    commit-message:
+      prefix: "chore(frontend-deps)"
+      prefix-development: "chore(frontend-deps-dev)"
+      include: "scope"
+
+    labels:
+      - "dependencies"
+      - "frontend"
+      - "automated"
+
+    reviewers:
+      - "Jose27luis"
+
+    # Ignorar actualizaciones específicas si es necesario
+    ignore:
+      # Ejemplo: ignorar actualizaciones mayores de next
+      # - dependency-name: "next"
+      #   update-types: ["version-update:semver-major"]
+
+    # Permitir actualizaciones de vulnerabilidades de seguridad
+    versioning-strategy: increase
+
   # Monitorear GitHub Actions
   - package-ecosystem: "github-actions"
     directory: "/"

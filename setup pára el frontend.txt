@@ -1,0 +1,502 @@
+ Te propongo esto como ejercicio:
+
+  1. Agregar ESLint con reglas de seguridad *
+  2. Configurar Dependabot (ya está en GitHub, solo activarlo) *
+  3. Implementar Helmet.js en NestJS (headers de seguridad) *
+  4. Agregar validación de entrada con class-validator
+  5. Implementar rate limiting ) *
+
+  ¿Quieres que te ayude a implementar alguno de estos puntos específicos en tu proyecto? Por ejemplo, puedo:
+
+  - Configurar ESLint con reglas de seguridad
+  - Implementar Helmet.js
+  - Agregar más scanners al CI/CD
+  - Crear ejemplos de código seguro vs inseguro
+
+
+====================pasos despues del primero============
+  📊 Próximos Pasos Recomendados
+
+  1. Revisar los warnings actuales - Especialmente el object injection detectado
+  2. Integración con VSCode - Instalar la extensión ESLint para ver errores en tiempo real
+  3. Agregar pre-commit hook - Ejecutar linter antes de cada commit
+  4. Expandir con más herramientas:
+    - Snyk (análisis de dependencias)
+    - SonarQube (análisis profundo de código)
+    - Helmet.js (headers de seguridad HTTP)
+    - Rate Limiting (ya tienes @nestjs/throttler instalado)
+
+  ---
+⚡ Próximos Pasos Recomendados
+
+  Opcional (Mejoras):
+
+  1. Migrar a Redis (Para producción con múltiples instancias)
+  npm install @nestjs/throttler-storage-redis redis
+  2. Rate limiting por usuario (En lugar de por IP)
+    - Mejor para APIs autenticadas
+    - Previene problemas con NAT/VPN
+  3. Monitoreo de rate limiting
+    - Dashboards con métricas
+    - Alertas cuando hay muchos 429
+  4. Whitelist de IPs (Para servicios internos)
+    - Bypass de rate limiting para IPs confiables
+
+
+====================pasos a implementar en el frontend=======
+  🎯 FASE 1: Configuración Inicial del Proyecto
+
+  1.1 Setup Base
+
+  - Crear proyecto Next.js 14 con App Router y TypeScript
+  - Configurar estructura de carpetas recomendada
+  - Configurar TailwindCSS
+  - Instalar y configurar Shadcn/ui
+  - Configurar ESLint y Prettier
+  - Configurar variables de entorno (.env.local)
+
+  1.2 Dependencias Core
+
+  - Instalar React Query (@tanstack/react-query)
+  - Instalar Zustand
+  - Instalar Axios
+  - Instalar react-hook-form + zod
+  - Instalar next-themes (modo oscuro)
+  - Instalar date-fns o dayjs (manejo de fechas)
+  - Configurar Axios instance con interceptors
+
+  1.3 Configuración de Shadcn/ui
+
+  - Inicializar Shadcn/ui (npx shadcn-ui@latest init)
+  - Instalar componentes base necesarios:
+    - Button, Input, Label, Card
+    - Form, Dialog, Dropdown Menu
+    - Avatar, Badge, Separator
+    - Toast/Sonner para notificaciones
+    - Skeleton para loading states
+
+  ---
+  🔐 FASE 2: Sistema de Autenticación
+
+  2.1 Configuración de Autenticación
+
+  - Crear servicio de autenticación con Axios
+  - Configurar interceptores de Axios para JWT
+  - Implementar lógica de refresh token automático
+  - Crear context/provider de autenticación
+  - Configurar Zustand store para auth state
+
+  2.2 Páginas de Autenticación
+
+  - Crear página de Login (/login)
+  - Crear página de Register (/register)
+  - Crear formulario de login con react-hook-form + zod
+  - Crear formulario de registro con react-hook-form + zod
+  - Implementar validación de contraseña fuerte en frontend
+  - Agregar manejo de errores y rate limiting messages (429)
+
+  2.3 Protección de Rutas
+
+  - Crear middleware de Next.js para rutas protegidas
+  - Implementar HOC o wrapper para páginas privadas
+  - Crear página de "No autorizado" (/unauthorized)
+  - Implementar redirección automática si no está autenticado
+  - Implementar persistencia de sesión (localStorage/sessionStorage)
+
+  2.4 UX de Autenticación
+
+  - Agregar loading states durante login/register
+  - Implementar toast notifications para éxito/error
+  - Agregar validación en tiempo real en formularios
+  - Implementar "Recordarme" en login
+  - Agregar botón "Mostrar/Ocultar contraseña"
+  - Implementar logout con confirmación
+
+  ---
+  🏠 FASE 3: Layout y Navegación
+
+  3.1 Layout Principal
+
+  - Crear layout base con Navbar y Sidebar
+  - Implementar navegación responsive (mobile menu)
+  - Crear componente de perfil en navbar (dropdown)
+  - Agregar indicador de usuario autenticado
+  - Implementar breadcrumbs para navegación
+
+  3.2 Componentes de Navegación
+
+  - Crear Navbar con logo y menú
+  - Crear Sidebar con navegación principal
+  - Implementar active state en enlaces
+  - Agregar notificaciones badge en navbar
+  - Crear footer con información básica
+
+  3.3 Theme y Modo Oscuro
+
+  - Configurar next-themes provider
+  - Crear toggle de dark/light mode
+  - Ajustar colores de Tailwind para ambos modos
+  - Implementar persistencia de preferencia de theme
+
+  ---
+  📰 FASE 4: Feed de Posts (Feature Principal)
+
+  4.1 Listado de Posts
+
+  - Crear página principal del feed (/feed o /)
+  - Implementar React Query para obtener posts
+  - Crear componente PostCard con Shadcn Card
+  - Implementar infinite scroll o paginación
+  - Agregar loading skeletons
+  - Implementar empty state cuando no hay posts
+
+  4.2 Crear y Editar Posts
+
+  - Crear modal/página para crear post
+  - Implementar formulario con react-hook-form + zod
+  - Agregar validación de contenido (max 3000 caracteres)
+  - Implementar validación anti-XSS en frontend
+  - Agregar preview del post antes de publicar
+  - Implementar edición de posts existentes
+  - Agregar confirmación antes de eliminar post
+
+  4.3 Interacciones de Posts
+
+  - Implementar botón "Like" con optimistic updates
+  - Mostrar contador de likes
+  - Implementar sección de comentarios
+  - Agregar formulario para comentar
+  - Mostrar lista de comentarios anidados (opcional)
+  - Implementar acciones: editar/eliminar post (solo autor)
+
+  4.4 Filtros y Búsqueda
+
+  - Agregar barra de búsqueda de posts
+  - Implementar filtros por categoría/tags (si aplica)
+  - Agregar ordenamiento (más recientes, más populares)
+  - Implementar debounce en búsqueda
+
+  ---
+  👤 FASE 5: Perfil de Usuario
+
+  5.1 Vista de Perfil
+
+  - Crear página de perfil (/profile o /profile/[userId])
+  - Mostrar información del usuario (avatar, nombre, bio)
+  - Mostrar posts del usuario
+  - Implementar tabs: Posts, Grupos, Eventos (si aplica)
+  - Agregar estadísticas del usuario
+
+  5.2 Editar Perfil
+
+  - Crear página/modal de edición de perfil
+  - Implementar formulario con react-hook-form
+  - Agregar upload de avatar (si backend soporta)
+  - Validar campos (firstName, lastName, email, bio)
+  - Implementar preview de cambios
+  - Agregar botón "Guardar cambios"
+
+  5.3 Configuración de Cuenta
+
+  - Crear página de configuración (/settings)
+  - Implementar cambio de contraseña
+  - Agregar validación de contraseña actual
+  - Implementar opciones de privacidad (opcional)
+  - Agregar opción para eliminar cuenta (con confirmación)
+
+  ---
+  👥 FASE 6: Grupos (Feature Secundaria)
+
+  6.1 Listado de Grupos
+
+  - Crear página de grupos (/groups)
+  - Implementar listado con React Query
+  - Crear componente GroupCard
+  - Agregar búsqueda de grupos
+  - Implementar filtros (públicos/privados)
+
+  6.2 Detalle de Grupo
+
+  - Crear página de detalle (/groups/[groupId])
+  - Mostrar información del grupo
+  - Listar miembros del grupo
+  - Mostrar posts del grupo
+  - Implementar botón "Unirse/Salir del grupo"
+
+  6.3 Crear y Administrar Grupos
+
+  - Crear modal/página para crear grupo
+  - Implementar formulario con validación
+  - Agregar opciones de privacidad
+  - Implementar edición de grupo (solo admin)
+  - Agregar gestión de miembros (solo admin)
+
+  ---
+  📅 FASE 7: Eventos (Feature Secundaria)
+
+  7.1 Listado de Eventos
+
+  - Crear página de eventos (/events)
+  - Implementar listado con React Query
+  - Crear componente EventCard
+  - Mostrar fecha, hora y ubicación
+  - Agregar filtro por fecha (próximos, pasados)
+
+  7.2 Detalle de Evento
+
+  - Crear página de detalle (/events/[eventId])
+  - Mostrar información completa del evento
+  - Implementar botón "Asistir/Cancelar asistencia"
+  - Mostrar lista de asistentes
+  - Agregar integración con calendario (opcional)
+
+  7.3 Crear y Editar Eventos
+
+  - Crear modal/página para crear evento
+  - Implementar formulario con date/time pickers
+  - Validar fecha en el futuro
+  - Implementar edición de eventos (solo creador)
+  - Agregar confirmación antes de eliminar
+
+  ---
+  💬 FASE 8: Mensajería/Notificaciones
+
+  8.1 Notificaciones
+
+  - Crear componente de notificaciones en navbar
+  - Implementar dropdown de notificaciones
+  - Obtener notificaciones con React Query
+  - Marcar notificaciones como leídas
+  - Agregar badge con contador de no leídas
+
+  8.2 Sistema de Mensajería (Opcional)
+
+  - Crear página de mensajes (/messages)
+  - Implementar listado de conversaciones
+  - Crear vista de chat con mensajes
+  - Implementar envío de mensajes en tiempo real (WebSocket)
+  - Agregar indicador de "escribiendo..."
+
+  ---
+  🔍 FASE 9: Búsqueda Global
+
+  9.1 Búsqueda Universal
+
+  - Crear componente de búsqueda global (Cmd+K)
+  - Implementar búsqueda de usuarios
+  - Implementar búsqueda de posts
+  - Implementar búsqueda de grupos
+  - Agregar filtros por tipo de resultado
+  - Implementar debounce y loading states
+
+  ---
+  🎨 FASE 10: Mejoras de UX/UI
+
+  10.1 Estados de Carga
+
+  - Implementar skeleton loaders consistentes
+  - Agregar spinners en botones durante acciones
+  - Implementar loading states en navegación
+  - Agregar progress bar en top de página (NextTopLoader)
+
+  10.2 Manejo de Errores
+
+  - Crear página de error 404 personalizada
+  - Crear página de error 500 personalizada
+  - Implementar error boundaries con React
+  - Agregar toast notifications para errores
+  - Implementar retry automático en React Query
+
+  10.3 Animaciones (Opcional con Framer Motion)
+
+  - Agregar animaciones de entrada en cards
+  - Implementar transiciones en modales
+  - Agregar animaciones en interacciones (likes)
+  - Implementar scroll animations
+
+  10.4 Accesibilidad
+
+  - Verificar navegación por teclado
+  - Agregar ARIA labels apropiados
+  - Implementar focus states visibles
+  - Verificar contraste de colores
+  - Agregar skip navigation link
+
+  ---
+  🔒 FASE 11: Seguridad Frontend
+
+  11.1 Validación y Sanitización
+
+  - Implementar validación con Zod en todos los formularios
+  - Agregar sanitización de inputs de usuario
+  - Implementar validación de URLs
+  - Agregar protección contra XSS en contenido renderizado
+  - Validar tamaños de archivo en uploads
+
+  11.2 Gestión Segura de Tokens
+
+  - Almacenar JWT en httpOnly cookies (si es posible) o localStorage seguro
+  - Implementar refresh token rotation
+  - Agregar expiración de sesión automática
+  - Implementar logout en todas las pestañas (BroadcastChannel)
+
+  11.3 CORS y Configuración
+
+  - Configurar CORS correctamente con el backend
+  - Agregar headers de seguridad en next.config.js
+  - Implementar Content Security Policy
+  - Configurar rate limiting handling en frontend
+
+  ---
+  🧪 FASE 12: Testing
+
+  12.1 Testing Setup
+
+  - Configurar Jest y React Testing Library
+  - Configurar Playwright para E2E tests
+  - Crear scripts de testing en package.json
+
+  12.2 Unit Tests
+
+  - Testear componentes de formularios
+  - Testear hooks personalizados
+  - Testear utilidades y helpers
+  - Testear Zustand stores
+
+  12.3 Integration Tests
+
+  - Testear flujo de autenticación completo
+  - Testear creación y edición de posts
+  - Testear interacciones de usuario (likes, comentarios)
+
+  12.4 E2E Tests (con Playwright)
+
+  - Test: Login y registro de usuario
+  - Test: Crear y publicar post
+  - Test: Navegar por el feed
+  - Test: Editar perfil de usuario
+
+  ---
+  🚀 FASE 13: Optimización y Performance
+
+  13.1 Optimización de Imágenes
+
+  - Usar Next.js Image component
+  - Implementar lazy loading de imágenes
+  - Optimizar avatares y fotos de perfil
+  - Agregar placeholders blur
+
+  13.2 Optimización de Código
+
+  - Implementar code splitting por rutas
+  - Agregar dynamic imports para componentes pesados
+  - Optimizar bundle size (analizar con @next/bundle-analyzer)
+  - Implementar memoización donde sea necesario (useMemo, useCallback)
+
+  13.3 Caching y Data Fetching
+
+  - Configurar staleTime y cacheTime en React Query
+  - Implementar prefetching de datos críticos
+  - Agregar revalidación en React Query
+  - Implementar optimistic updates donde aplique
+
+  13.4 SEO
+
+  - Configurar metadata en layout.tsx
+  - Agregar Open Graph tags
+  - Implementar sitemap.xml
+  - Agregar robots.txt
+  - Configurar canonical URLs
+
+  ---
+  📦 FASE 14: Deployment
+
+  14.1 Preparación para Producción
+
+  - Configurar variables de entorno para producción
+  - Crear archivo .env.example
+  - Verificar que no haya secrets en el código
+  - Configurar next.config.js para producción
+
+  14.2 Build y Deploy
+
+  - Ejecutar npm run build y verificar errores
+  - Testear build de producción localmente
+  - Configurar deploy en Vercel/Netlify
+  - Configurar dominio personalizado (opcional)
+  - Agregar analytics (Google Analytics, Vercel Analytics)
+
+  14.3 CI/CD Frontend
+
+  - Crear GitHub Actions workflow para frontend
+  - Implementar tests automáticos en CI
+  - Agregar build verification
+  - Configurar deploy automático en merge a main
+
+  14.4 Monitoring
+
+  - Configurar error tracking (Sentry)
+  - Implementar performance monitoring
+  - Agregar logging de errores críticos
+  - Configurar alertas de uptime
+
+  ---
+  📚 FASE 15: Documentación
+
+  15.1 README
+
+  - Crear README.md completo
+  - Documentar comandos de desarrollo
+  - Agregar instrucciones de setup
+  - Documentar estructura de carpetas
+  - Agregar screenshots de la aplicación
+
+  15.2 Documentación de Código
+
+  - Documentar componentes principales
+  - Agregar JSDoc en funciones complejas
+  - Crear Storybook para componentes (opcional)
+  - Documentar hooks personalizados
+
+  15.3 Guías
+
+  - Crear guía de contribución (CONTRIBUTING.md)
+  - Documentar convenciones de código
+  - Crear guía de deployment
+  - Documentar API integration con backend
+
+  ---
+  🎯 Orden Recomendado de Implementación
+
+  Para un desarrollo eficiente e incremental, te recomiendo este orden:
+
+  Sprint 1 (Semana 1):
+  1. FASE 1: Setup inicial del proyecto
+  2. FASE 2: Sistema de autenticación completo
+  3. FASE 3: Layout y navegación básica
+
+  Sprint 2 (Semana 2):
+  4. FASE 4.1-4.2: Feed de posts (listado y creación)
+  5. FASE 5.1: Vista de perfil básica
+  6. FASE 10.1: Estados de carga
+
+  Sprint 3 (Semana 3):
+  7. FASE 4.3-4.4: Interacciones y búsqueda de posts
+  8. FASE 5.2-5.3: Edición de perfil y configuración
+  9. FASE 10.2: Manejo de errores
+
+  Sprint 4 (Semana 4):
+  10. FASE 6: Grupos (si es prioritario)
+  11. FASE 7: Eventos (si es prioritario)
+  12. FASE 8.1: Notificaciones
+
+  Sprint 5 (Semana 5):
+  13. FASE 9: Búsqueda global
+  14. FASE 10.3-10.4: Animaciones y accesibilidad
+  15. FASE 11: Seguridad frontend
+
+  Sprint 6 (Semana 6):
+  16. FASE 12: Testing
+  17. FASE 13: Optimización
+  18. FASE 14: Deployment
+  19. FASE 15: Documentación

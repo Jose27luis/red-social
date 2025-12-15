@@ -69,6 +69,7 @@ export class AuthService {
     const verificationToken = this.generateRandomToken();
 
     // Create user
+    // TODO: En producción, cambiar isVerified a false y enviar email de verificación
     await this.usersService.create({
       email,
       password: hashedPassword,
@@ -78,6 +79,7 @@ export class AuthService {
       department,
       career,
       verificationToken,
+      isVerified: true, // Auto-verificar en desarrollo
     });
 
     // TODO: Send verification email
