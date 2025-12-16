@@ -37,8 +37,8 @@ export interface User {
 export interface UserProfile extends User {
   followers: User[];
   following: User[];
-  posts: any[];
-  groups: any[];
+  posts: unknown[];
+  groups: unknown[];
 }
 
 export interface UpdateUserDto {

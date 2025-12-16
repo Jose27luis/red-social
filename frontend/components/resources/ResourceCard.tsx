@@ -11,7 +11,6 @@ import {
   FileText,
   Download,
   Trash2,
-  Eye,
   Calendar,
   User,
 } from 'lucide-react';
@@ -56,7 +55,6 @@ export default function ResourceCard({ resource }: ResourceCardProps) {
   };
 
   const getFileIcon = () => {
-    const ext = resource.fileName.split('.').pop()?.toLowerCase();
     return <FileText className="h-12 w-12 text-primary" />;
   };
 

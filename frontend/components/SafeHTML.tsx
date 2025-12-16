@@ -281,6 +281,7 @@ export function SafeImage({
   }
 
   return (
+    // eslint-disable-next-line @next/next/no-img-element
     <img
       src={sanitizedSrc}
       alt={sanitizedAlt}
@@ -314,6 +315,8 @@ export function withSanitization<P extends { children?: React.ReactNode }>(
       const sanitized = sanitizeHtml(children, level);
       return (
         <Component {...(rest as P)}>
+          {/* dangerouslySetInnerHTML is safe here because content is sanitized with DOMPurify */}
+          {/* eslint-disable-next-line react/no-danger */}
           <span dangerouslySetInnerHTML={{ __html: sanitized }} />
         </Component>
       );

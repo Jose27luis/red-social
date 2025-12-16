@@ -27,7 +27,7 @@ export interface Group {
     profilePicture?: string;
   };
   members?: GroupMember[];
-  posts?: any[];
+  posts?: unknown[];
   createdAt: string;
   updatedAt: string;
   isMember?: boolean;

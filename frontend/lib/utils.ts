@@ -45,6 +45,8 @@ export function formatFileSize(bytes: number): string {
   const sizes = ['Bytes', 'KB', 'MB', 'GB'];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
 
+  // i is a computed numeric index from Math.floor(), safe from object injection
+  // eslint-disable-next-line security/detect-object-injection
   return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
 }
 
