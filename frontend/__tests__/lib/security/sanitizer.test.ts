@@ -203,9 +203,11 @@ describe('Sanitizer', () => {
     it('should encode all special characters', () => {
       const input = '<>&"\'/';
       const result = encodeHtmlEntities(input);
+      // Verify the result is properly encoded
+      expect(result).toBe('&lt;&gt;&amp;&quot;&#39;&#x2F;');
+      // Verify original dangerous characters are not present (except & which is part of encoding)
       expect(result).not.toContain('<');
       expect(result).not.toContain('>');
-      expect(result).not.toContain('&');
       expect(result).not.toContain('"');
       expect(result).not.toContain("'");
     });

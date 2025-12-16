@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { messagesApi } from '@/lib/api/endpoints';
 import { QUERY_KEYS } from '@/lib/constants';
@@ -12,6 +12,7 @@ import { useAuthStore } from '@/store/useAuthStore';
 import { getInitials } from '@/lib/utils';
 import { MessageCircle, Send, Circle } from 'lucide-react';
 import useSocket from '@/hooks/useSocket';
+import { SafeHTML } from '@/components/SafeHTML';
 
 interface Message {
   id: string;
@@ -26,6 +27,21 @@ interface Message {
     lastName: string;
     profilePicture?: string;
   };
+}
+
+interface Conversation {
+  user: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    profilePicture?: string;
+  };
+  lastMessage?: {
+    content: string;
+    createdAt: string;
+    isRead: boolean;
+  };
+  unreadCount?: number;
 }
 
 export default function MessagesPage() {
@@ -57,7 +73,10 @@ export default function MessagesPage() {
   });
 
   const conversations = conversationsData?.data || [];
-  const messages: Message[] = messagesData?.data?.messages || [];
+  const messages: Message[] = useMemo(
+    () => messagesData?.data?.messages || [],
+    [messagesData?.data?.messages]
+  );
 
   // Send message mutation
   const sendMessageMutation = useMutation({
@@ -226,7 +245,7 @@ export default function MessagesPage() {
                 </div>
               ) : (
                 <div className="space-y-2">
-                  {conversations.map((conversation: any) => {
+                  {conversations.map((conversation: Conversation) => {
                     const isOnline = isUserOnline(conversation.user.id);
                     const isSelected = selectedConversation === conversation.user.id;
 
@@ -309,7 +328,11 @@ export default function MessagesPage() {
                                 : 'bg-muted'
                             }`}
                           >
-                            <p className="text-sm break-words">{message.content}</p>
+                            <SafeHTML
+                              content={message.content}
+                              level="strict"
+                              className="text-sm break-words"
+                            />
                             <p className="text-xs mt-1 opacity-70">
                               {new Date(message.createdAt).toLocaleTimeString('es-PE', {
                                 hour: '2-digit',

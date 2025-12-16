@@ -93,7 +93,9 @@ export function zIsNotXSS(
       if (!value) return true;
 
       const xssPatterns = [
+        // eslint-disable-next-line security/detect-unsafe-regex
         /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
+        // eslint-disable-next-line security/detect-unsafe-regex
         /<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi,
         /javascript:\s*/gi,
         /on\w+\s*=\s*["'][^"']*["']/gi, // Event handlers
@@ -328,7 +330,6 @@ export function zIsNotPrototypePollution(
  *
  * Use this for general user input that needs comprehensive validation.
  *
- * @param message - Custom error message
  * @returns Zod string schema with combined security validation
  *
  * @example
@@ -338,9 +339,7 @@ export function zIsNotPrototypePollution(
  * });
  * ```
  */
-export function zIsSanitizedText(
-  message: string = 'Input contains potentially dangerous content'
-) {
+export function zIsSanitizedText() {
   return z.string().superRefine((value, ctx) => {
     if (!value) return;
 

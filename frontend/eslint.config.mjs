@@ -98,6 +98,15 @@ const eslintConfig = defineConfig([
     },
   },
 
+  // Relax rules for test files
+  {
+    files: ["**/__tests__/**/*.{ts,tsx}", "**/*.test.{ts,tsx}", "**/*.spec.{ts,tsx}"],
+    rules: {
+      "@typescript-eslint/no-explicit-any": "off",
+      "security/detect-object-injection": "off",
+    },
+  },
+
   // Override default ignores of eslint-config-next
   globalIgnores([
     // Default ignores of eslint-config-next:

@@ -13,6 +13,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { postsApi } from '@/lib/api/endpoints';
+import { SafeHTML } from '@/components/SafeHTML';
 import { QUERY_KEYS } from '@/lib/constants';
 import { Post, ApiError, UpdatePostDto } from '@/types';
 import { useAuthStore } from '@/store/useAuthStore';
@@ -219,7 +220,11 @@ export default function PostCard({ post }: PostCardProps) {
             {error && <p className="text-sm text-destructive">{error}</p>}
           </div>
         ) : (
-          <p className="text-foreground whitespace-pre-wrap mb-4">{post.content}</p>
+          <SafeHTML
+            content={post.content}
+            level="basic"
+            className="text-foreground whitespace-pre-wrap mb-4"
+          />
         )}
 
         {/* Actions */}
@@ -304,9 +309,11 @@ export default function PostCard({ post }: PostCardProps) {
                         <p className="font-medium text-sm">
                           {comment.author?.firstName} {comment.author?.lastName}
                         </p>
-                        <p className="text-sm text-foreground">
-                          {comment.content}
-                        </p>
+                        <SafeHTML
+                          content={comment.content}
+                          level="strict"
+                          className="text-sm text-foreground"
+                        />
                       </div>
                       <p className="text-xs text-muted-foreground mt-1 ml-3">
                         {new Date(comment.createdAt).toLocaleDateString('es-PE')}
