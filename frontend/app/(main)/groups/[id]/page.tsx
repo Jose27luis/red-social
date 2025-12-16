@@ -100,7 +100,7 @@ export default function GroupDetailPage({ params }: { params: { id: string } }) 
   }
 
   const posts = postsData?.data?.data || [];
-  const isMember = group.members?.some((m: any) => m.userId === user?.id) || false;
+  const isMember = group.members?.some((m) => m.userId === user?.id) || false;
   const isOwner = group.ownerId === user?.id;
 
   const handleJoinToggle = () => {
@@ -315,7 +315,7 @@ export default function GroupDetailPage({ params }: { params: { id: string } }) 
               Miembros ({group.members.length})
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {group.members.map((member: any) => (
+              {group.members.map((member) => (
                 <div
                   key={member.id}
                   className="flex items-center space-x-3 p-3 rounded-lg hover:bg-muted transition-colors cursor-pointer"

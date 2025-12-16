@@ -68,7 +68,7 @@ export default function UserProfilePage({ params }: { params: { id: string } }) 
   const profile = profileData?.data;
   const posts = postsData?.data?.data || [];
   const isOwnProfile = currentUser?.id === userId;
-  const isFollowing = profile?.followers?.some((f: any) => f.followerId === currentUser?.id);
+  const isFollowing = profile?.followers?.some((f) => f.followerId === currentUser?.id);
 
   return (
     <div className="space-y-6">

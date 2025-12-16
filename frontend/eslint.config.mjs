@@ -100,9 +100,18 @@ const eslintConfig = defineConfig([
 
   // Relax rules for test files
   {
-    files: ["**/__tests__/**/*.{ts,tsx}", "**/*.test.{ts,tsx}", "**/*.spec.{ts,tsx}"],
+    files: ["**/__tests__/**/*.{ts,tsx}", "**/*.test.{ts,tsx}", "**/*.spec.{ts,tsx}", "test/**/*.ts"],
     rules: {
       "@typescript-eslint/no-explicit-any": "off",
+      "security/detect-object-injection": "off",
+    },
+  },
+
+  // Relax rules for JavaScript scripts
+  {
+    files: ["**/*.js", "scripts/**/*.js"],
+    rules: {
+      "@typescript-eslint/no-require-imports": "off",
       "security/detect-object-injection": "off",
     },
   },

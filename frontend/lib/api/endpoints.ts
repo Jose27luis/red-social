@@ -25,7 +25,6 @@ import {
   CreateResourceDto,
   Resource,
   PaginatedResources,
-  Notification,
   PaginatedNotifications,
   PaginationParams,
   SearchParams,

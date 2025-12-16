@@ -150,13 +150,13 @@ class LocalStorageMock {
   }
 }
 
-global.localStorage = new LocalStorageMock() as any;
+global.localStorage = new LocalStorageMock() as Storage;
 
 // ==================== Mock sessionStorage ====================
 
 class SessionStorageMock extends LocalStorageMock {}
 
-global.sessionStorage = new SessionStorageMock() as any;
+global.sessionStorage = new SessionStorageMock() as Storage;
 
 // ==================== Mock matchMedia ====================
 
@@ -192,6 +192,7 @@ global.IntersectionObserver = class IntersectionObserver {
     return [];
   }
   unobserve() {}
+ 
 } as any;
 
 // ==================== Mock ResizeObserver ====================
@@ -204,6 +205,7 @@ global.ResizeObserver = class ResizeObserver {
   disconnect() {}
   observe() {}
   unobserve() {}
+ 
 } as any;
 
 // ==================== Environment Variables ====================
@@ -226,6 +228,7 @@ const originalError = console.error;
 const originalWarn = console.warn;
 
 beforeAll(() => {
+   
   console.error = (...args: any[]) => {
     // Allow important errors through
     if (
@@ -239,6 +242,7 @@ beforeAll(() => {
     originalError.call(console, ...args);
   };
 
+   
   console.warn = (...args: any[]) => {
     // Suppress known warnings
     if (

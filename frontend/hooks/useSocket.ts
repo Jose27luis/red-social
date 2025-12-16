@@ -82,6 +82,7 @@ export const useSocket = (options: UseSocketOptions = {}) => {
     };
   }, [namespace, autoConnect]);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const emit = (event: string, data: any) => {
     if (socketRef.current?.connected) {
       socketRef.current.emit(event, data);
@@ -90,12 +91,14 @@ export const useSocket = (options: UseSocketOptions = {}) => {
     }
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const on = (event: string, handler: (...args: any[]) => void) => {
     if (socketRef.current) {
       socketRef.current.on(event, handler);
     }
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const off = (event: string, handler?: (...args: any[]) => void) => {
     if (socketRef.current) {
       socketRef.current.off(event, handler);
@@ -116,7 +119,6 @@ export const useSocket = (options: UseSocketOptions = {}) => {
   };
 
   return {
-    socket: socketRef.current,
     isConnected,
     onlineUsers,
     emit,

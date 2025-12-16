@@ -59,6 +59,8 @@ export function sanitizeHtml(
   }
 
   try {
+    // level is restricted to 'strict' | 'basic' | 'rich', safe from object injection
+    // eslint-disable-next-line security/detect-object-injection
     const config = SANITIZE_CONFIGS[level];
     return DOMPurify.sanitize(dirty, config);
   } catch (error) {
@@ -226,6 +228,8 @@ export function encodeHtmlEntities(text: string): string {
     '/': '&#x2F;',
   };
 
+  // char is restricted by regex to specific characters, safe from object injection
+  // eslint-disable-next-line security/detect-object-injection
   return text.replace(/[&<>"'\/]/g, (char) => entityMap[char] || char);
 }
 
@@ -241,7 +245,7 @@ export function encodeHtmlEntities(text: string): string {
  * const safe = sanitizeObjectKeys(unsafe); // { name: 'safe' }
  * ```
  */
-export function sanitizeObjectKeys<T extends Record<string, any>>(
+export function sanitizeObjectKeys<T extends Record<string, unknown>>(
   obj: T
 ): Partial<T> {
   if (!obj || typeof obj !== 'object') {

@@ -112,6 +112,8 @@ export function isExtensionValid(filename: string, mimeType: string): boolean {
     'text/plain': ['txt'],
   };
 
+  // mimeType is validated by calling code, safe from object injection
+  // eslint-disable-next-line security/detect-object-injection
   const expected = validExtensions[mimeType] || [];
   return expected.includes(ext);
 }
@@ -141,6 +143,8 @@ export async function verifyFileSignature(
 
     // Check if any of the expected signatures match
     return expectedSignatures.some((signature) => {
+      // index comes from Array.every, safe numeric index
+      // eslint-disable-next-line security/detect-object-injection
       return signature.every((byte, index) => bytes[index] === byte);
     });
   } catch (error) {
@@ -159,6 +163,8 @@ export function formatFileSize(bytes: number): string {
   const sizes = ['Bytes', 'KB', 'MB', 'GB'];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
 
+  // i is a computed numeric index from Math.floor(), safe from object injection
+  // eslint-disable-next-line security/detect-object-injection
   return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
 }
 
@@ -182,7 +188,7 @@ export const imageUploadSchema = z.custom<File>(
   }
 
   // Check MIME type
-  if (!ALLOWED_MIME_TYPES.image.includes(file.type as any)) {
+  if (!ALLOWED_MIME_TYPES.image.includes(file.type)) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       message: `Invalid image type. Allowed: ${ALLOWED_MIME_TYPES.image.join(', ')}`,
@@ -223,7 +229,7 @@ export const documentUploadSchema = z.custom<File>(
     });
   }
 
-  if (!ALLOWED_MIME_TYPES.document.includes(file.type as any)) {
+  if (!ALLOWED_MIME_TYPES.document.includes(file.type)) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       message: `Invalid document type. Allowed: PDF, Word, Excel, PowerPoint, Text`,

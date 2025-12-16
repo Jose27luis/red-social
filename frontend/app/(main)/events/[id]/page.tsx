@@ -78,7 +78,7 @@ export default function EventDetailPage({ params }: { params: { id: string } }) 
     );
   }
 
-  const isAttending = event.attendees?.some((a: any) => a.userId === user?.id) || false;
+  const isAttending = event.attendees?.some((a) => a.userId === user?.id) || false;
   const isOrganizer = event.organizerId === user?.id;
 
   const formatDate = (date: string) => {
@@ -265,7 +265,7 @@ export default function EventDetailPage({ params }: { params: { id: string } }) 
               Asistentes ({event.attendees.length})
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {event.attendees.map((attendee: any) => (
+              {event.attendees.map((attendee) => (
                 <div
                   key={attendee.id}
                   className="flex items-center space-x-3 p-3 rounded-lg hover:bg-muted transition-colors cursor-pointer"
