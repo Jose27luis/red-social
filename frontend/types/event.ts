@@ -20,9 +20,11 @@ export interface Event {
     role: string;
   };
   attendances?: EventAttendance[];
+  attendees?: EventAttendance[]; // Alias for compatibility
   _count?: {
     attendances: number;
   };
+  attendeesCount?: number; // Alias for compatibility
   createdAt: string;
   updatedAt: string;
   isAttending?: boolean;
@@ -34,6 +36,7 @@ export interface EventAttendance {
   eventId: string;
   userId: string;
   confirmed: boolean;
+  attended?: boolean; // Alias for confirmed
   user?: User;
   createdAt: string;
 }

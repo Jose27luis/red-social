@@ -17,10 +17,18 @@ export interface Group {
   name: string;
   description: string;
   type: GroupType;
+  isPublic?: boolean; // Alias for PUBLIC type
   coverImage?: string;
   membersCount: number;
   creatorId: string;
+  ownerId?: string; // Alias for creatorId
   creator: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    profilePicture?: string;
+  };
+  owner?: { // Alias for creator
     id: string;
     firstName: string;
     lastName: string;
@@ -47,6 +55,7 @@ export interface CreateGroupDto {
   name: string;
   description: string;
   type?: GroupType;
+  isPublic?: boolean; // Alias for type PUBLIC
   coverImage?: string;
 }
 

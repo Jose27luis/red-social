@@ -18,7 +18,7 @@ import {
 
 @ValidatorConstraint({ name: 'IsNotSqlInjection', async: false })
 export class IsNotSqlInjectionConstraint implements ValidatorConstraintInterface {
-  validate(text: string, args: ValidationArguments) {
+  validate(text: string) {
     if (!text || typeof text !== 'string') return true;
 
     // Patrones comunes de SQL Injection
@@ -32,8 +32,8 @@ export class IsNotSqlInjectionConstraint implements ValidatorConstraintInterface
     return !sqlInjectionPatterns.some((pattern) => pattern.test(text));
   }
 
-  defaultMessage(args: ValidationArguments) {
-    return `${args.property} contains forbidden SQL patterns`;
+  defaultMessage(_args: ValidationArguments) {
+    return `${_args.property} contains forbidden SQL patterns`;
   }
 }
 
@@ -55,7 +55,7 @@ export function IsNotSqlInjection(validationOptions?: ValidationOptions) {
 
 @ValidatorConstraint({ name: 'IsNotXSS', async: false })
 export class IsNotXSSConstraint implements ValidatorConstraintInterface {
-  validate(text: string, args: ValidationArguments) {
+  validate(text: string) {
     if (!text || typeof text !== 'string') return true;
 
     // Patrones comunes de XSS
@@ -71,8 +71,8 @@ export class IsNotXSSConstraint implements ValidatorConstraintInterface {
     return !xssPatterns.some((pattern) => pattern.test(text));
   }
 
-  defaultMessage(args: ValidationArguments) {
-    return `${args.property} contains potentially dangerous HTML/JavaScript`;
+  defaultMessage(_args: ValidationArguments) {
+    return `${_args.property} contains potentially dangerous HTML/JavaScript`;
   }
 }
 
@@ -94,7 +94,7 @@ export function IsNotXSS(validationOptions?: ValidationOptions) {
 
 @ValidatorConstraint({ name: 'IsNotPathTraversal', async: false })
 export class IsNotPathTraversalConstraint implements ValidatorConstraintInterface {
-  validate(text: string, args: ValidationArguments) {
+  validate(text: string) {
     if (!text || typeof text !== 'string') return true;
 
     // Patrones de Path Traversal
@@ -109,8 +109,8 @@ export class IsNotPathTraversalConstraint implements ValidatorConstraintInterfac
     return !pathTraversalPatterns.some((pattern) => pattern.test(text));
   }
 
-  defaultMessage(args: ValidationArguments) {
-    return `${args.property} contains path traversal patterns`;
+  defaultMessage(_args: ValidationArguments) {
+    return `${_args.property} contains path traversal patterns`;
   }
 }
 
@@ -132,21 +132,17 @@ export function IsNotPathTraversal(validationOptions?: ValidationOptions) {
 
 @ValidatorConstraint({ name: 'IsNotCommandInjection', async: false })
 export class IsNotCommandInjectionConstraint implements ValidatorConstraintInterface {
-  validate(text: string, args: ValidationArguments) {
+  validate(text: string) {
     if (!text || typeof text !== 'string') return true;
 
     // Patrones de Command Injection
-    const commandInjectionPatterns = [
-      /[;&|`$()]/,
-      /\n|\r/,
-      /&&|\|\|/,
-    ];
+    const commandInjectionPatterns = [/[;&|`$()]/, /\n|\r/, /&&|\|\|/];
 
     return !commandInjectionPatterns.some((pattern) => pattern.test(text));
   }
 
-  defaultMessage(args: ValidationArguments) {
-    return `${args.property} contains command injection patterns`;
+  defaultMessage(_args: ValidationArguments) {
+    return `${_args.property} contains command injection patterns`;
   }
 }
 
@@ -168,7 +164,7 @@ export function IsNotCommandInjection(validationOptions?: ValidationOptions) {
 
 @ValidatorConstraint({ name: 'IsStrongPassword', async: false })
 export class IsStrongPasswordConstraint implements ValidatorConstraintInterface {
-  validate(password: string, args: ValidationArguments) {
+  validate(password: string) {
     if (!password || typeof password !== 'string') return false;
 
     // Requisitos:
@@ -182,7 +178,7 @@ export class IsStrongPasswordConstraint implements ValidatorConstraintInterface 
     return strongPasswordRegex.test(password);
   }
 
-  defaultMessage(args: ValidationArguments) {
+  defaultMessage() {
     return 'Password must be at least 8 characters and contain uppercase, lowercase, number, and special character';
   }
 }
@@ -205,7 +201,7 @@ export function IsStrongPassword(validationOptions?: ValidationOptions) {
 
 @ValidatorConstraint({ name: 'IsSafeFilename', async: false })
 export class IsSafeFilenameConstraint implements ValidatorConstraintInterface {
-  validate(filename: string, args: ValidationArguments) {
+  validate(filename: string) {
     if (!filename || typeof filename !== 'string') return false;
 
     // Solo permitir: letras, números, guiones, guiones bajos, y punto
@@ -215,8 +211,8 @@ export class IsSafeFilenameConstraint implements ValidatorConstraintInterface {
     return safeFilenameRegex.test(filename) && !filename.includes('..');
   }
 
-  defaultMessage(args: ValidationArguments) {
-    return `${args.property} must be a safe filename (letters, numbers, dots, hyphens, underscores only)`;
+  defaultMessage(_args: ValidationArguments) {
+    return `${_args.property} must be a safe filename (letters, numbers, dots, hyphens, underscores only)`;
   }
 }
 
@@ -238,21 +234,17 @@ export function IsSafeFilename(validationOptions?: ValidationOptions) {
 
 @ValidatorConstraint({ name: 'IsNotPrototypePollution', async: false })
 export class IsNotPrototypePollutionConstraint implements ValidatorConstraintInterface {
-  validate(text: string, args: ValidationArguments) {
+  validate(text: string) {
     if (!text || typeof text !== 'string') return true;
 
     // Detectar intentos de prototype pollution
-    const prototypePollutionPatterns = [
-      /__proto__/i,
-      /constructor/i,
-      /prototype/i,
-    ];
+    const prototypePollutionPatterns = [/__proto__/i, /constructor/i, /prototype/i];
 
     return !prototypePollutionPatterns.some((pattern) => pattern.test(text));
   }
 
-  defaultMessage(args: ValidationArguments) {
-    return `${args.property} contains forbidden prototype pollution patterns`;
+  defaultMessage(_args: ValidationArguments) {
+    return `${_args.property} contains forbidden prototype pollution patterns`;
   }
 }
 

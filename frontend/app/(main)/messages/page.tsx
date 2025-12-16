@@ -74,8 +74,8 @@ export default function MessagesPage() {
 
   const conversations = conversationsData?.data || [];
   const messages: Message[] = useMemo(
-    () => messagesData?.data?.messages || [],
-    [messagesData?.data?.messages]
+    () => (Array.isArray(messagesData?.data) ? messagesData?.data : []),
+    [messagesData]
   );
 
   // Send message mutation

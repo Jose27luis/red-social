@@ -50,7 +50,7 @@ export interface SafeHTMLProps {
    * HTML element to use as wrapper
    * @default 'div'
    */
-  as?: keyof JSX.IntrinsicElements;
+  as?: keyof React.JSX.IntrinsicElements;
 
   /**
    * Fallback content to show if sanitization removes all content
@@ -118,13 +118,11 @@ export function SafeHTML({
     return null;
   }
 
-  // Render sanitized HTML
-  return (
-    <Component
-      className={className}
-      dangerouslySetInnerHTML={{ __html: sanitizedContent }}
-    />
-  );
+  // Render sanitized HTML using createElement to support dynamic tag names
+  return React.createElement(Component, {
+    className,
+    dangerouslySetInnerHTML: { __html: sanitizedContent },
+  });
 }
 
 /**
@@ -141,7 +139,7 @@ export function SafeHTML({
 export interface SafeTextProps {
   content: string;
   className?: string;
-  as?: keyof JSX.IntrinsicElements;
+  as?: keyof React.JSX.IntrinsicElements;
 }
 
 export function SafeText({

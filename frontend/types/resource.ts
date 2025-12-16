@@ -17,6 +17,7 @@ export interface Resource {
   title: string;
   description?: string;
   fileUrl: string;
+  fileName?: string; // Alias for filename field
   fileType: string;
   fileSize: number;
   downloadCount: number;

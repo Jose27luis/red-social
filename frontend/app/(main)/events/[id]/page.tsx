@@ -269,7 +269,7 @@ export default function EventDetailPage({ params }: { params: { id: string } }) 
                 <div
                   key={attendee.id}
                   className="flex items-center space-x-3 p-3 rounded-lg hover:bg-muted transition-colors cursor-pointer"
-                  onClick={() => router.push(`/profile/${attendee.user.id}`)}
+                  onClick={() => attendee.user && router.push(`/profile/${attendee.user.id}`)}
                 >
                   <Avatar className="h-10 w-10">
                     <AvatarImage src={attendee.user?.profilePicture} />

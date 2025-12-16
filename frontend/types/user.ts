@@ -32,13 +32,33 @@ export interface User {
     followers: number;
     following: number;
   };
+  followersCount?: number; // Alias for _count.followers
+  followingCount?: number; // Alias for _count.following
+  followers?: Array<{ followerId: string }>; // For profile page
 }
 
-export interface UserProfile extends User {
+export interface UserProfile {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: UserRole;
+  department?: string;
+  career?: string;
+  profilePicture?: string;
+  bio?: string;
+  interests: string[];
+  privacyLevel: PrivacyLevel;
+  isVerified: boolean;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
   followers: User[];
   following: User[];
   posts: unknown[];
   groups: unknown[];
+  followersCount?: number;
+  followingCount?: number;
 }
 
 export interface UpdateUserDto {

@@ -31,7 +31,7 @@ export interface Conversation {
     role: string;
   };
   lastMessage: Message;
-  unreadCount: number;
+  unreadCount?: number;
 }
 
 export interface SendMessageDto {

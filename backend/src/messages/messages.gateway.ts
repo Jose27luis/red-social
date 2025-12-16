@@ -8,7 +8,7 @@ import {
   MessageBody,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { UseGuards, Logger } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { MessagesService } from './messages.service';
 import { SendMessageDto } from './dto/send-message.dto';
@@ -89,10 +89,7 @@ export class MessagesGateway implements OnGatewayConnection, OnGatewayDisconnect
   }
 
   @SubscribeMessage('message:send')
-  async handleSendMessage(
-    @ConnectedSocket() client: AuthenticatedSocket,
-    @MessageBody() data: SendMessageDto,
-  ) {
+  async handleSendMessage(@ConnectedSocket() client: AuthenticatedSocket, @MessageBody() data: SendMessageDto) {
     try {
       if (!client.userId) {
         return { error: 'Unauthorized' };

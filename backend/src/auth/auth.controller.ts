@@ -1,6 +1,6 @@
 import { Controller, Post, Body, UseGuards, Get, Query, HttpCode, HttpStatus } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
-import { Throttle, SkipThrottle } from '@nestjs/throttler';
+import { Throttle } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -42,6 +42,7 @@ export class AuthController {
   @ApiResponse({ status: 200, description: 'Login successful', type: LoginResponseDto })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 429, description: 'Too many login attempts. Try again later.' })
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async login(@Body() loginDto: LoginDto, @CurrentUser() user: any) {
     return this.authService.login(user);
   }
@@ -58,6 +59,7 @@ export class AuthController {
   @ApiResponse({ status: 200, description: 'Token refreshed successfully' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 429, description: 'Too many requests' })
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async refreshTokens(@Body() refreshTokenDto: RefreshTokenDto, @CurrentUser() user: any) {
     return this.authService.refreshTokens(user.id, user.refreshToken);
   }
@@ -68,6 +70,7 @@ export class AuthController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Logout user' })
   @ApiResponse({ status: 200, description: 'Logout successful' })
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async logout(@CurrentUser() user: any) {
     return this.authService.logout(user.id);
   }
@@ -89,6 +92,7 @@ export class AuthController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get current user' })
   @ApiResponse({ status: 200, description: 'Current user retrieved' })
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async getCurrentUser(@CurrentUser() user: any) {
     return user;
   }
