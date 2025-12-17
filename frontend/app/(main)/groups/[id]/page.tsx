@@ -154,9 +154,9 @@ export default function GroupDetailPage({ params }: { params: { id: string } }) 
               <div className="flex items-center gap-3 mb-2">
                 <h1 className="text-3xl font-bold">{group.name}</h1>
                 {group.isPublic ? (
-                  <Globe className="h-5 w-5 text-muted-foreground" title="Público" />
+                  <Globe className="h-5 w-5 text-muted-foreground" />
                 ) : (
-                  <Lock className="h-5 w-5 text-muted-foreground" title="Privado" />
+                  <Lock className="h-5 w-5 text-muted-foreground" />
                 )}
               </div>
               <p className="text-muted-foreground mb-4">{group.description}</p>
@@ -204,7 +204,7 @@ export default function GroupDetailPage({ params }: { params: { id: string } }) 
           {group.owner && (
             <div
               className="flex items-center space-x-3 p-3 rounded-lg bg-muted cursor-pointer hover:bg-muted/80 transition-colors"
-              onClick={() => router.push(`/profile/${group.owner.id}`)}
+              onClick={() => router.push(`/profile/${group.owner?.id}`)}
             >
               <Avatar className="h-10 w-10">
                 <AvatarImage src={group.owner.profilePicture} />
@@ -319,7 +319,7 @@ export default function GroupDetailPage({ params }: { params: { id: string } }) 
                 <div
                   key={member.id}
                   className="flex items-center space-x-3 p-3 rounded-lg hover:bg-muted transition-colors cursor-pointer"
-                  onClick={() => router.push(`/profile/${member.user.id}`)}
+                  onClick={() => router.push(`/profile/${member.user?.id}`)}
                 >
                   <Avatar className="h-10 w-10">
                     <AvatarImage src={member.user?.profilePicture} />

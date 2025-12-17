@@ -257,7 +257,7 @@ export function sanitizeObjectKeys<T extends Record<string, unknown>>(
 
   for (const [key, value] of Object.entries(obj)) {
     if (!dangerousKeys.includes(key)) {
-      safeObj[key as keyof T] = value;
+      safeObj[key as keyof T] = value as T[keyof T];
     } else {
       console.warn(`Blocked dangerous object key: ${key}`);
     }

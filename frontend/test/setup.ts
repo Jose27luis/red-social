@@ -216,7 +216,6 @@ global.ResizeObserver = class ResizeObserver {
 process.env.NEXT_PUBLIC_API_URL = 'http://localhost:3001';
 process.env.NEXT_PUBLIC_APP_NAME = 'Red Académica UNAMAD';
 process.env.NEXT_PUBLIC_UNIVERSIDAD_DOMAIN = '@unamad.edu.pe';
-process.env.NODE_ENV = 'test';
 
 // ==================== Console Suppression ====================
 
@@ -289,9 +288,6 @@ afterAll(() => {
  * Clean up after all tests
  */
 afterAll(() => {
-  // Clear all mocks
-  vi.clearAllMocks();
-
   // Clear localStorage/sessionStorage
   localStorage.clear();
   sessionStorage.clear();

@@ -279,7 +279,7 @@ export default function MessagesPage() {
                             {conversation.lastMessage?.content || 'Sin mensajes'}
                           </p>
                         </div>
-                        {conversation.unreadCount > 0 && (
+                        {(conversation.unreadCount ?? 0) > 0 && (
                           <span className="bg-primary text-primary-foreground text-xs rounded-full h-5 w-5 flex items-center justify-center">
                             {conversation.unreadCount}
                           </span>

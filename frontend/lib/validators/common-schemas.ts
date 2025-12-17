@@ -111,7 +111,7 @@ export const createPostSchema = z.object({
     .pipe(zIsNotXSS())
     .pipe(zIsNotSqlInjection()),
   type: z.enum(['DISCUSSION', 'QUESTION', 'ANNOUNCEMENT', 'RESOURCE'], {
-    errorMap: () => ({ message: 'Invalid post type' }),
+    message: 'Invalid post type',
   }),
   images: z
     .array(z.string().url('Invalid image URL').pipe(zIsSafeUrl()))
@@ -226,7 +226,7 @@ export const uploadResourceSchema = z.object({
     .pipe(zIsNotXSS())
     .optional(),
   type: z.enum(['DOCUMENT', 'VIDEO', 'LINK', 'IMAGE', 'OTHER'], {
-    errorMap: () => ({ message: 'Invalid resource type' }),
+    message: 'Invalid resource type',
   }),
   url: z.string().url('Invalid URL').pipe(zIsSafeUrl()).optional(),
   category: z

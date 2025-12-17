@@ -27,7 +27,11 @@ export default function UploadResource() {
   const [error, setError] = useState('');
   const [file, setFile] = useState<File | null>(null);
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    title: string;
+    description: string;
+    fileType: ResourceType;
+  }>({
     title: '',
     description: '',
     fileType: ResourceType.DOCUMENT,
@@ -183,7 +187,7 @@ export default function UploadResource() {
             </label>
             <select
               value={formData.fileType}
-              onChange={(e) => setFormData({ ...formData, fileType: e.target.value as ResourceType })}
+              onChange={(e) => setFormData({ ...formData, fileType: e.target.value as typeof ResourceType[keyof typeof ResourceType] })}
               className="w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
             >
               {RESOURCE_TYPES.map((type) => (

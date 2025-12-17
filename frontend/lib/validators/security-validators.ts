@@ -349,7 +349,7 @@ export function zIsSanitizedText() {
     if (!xssResult.success) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: xssResult.error.errors[0].message,
+        message: xssResult.error.issues[0].message,
       });
     }
 
@@ -359,7 +359,7 @@ export function zIsSanitizedText() {
     if (!sqlResult.success) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: sqlResult.error.errors[0].message,
+        message: sqlResult.error.issues[0].message,
       });
     }
 
@@ -369,7 +369,7 @@ export function zIsSanitizedText() {
     if (!cmdResult.success) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: cmdResult.error.errors[0].message,
+        message: cmdResult.error.issues[0].message,
       });
     }
   });

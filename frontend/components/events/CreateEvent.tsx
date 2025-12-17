@@ -58,7 +58,7 @@ export default function CreateEvent() {
       description: formData.description.trim(),
       location: formData.location.trim(),
       startDate: new Date(formData.startDate).toISOString(),
-      endDate: formData.endDate ? new Date(formData.endDate).toISOString() : undefined,
+      endDate: formData.endDate ? new Date(formData.endDate).toISOString() : '',
       maxAttendees: formData.maxAttendees ? parseInt(formData.maxAttendees) : undefined,
     };
 

@@ -188,7 +188,7 @@ export const imageUploadSchema = z.custom<File>(
   }
 
   // Check MIME type
-  if (!ALLOWED_MIME_TYPES.image.includes(file.type)) {
+  if (!ALLOWED_MIME_TYPES.image.includes(file.type as typeof ALLOWED_MIME_TYPES.image[number])) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       message: `Invalid image type. Allowed: ${ALLOWED_MIME_TYPES.image.join(', ')}`,
@@ -229,7 +229,7 @@ export const documentUploadSchema = z.custom<File>(
     });
   }
 
-  if (!ALLOWED_MIME_TYPES.document.includes(file.type)) {
+  if (!ALLOWED_MIME_TYPES.document.includes(file.type as typeof ALLOWED_MIME_TYPES.document[number])) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       message: `Invalid document type. Allowed: PDF, Word, Excel, PowerPoint, Text`,
