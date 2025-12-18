@@ -253,7 +253,8 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [18.x, 20.x]
+        # Vitest 4.x requiere Node.js 20+ (usa node:inspector/promises)
+        node-version: [20.x, 22.x]
 
     steps:
       - name: Checkout code
@@ -284,7 +285,8 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [18.x, 20.x]
+        # Vitest 4.x requiere Node.js 20+ (usa node:inspector/promises)
+        node-version: [20.x, 22.x]
 
     steps:
       - name: Checkout code
@@ -323,7 +325,8 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [18.x, 20.x]
+        # Vitest 4.x requiere Node.js 20+ (usa node:inspector/promises)
+        node-version: [20.x, 22.x]
 
     steps:
       - name: Checkout code
