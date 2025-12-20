@@ -31,6 +31,14 @@ import { useAuthStore } from '@/store/useAuthStore';
 import { ApiError, UserRole } from '@/types';
 import { UNIVERSIDAD_DOMAIN, PASSWORD_REGEX } from '@/lib/constants';
 
+const DEPARTMENTS = ['Ingenieria', 'Ciencias empresariales', 'Educacion'] as const;
+
+const CAREERS_MAP = new Map<string, string[]>([
+  ['Ingenieria', ['Agroindustrial', 'Sistemas e Informatica', 'Forestal y medio ambiente', 'Medicina veterinaria y zootecnia']],
+  ['Ciencias empresariales', ['Ecoturismo', 'Administracion y negocios internacionales', 'Contabilidad y finanzas']],
+  ['Educacion', ['Educacion matematica y computacion', 'Derecho y ciencias politicas', 'Enfermeria']],
+]);
+
 const registerSchema = z.object({
   firstName: z.string().min(2, 'El nombre debe tener al menos 2 caracteres').max(50),
   lastName: z.string().min(2, 'El apellido debe tener al menos 2 caracteres').max(50),
@@ -58,6 +66,7 @@ export default function RegisterPage() {
   const router = useRouter();
   const setAuth = useAuthStore((state) => state.setAuth);
   const [error, setError] = useState<string>('');
+  const [selectedDepartment, setSelectedDepartment] = useState<string>('');
 
   const {
     register,
@@ -194,11 +203,25 @@ export default function RegisterPage() {
             <label htmlFor="department" className="text-sm font-medium">
               Departamento (Opcional)
             </label>
-            <Input
-              id="department"
-              {...register('department')}
-              placeholder="Ej: Facultad de Educación"
-            />
+            <Select
+              value={selectedDepartment}
+              onValueChange={(value) => {
+                setSelectedDepartment(value);
+                setValue('department', value);
+                setValue('career', '');
+              }}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Selecciona un departamento" />
+              </SelectTrigger>
+              <SelectContent>
+                {DEPARTMENTS.map((dept) => (
+                  <SelectItem key={dept} value={dept}>
+                    {dept}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             {errors.department && (
               <p className="text-sm text-destructive">{errors.department.message}</p>
             )}
@@ -208,11 +231,22 @@ export default function RegisterPage() {
             <label htmlFor="career" className="text-sm font-medium">
               Carrera (Opcional)
             </label>
-            <Input
-              id="career"
-              {...register('career')}
-              placeholder="Ej: Ingeniería de Sistemas"
-            />
+            <Select
+              value={watch('career') || ''}
+              onValueChange={(value) => setValue('career', value)}
+              disabled={!selectedDepartment}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder={selectedDepartment ? 'Selecciona una carrera' : 'Primero selecciona un departamento'} />
+              </SelectTrigger>
+              <SelectContent>
+                {(CAREERS_MAP.get(selectedDepartment) ?? []).map((career) => (
+                  <SelectItem key={career} value={career}>
+                    {career}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             {errors.career && (
               <p className="text-sm text-destructive">{errors.career.message}</p>
             )}
