@@ -85,6 +85,11 @@
       "prettier --write"
     ]
   },
+  "overrides": {
+    "glob": "^11.0.0",
+    "js-yaml": "^4.1.1",
+    "tmp": "^0.2.4"
+  },
   "jest": {
     "moduleFileExtensions": [
       "js",
