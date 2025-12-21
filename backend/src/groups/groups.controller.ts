@@ -1,32 +1,32 @@
 import {
+  Body,
   Controller,
+  DefaultValuePipe,
+  Delete,
   Get,
+  Param,
+  ParseIntPipe,
   Post,
   Put,
-  Delete,
-  Body,
-  Param,
   Query,
   UseGuards,
-  ParseIntPipe,
-  DefaultValuePipe,
 } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ThrottlerGuard } from '@nestjs/throttler';
-import { GroupsService } from './groups.service';
-import { CreateGroupDto } from './dto/create-group.dto';
-import { UpdateGroupDto } from './dto/update-group.dto';
-import { AddMemberDto } from './dto/add-member.dto';
-import { UpdateMemberRoleDto } from './dto/update-member-role.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { AddMemberDto } from './dto/add-member.dto';
+import { CreateGroupDto } from './dto/create-group.dto';
+import { UpdateGroupDto } from './dto/update-group.dto';
+import { UpdateMemberRoleDto } from './dto/update-member-role.dto';
+import { GroupsService } from './groups.service';
 
 @ApiTags('Groups')
 @Controller('groups')
 @UseGuards(ThrottlerGuard, JwtAuthGuard)
 @ApiBearerAuth()
 export class GroupsController {
-  constructor(private groupsService: GroupsService) {}
+  constructor(private readonly groupsService: GroupsService) {}
 
   @Post()
   @ApiOperation({ summary: 'Create a new group' })

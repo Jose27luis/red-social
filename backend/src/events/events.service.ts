@@ -1,12 +1,11 @@
-import { Injectable, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
 
 @Injectable()
 export class EventsService {
-  constructor(private prisma: PrismaService) {}
-
+  constructor(private readonly prisma: PrismaService) {}
   /**
    * Create a new event
    */
@@ -161,34 +160,22 @@ export class EventsService {
   }
 
   /**
-   * Update event
+   * Validate event dates
    */
-  async update(id: string, userId: string, data: UpdateEventDto) {
-    const event = await this.prisma.event.findUnique({ where: { id } });
-    if (!event) {
-      throw new NotFoundException('Event not found');
+  private validateEventDates(startDate: Date, endDate: Date): void {
+    if (startDate < new Date()) {
+      throw new BadRequestException('Event start date cannot be in the past');
     }
-
-    // Only organizer can update
-    if (event.organizerId !== userId) {
-      throw new ForbiddenException('Only event organizer can update the event');
+    if (endDate <= startDate) {
+      throw new BadRequestException('Event end date must be after start date');
     }
+  }
 
-    // Validate dates if provided
-    if (data.startDate || data.endDate) {
-      const startDate = data.startDate ? new Date(data.startDate) : event.startDate;
-      const endDate = data.endDate ? new Date(data.endDate) : event.endDate;
-
-      if (startDate < new Date()) {
-        throw new BadRequestException('Event start date cannot be in the past');
-      }
-
-      if (endDate <= startDate) {
-        throw new BadRequestException('Event end date must be after start date');
-      }
-    }
-
-    const updateData: any = {};
+  /**
+   * Build update data object from DTO
+   */
+  private buildEventUpdateData(data: UpdateEventDto): Record<string, unknown> {
+    const updateData: Record<string, unknown> = {};
     if (data.title) updateData.title = data.title;
     if (data.description) updateData.description = data.description;
     if (data.startDate) updateData.startDate = new Date(data.startDate);
@@ -197,10 +184,31 @@ export class EventsService {
     if (data.maxAttendees) updateData.maxAttendees = data.maxAttendees;
     if (data.isOnline !== undefined) updateData.isOnline = data.isOnline;
     if (data.coverImage !== undefined) updateData.coverImage = data.coverImage;
+    return updateData;
+  }
+
+  /**
+   * Update event
+   */
+  async update(id: string, userId: string, data: UpdateEventDto) {
+    const event = await this.prisma.event.findUnique({ where: { id } });
+    if (!event) {
+      throw new NotFoundException('Event not found');
+    }
+
+    if (event.organizerId !== userId) {
+      throw new ForbiddenException('Only event organizer can update the event');
+    }
+
+    if (data.startDate || data.endDate) {
+      const startDate = data.startDate ? new Date(data.startDate) : event.startDate;
+      const endDate = data.endDate ? new Date(data.endDate) : event.endDate;
+      this.validateEventDates(startDate, endDate);
+    }
 
     return this.prisma.event.update({
       where: { id },
-      data: updateData,
+      data: this.buildEventUpdateData(data),
       include: {
         organizer: {
           select: {

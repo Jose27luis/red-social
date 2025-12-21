@@ -3,7 +3,7 @@ import { PrismaService } from '../database/prisma.service';
 
 @Injectable()
 export class FeedService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async getPersonalizedFeed(userId: string, skip = 0, take = 20) {
     // Get user's interests and following

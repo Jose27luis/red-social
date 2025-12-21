@@ -192,7 +192,7 @@ export default function EventDetailPage({ params }: { params: { id: string } }) 
                 <p className="font-medium">Asistentes</p>
                 <p className="text-muted-foreground">
                   {event.attendeesCount || 0} confirmados
-                  {event.maxAttendees && ` (máximo ${event.maxAttendees})`}
+                  {event.maxAttendees ? ` (máximo ${event.maxAttendees})` : null}
                 </p>
               </div>
             </div>

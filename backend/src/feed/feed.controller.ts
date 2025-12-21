@@ -10,7 +10,7 @@ import { CurrentUser } from '../common/decorators/current-user.decorator';
 @UseGuards(ThrottlerGuard, JwtAuthGuard)
 @ApiBearerAuth()
 export class FeedController {
-  constructor(private feedService: FeedService) {}
+  constructor(private readonly feedService: FeedService) {}
 
   @Get()
   @ApiOperation({ summary: 'Get personalized feed for current user' })

@@ -14,7 +14,7 @@ import { CurrentUser } from '../common/decorators/current-user.decorator';
 @ApiTags('Authentication')
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(private readonly authService: AuthService) {}
 
   // ==========================================
   // REGISTER - Rate limit: 3 requests/segundo

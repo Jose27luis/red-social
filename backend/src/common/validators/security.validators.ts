@@ -136,7 +136,7 @@ export class IsNotCommandInjectionConstraint implements ValidatorConstraintInter
     if (!text || typeof text !== 'string') return true;
 
     // Patrones de Command Injection
-    const commandInjectionPatterns = [/[;&|`$()]/, /\n|\r/, /&&|\|\|/];
+    const commandInjectionPatterns = [/[;&|`$()]/, /[\n\r]/, /&&|\|\|/];
 
     return !commandInjectionPatterns.some((pattern) => pattern.test(text));
   }

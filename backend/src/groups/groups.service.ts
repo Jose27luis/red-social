@@ -1,13 +1,13 @@
-import { Injectable, BadRequestException, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
+import { AddMemberDto } from './dto/add-member.dto';
 import { CreateGroupDto } from './dto/create-group.dto';
 import { UpdateGroupDto } from './dto/update-group.dto';
-import { AddMemberDto } from './dto/add-member.dto';
 import { UpdateMemberRoleDto } from './dto/update-member-role.dto';
 
 @Injectable()
 export class GroupsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   /**
    * Create a new group
@@ -147,7 +147,7 @@ export class GroupsService {
       },
     });
 
-    if (!membership || membership.role !== 'ADMIN') {
+    if (membership?.role !== 'ADMIN') {
       throw new ForbiddenException('Only group admins can update group settings');
     }
 
@@ -192,7 +192,7 @@ export class GroupsService {
       },
     });
 
-    if (!membership || membership.role !== 'ADMIN') {
+    if (membership?.role !== 'ADMIN') {
       throw new ForbiddenException('Only group admins can delete the group');
     }
 

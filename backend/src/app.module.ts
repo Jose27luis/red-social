@@ -39,7 +39,7 @@ import { FeedModule } from './feed/feed.module';
       {
         name: 'long',
         ttl: 60000, // 1 minuto
-        limit: parseInt(process.env.RATE_LIMIT_LIMIT || '100', 10), // 100 requests por minuto (default global)
+        limit: Number.parseInt(process.env.RATE_LIMIT_LIMIT || '100', 10), // 100 requests por minuto (default global)
       },
     ]),
     DatabaseModule,

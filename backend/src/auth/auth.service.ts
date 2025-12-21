@@ -11,9 +11,9 @@ export class AuthService {
   private readonly logger = new Logger(AuthService.name);
 
   constructor(
-    private usersService: UsersService,
-    private jwtService: JwtService,
-    private configService: ConfigService,
+    private readonly usersService: UsersService,
+    private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
   ) {}
 
   /**
@@ -62,7 +62,7 @@ export class AuthService {
     }
 
     // Hash password
-    const bcryptRounds = parseInt(this.configService.get<string>('BCRYPT_ROUNDS', '12'), 10);
+    const bcryptRounds = Number.parseInt(this.configService.get<string>('BCRYPT_ROUNDS', '12'), 10);
     const hashedPassword = await bcrypt.hash(password, bcryptRounds);
 
     // Generate verification token
@@ -121,7 +121,7 @@ export class AuthService {
    */
   async refreshTokens(userId: string, refreshToken: string): Promise<{ accessToken: string; refreshToken: string }> {
     const user = await this.usersService.findById(userId);
-    if (!user || !user.refreshToken) {
+    if (!user?.refreshToken) {
       throw new UnauthorizedException('Access denied');
     }
 
