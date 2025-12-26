@@ -306,17 +306,76 @@ Basado en **ISO/IEC 25010**, se seleccionan los siguientes factores de calidad r
                     └──────────────┘
 ```
 
-### 7.2 Jobs Configurados en GitHub Actions
+### 7.2 Tests Unitarios Implementados
+
+Se han desarrollado **278 tests unitarios** que cubren servicios y controladores del backend:
+
+#### Tests de Servicios (9 archivos)
+| Archivo | Tests | Cobertura |
+|---------|-------|-----------|
+| `auth.service.spec.ts` | Registro, login, refresh tokens, logout, verificación email | 100% |
+| `users.service.spec.ts` | CRUD usuarios, follow/unfollow, perfil | 100% |
+| `posts.service.spec.ts` | CRUD posts, comentarios, likes | 100% |
+| `groups.service.spec.ts` | Gestión de grupos, membresías, roles | 91% |
+| `events.service.spec.ts` | CRUD eventos, asistencia, confirmación QR | 84% |
+| `messages.service.spec.ts` | Mensajería, conversaciones | 100% |
+| `notifications.service.spec.ts` | Notificaciones, marcado como leído | 97% |
+| `feed.service.spec.ts` | Feed personalizado | 100% |
+| `resources.service.spec.ts` | Subida y gestión de recursos | 100% |
+
+#### Tests de Controladores (9 archivos)
+| Archivo | Tests | Cobertura |
+|---------|-------|-----------|
+| `auth.controller.spec.ts` | Endpoints de autenticación | 100% |
+| `users.controller.spec.ts` | Endpoints de usuarios | 88% |
+| `posts.controller.spec.ts` | Endpoints de publicaciones | 90% |
+| `groups.controller.spec.ts` | Endpoints de grupos | 100% |
+| `events.controller.spec.ts` | Endpoints de eventos | 89% |
+| `messages.controller.spec.ts` | Endpoints de mensajería | 100% |
+| `notifications.controller.spec.ts` | Endpoints de notificaciones | 100% |
+| `feed.controller.spec.ts` | Endpoint de feed | 100% |
+| `resources.controller.spec.ts` | Endpoints de recursos | 82% |
+
+#### Cobertura de Código Alcanzada
+
+| Métrica | Objetivo | Resultado |
+|---------|----------|-----------|
+| **Statements** | ≥ 80% | **93.56%** ✅ |
+| **Branches** | ≥ 70% | **79.74%** ✅ |
+| **Functions** | ≥ 80% | **94.81%** ✅ |
+| **Lines** | ≥ 80% | **93.95%** ✅ |
+
+### 7.3 Jobs Configurados en GitHub Actions
 
 | Job | Descripción | Trigger |
 |-----|-------------|---------|
 | **Lint & Format** | Verifica ESLint y Prettier | Push/PR |
 | **Unit Tests** | Ejecuta Jest con coverage | Push/PR |
+| **Upload to Codecov** | Sube reportes de cobertura | Push/PR |
 | **Build** | Compila TypeScript | Push/PR |
 | **Docker Build** | Construye imagen Docker | Push main |
 | **Security Scan** | Análisis Trivy | Push main |
 
-### 7.3 Registro de Defectos
+### 7.4 Integración con Codecov
+
+Se ha configurado **Codecov** para el seguimiento visual de la cobertura de código:
+
+- **URL**: https://app.codecov.io
+- **Token configurado**: `CODECOV_TOKEN` en GitHub Secrets
+- **Reportes**: Se generan automáticamente en cada PR
+- **Badges**: Disponibles para mostrar cobertura en README
+
+```yaml
+# Fragmento de GitHub Actions para Codecov
+- name: Upload coverage reports to Codecov
+  uses: codecov/codecov-action@v4
+  with:
+    files: ./backend/coverage/lcov.info
+    flags: unittests
+    token: ${{ secrets.CODECOV_TOKEN }}
+```
+
+### 7.5 Registro de Defectos
 
 Los defectos se registran en **GitHub Issues** con la siguiente estructura:
 
@@ -331,7 +390,7 @@ Los defectos se registran en **GitHub Issues** con la siguiente estructura:
 | **Evidencia** | Screenshots, logs |
 | **Asignado a** | Desarrollador responsable |
 
-### 7.4 Priorización de Correcciones
+### 7.6 Priorización de Correcciones
 
 | Severidad | Tiempo Máximo de Corrección | Criterio |
 |-----------|-----------------------------|----------|
@@ -340,7 +399,7 @@ Los defectos se registran en **GitHub Issues** con la siguiente estructura:
 | **Media** | 72 horas | Funcionalidad secundaria afectada |
 | **Baja** | Próximo sprint | Mejoras menores, UI |
 
-### 7.5 Control de Versiones
+### 7.7 Control de Versiones
 
 - **Repositorio**: GitHub
 - **Estrategia de branching**: Git Flow
@@ -377,6 +436,8 @@ Los defectos se registran en **GitHub Issues** con la siguiente estructura:
 
 ### 8.4 Próximos Pasos
 
+- [x] ~~Implementar pruebas unitarias con Jest~~ ✅ **Completado - 278 tests, 93%+ cobertura**
+- [x] ~~Configurar Codecov para seguimiento de cobertura~~ ✅ **Completado**
 - [ ] Implementar pruebas E2E con Cypress
 - [ ] Configurar SonarQube Cloud
 - [ ] Agregar pruebas de rendimiento con JMeter

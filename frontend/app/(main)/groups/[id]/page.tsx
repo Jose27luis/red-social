@@ -105,7 +105,7 @@ export default function GroupDetailPage() {
   const posts = postsData?.data?.data || [];
   const isCreator = group.creatorId === user?.id || group.creator?.id === user?.id;
   const isMember = group.members?.some((m) => m.userId === user?.id) || isCreator;
-  const isPublic = group.type === GroupType.PUBLIC || group.type === 'PUBLIC';
+  const isPublic = group.type === GroupType.PUBLIC;
 
   const handleJoinToggle = () => {
     if (isMember) {

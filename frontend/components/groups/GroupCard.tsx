@@ -22,7 +22,7 @@ export default function GroupCard({ group }: GroupCardProps) {
   // Check if user is member (from myRole if available, or from members array, or if creator)
   const isCreator = group.creatorId === user?.id || group.creator?.id === user?.id;
   const isMember = group.myRole !== undefined || group.members?.some((m) => m.userId === user?.id) || isCreator;
-  const isPublic = group.type === GroupType.PUBLIC || group.type === 'PUBLIC';
+  const isPublic = group.type === GroupType.PUBLIC;
 
   const joinMutation = useMutation({
     mutationFn: () => groupsApi.join(group.id),
