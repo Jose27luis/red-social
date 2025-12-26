@@ -60,8 +60,8 @@ proyectoTiendaOmnilife/
 
 1. **Clonar el repositorio**
    ```bash
-   git clone https://github.com/USUARIO/REPO.git
-   cd REPO
+   git clone https://github.com/jose27luis/red-social.git
+   cd red-social
    ```
 
 2. **Configurar el Backend**
@@ -250,8 +250,7 @@ Proyecto desarrollado para la Universidad Nacional Amazónica de Madre de Dios (
 
 ## 📞 Contacto
 
-Para preguntas o sugerencias sobre el proyecto, contactar al equipo de desarrollo.
+Para preguntas o sugerencias sobre el proyecto, contactar al equipo de desarrollo. Teco
 
 ---
 
-**Nota**: Recuerda reemplazar `USUARIO/REPO` con tu usuario y nombre de repositorio de GitHub en todos los badges y enlaces.

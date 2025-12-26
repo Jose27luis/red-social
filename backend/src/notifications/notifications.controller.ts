@@ -20,7 +20,7 @@ import { CurrentUser } from '../common/decorators/current-user.decorator';
 @UseGuards(ThrottlerGuard, JwtAuthGuard)
 @ApiBearerAuth()
 export class NotificationsController {
-  constructor(private notificationsService: NotificationsService) {}
+  constructor(private readonly notificationsService: NotificationsService) {}
 
   @Get()
   @ApiOperation({ summary: 'Get current user notifications' })

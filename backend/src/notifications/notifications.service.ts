@@ -3,7 +3,7 @@ import { PrismaService } from '../database/prisma.service';
 
 @Injectable()
 export class NotificationsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async create(data: {
     recipientId: string;

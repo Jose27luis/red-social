@@ -6,12 +6,12 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { groupsApi } from '@/lib/api/endpoints';
 import { QUERY_KEYS } from '@/lib/constants';
-import { Group } from '@/types';
+import { Group, GroupType } from '@/types';
 import { useAuthStore } from '@/store/useAuthStore';
 import { Users, UserPlus, UserMinus, Eye, Lock } from 'lucide-react';
 
 interface GroupCardProps {
-  group: Group;
+  group: Group & { myRole?: string };
 }
 
 export default function GroupCard({ group }: GroupCardProps) {
@@ -19,8 +19,10 @@ export default function GroupCard({ group }: GroupCardProps) {
   const { user } = useAuthStore();
   const queryClient = useQueryClient();
 
-  const isMember = group.members?.some((m) => m.userId === user?.id) || false;
-  const isOwner = group.ownerId === user?.id;
+  // Check if user is member (from myRole if available, or from members array, or if creator)
+  const isCreator = group.creatorId === user?.id || group.creator?.id === user?.id;
+  const isMember = group.myRole !== undefined || group.members?.some((m) => m.userId === user?.id) || isCreator;
+  const isPublic = group.type === GroupType.PUBLIC || group.type === 'PUBLIC';
 
   const joinMutation = useMutation({
     mutationFn: () => groupsApi.join(group.id),
@@ -53,7 +55,7 @@ export default function GroupCard({ group }: GroupCardProps) {
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-2">
               <h3 className="text-xl font-bold">{group.name}</h3>
-              {!group.isPublic && (
+              {!isPublic && (
                 <Lock className="h-4 w-4 text-muted-foreground" />
               )}
             </div>
@@ -61,7 +63,7 @@ export default function GroupCard({ group }: GroupCardProps) {
               {group.description}
             </p>
           </div>
-          {isOwner && (
+          {isCreator && (
             <span className="text-xs px-2 py-1 bg-primary/10 text-primary rounded">
               Propietario
             </span>
@@ -84,25 +86,27 @@ export default function GroupCard({ group }: GroupCardProps) {
             Ver Grupo
           </Button>
 
-          {!isOwner && (
+          {!isCreator && !isMember && (
             <Button
               size="sm"
               onClick={handleJoinToggle}
-              disabled={joinMutation.isPending || leaveMutation.isPending}
-              variant={isMember ? 'outline' : 'default'}
+              disabled={joinMutation.isPending}
               className="flex-1"
             >
-              {isMember ? (
-                <>
-                  <UserMinus className="h-4 w-4 mr-2" />
-                  Salir
-                </>
-              ) : (
-                <>
-                  <UserPlus className="h-4 w-4 mr-2" />
-                  Unirse
-                </>
-              )}
+              <UserPlus className="h-4 w-4 mr-2" />
+              Unirse
+            </Button>
+          )}
+          {!isCreator && isMember && (
+            <Button
+              size="sm"
+              onClick={handleJoinToggle}
+              disabled={leaveMutation.isPending}
+              variant="outline"
+              className="flex-1"
+            >
+              <UserMinus className="h-4 w-4 mr-2" />
+              Salir
             </Button>
           )}
         </div>

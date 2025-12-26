@@ -65,6 +65,23 @@ export class GroupsController {
     return this.groupsService.findById(id);
   }
 
+  @Get(':id/posts')
+  @ApiOperation({ summary: 'Get posts for a group' })
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiResponse({ status: 200, description: 'Group posts retrieved successfully' })
+  @ApiResponse({ status: 403, description: 'Must be a member to view posts' })
+  @ApiResponse({ status: 404, description: 'Group not found' })
+  async getGroupPosts(
+    @Param('id') groupId: string,
+    @CurrentUser() user: any,
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number,
+  ) {
+    const skip = (page - 1) * limit;
+    return this.groupsService.getGroupPosts(groupId, user.id, skip, limit);
+  }
+
   @Put(':id')
   @ApiOperation({ summary: 'Update group' })
   @ApiResponse({ status: 200, description: 'Group updated successfully' })

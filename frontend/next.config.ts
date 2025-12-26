@@ -120,6 +120,22 @@ const nextConfig: NextConfig = {
 
   // Enable standalone output for Docker optimization
   output: 'standalone',
+
+  // Configure remote images
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '3001',
+        pathname: '/uploads/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '**',
+      },
+    ],
+  },
 };
 
 export default nextConfig;

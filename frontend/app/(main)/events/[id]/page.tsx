@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -24,16 +24,18 @@ import {
   ArrowLeft,
 } from 'lucide-react';
 
-export default function EventDetailPage({ params }: { params: { id: string } }) {
+export default function EventDetailPage() {
   const router = useRouter();
+  const params = useParams();
   const { user } = useAuthStore();
   const queryClient = useQueryClient();
-  const eventId = params.id;
+  const eventId = params.id as string;
   const [showQR, setShowQR] = useState(false);
 
   const { data, isLoading } = useQuery({
     queryKey: [QUERY_KEYS.EVENTS, eventId],
     queryFn: () => eventsApi.getById(eventId),
+    enabled: !!eventId,
   });
 
   const attendMutation = useMutation({

@@ -102,13 +102,13 @@ export default function RegisterPage() {
   };
 
   return (
-    <Card className="shadow-lg my-8">
+    <Card className="shadow-lg border-0 lg:shadow-none lg:bg-transparent my-4">
       <CardHeader className="space-y-1">
         <CardTitle className="text-2xl font-bold text-center">
           Crear Cuenta
         </CardTitle>
         <CardDescription className="text-center">
-          Únete a la red académica de UNAMAD
+          Completa el formulario para unirte
         </CardDescription>
       </CardHeader>
       <CardContent>

@@ -1,24 +1,24 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 
-const ALLOWED_FILE_TYPES = ['pdf', 'docx', 'pptx', 'jpg', 'jpeg', 'png', 'zip'];
+const ALLOWED_RESOURCE_TYPES = ['DOCUMENT', 'PRESENTATION', 'SPREADSHEET', 'VIDEO', 'AUDIO', 'IMAGE', 'CODE', 'OTHER'];
 const MAX_FILE_SIZE = 52428800; // 50MB
 
 @Injectable()
 export class ResourcesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async create(uploaderId: string, data: any) {
-    // Validate file type
-    const fileExtension = data.fileType.toLowerCase();
-    if (!ALLOWED_FILE_TYPES.includes(fileExtension)) {
+    // Validate resource type
+    const resourceType = data.fileType?.toUpperCase();
+    if (resourceType && !ALLOWED_RESOURCE_TYPES.includes(resourceType)) {
       throw new BadRequestException(
-        `File type ${fileExtension} not allowed. Allowed types: ${ALLOWED_FILE_TYPES.join(', ')}`,
+        `Resource type ${data.fileType} not allowed. Allowed types: ${ALLOWED_RESOURCE_TYPES.join(', ')}`,
       );
     }
 
-    // Validate file size
-    if (data.fileSize > MAX_FILE_SIZE) {
+    // Validate file size if provided
+    if (data.fileSize && data.fileSize > MAX_FILE_SIZE) {
       throw new BadRequestException(`File size exceeds maximum of 50MB`);
     }
 
@@ -47,7 +47,11 @@ export class ResourcesService {
 
     return this.prisma.resource.create({
       data: {
-        ...data,
+        title: data.title,
+        description: data.description || null,
+        fileUrl: data.fileUrl,
+        fileType: data.fileType,
+        fileSize: data.fileSize,
         uploaderId,
       },
       include: {
@@ -64,21 +68,35 @@ export class ResourcesService {
   }
 
   async findAll(skip = 0, take = 20) {
-    return this.prisma.resource.findMany({
-      skip,
-      take,
-      include: {
-        uploader: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            profilePicture: true,
+    const [resources, total] = await Promise.all([
+      this.prisma.resource.findMany({
+        skip,
+        take,
+        include: {
+          uploader: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              profilePicture: true,
+            },
           },
         },
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prisma.resource.count(),
+    ]);
+
+    const page = Math.floor(skip / take) + 1;
+    return {
+      data: resources,
+      meta: {
+        total,
+        page,
+        limit: take,
+        totalPages: Math.ceil(total / take) || 1,
       },
-      orderBy: { createdAt: 'desc' },
-    });
+    };
   }
 
   async findById(id: string) {

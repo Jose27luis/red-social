@@ -1,6 +1,8 @@
 'use client';
 
+import { useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useParams } from 'next/navigation';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -11,23 +13,27 @@ import { QUERY_KEYS } from '@/lib/constants';
 import { getInitials } from '@/lib/utils';
 import { Post } from '@/types';
 import PostCard from '@/components/feed/PostCard';
-import { Mail, Briefcase, GraduationCap, Calendar, UserPlus, UserMinus } from 'lucide-react';
+import { Mail, Briefcase, GraduationCap, Calendar, UserPlus, UserMinus, Camera } from 'lucide-react';
 
-export default function UserProfilePage({ params }: { params: { id: string } }) {
+export default function UserProfilePage() {
+  const params = useParams();
   const { user: currentUser } = useAuthStore();
   const queryClient = useQueryClient();
-  const userId = params.id;
+  const userId = params.id as string;
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Get user profile
   const { data: profileData, isLoading: profileLoading } = useQuery({
     queryKey: [QUERY_KEYS.USER_PROFILE, userId],
     queryFn: () => usersApi.getById(userId),
+    enabled: !!userId,
   });
 
   // Get user posts
   const { data: postsData, isLoading: postsLoading } = useQuery({
     queryKey: [QUERY_KEYS.USER_POSTS, userId],
     queryFn: () => postsApi.getAll({ authorId: userId }),
+    enabled: !!userId,
   });
 
   const followMutation = useMutation({
@@ -45,6 +51,25 @@ export default function UserProfilePage({ params }: { params: { id: string } }) 
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.USER_PROFILE, currentUser?.id] });
     },
   });
+
+  const uploadPictureMutation = useMutation({
+    mutationFn: (formData: FormData) => usersApi.uploadProfilePicture(formData),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.USER_PROFILE, userId] });
+    },
+    onError: (error) => {
+      console.error('Error al subir la foto de perfil:', error);
+    },
+  });
+
+  const handleProfilePictureChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const formData = new FormData();
+      formData.append('file', file);
+      uploadPictureMutation.mutate(formData);
+    }
+  };
 
   if (profileLoading) {
     return (
@@ -82,12 +107,29 @@ export default function UserProfilePage({ params }: { params: { id: string } }) 
           {/* Header */}
           <div className="flex items-start justify-between mb-6">
             <div className="flex items-center space-x-4">
-              <Avatar className="h-24 w-24">
-                <AvatarImage src={profile?.profilePicture} />
-                <AvatarFallback className="text-2xl">
-                  {profile ? getInitials(profile.firstName, profile.lastName) : 'U'}
-                </AvatarFallback>
-              </Avatar>
+              <div className="relative">
+                <Avatar className="h-24 w-24">
+                  <AvatarImage src={profile?.profilePicture} />
+                  <AvatarFallback className="text-2xl">
+                    {profile ? getInitials(profile.firstName, profile.lastName) : 'U'}
+                  </AvatarFallback>
+                </Avatar>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleProfilePictureChange}
+                  accept="image/jpeg,image/png,image/gif,image/webp"
+                  className="hidden"
+                />
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploadPictureMutation.isPending}
+                  className="absolute bottom-0 right-0 p-2 bg-primary text-primary-foreground rounded-full shadow-lg hover:bg-primary/90 transition-colors"
+                >
+                  <Camera className="h-4 w-4" />
+                </button>
+              </div>
               <div>
                 <h2 className="text-2xl font-bold">
                   {profile?.firstName} {profile?.lastName}

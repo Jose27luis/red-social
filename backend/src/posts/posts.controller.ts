@@ -10,8 +10,14 @@ import {
   UseGuards,
   ParseIntPipe,
   DefaultValuePipe,
+  UseInterceptors,
+  UploadedFiles,
+  BadRequestException,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
+import { FilesInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery, ApiConsumes } from '@nestjs/swagger';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
@@ -20,18 +26,58 @@ import { CreateCommentDto } from './dto/create-comment.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 
+// Configuración de almacenamiento para imágenes de posts
+const postImagesStorage = diskStorage({
+  destination: './uploads/posts',
+  filename: (req, file, callback) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    callback(null, `post-${uniqueSuffix}${extname(file.originalname)}`);
+  },
+});
+
+// Filtro para solo aceptar imágenes
+const imageFileFilter = (
+  req: any,
+  file: Express.Multer.File,
+  callback: (error: Error | null, acceptFile: boolean) => void,
+) => {
+  if (!file.mimetype.match(/\/(jpg|jpeg|png|gif|webp)$/)) {
+    return callback(new BadRequestException('Solo se permiten imágenes (jpg, jpeg, png, gif, webp)'), false);
+  }
+  callback(null, true);
+};
+
 @ApiTags('Posts')
 @Controller('posts')
 @UseGuards(ThrottlerGuard, JwtAuthGuard)
 @ApiBearerAuth()
 export class PostsController {
-  constructor(private postsService: PostsService) {}
+  constructor(private readonly postsService: PostsService) {}
 
   @Post()
   @ApiOperation({ summary: 'Create a new post' })
   @ApiResponse({ status: 201, description: 'Post created successfully' })
   async create(@CurrentUser() user: any, @Body() createPostDto: CreatePostDto) {
     return this.postsService.create(user.id, createPostDto);
+  }
+
+  @Post('upload-images')
+  @ApiOperation({ summary: 'Upload images for posts' })
+  @ApiConsumes('multipart/form-data')
+  @ApiResponse({ status: 201, description: 'Images uploaded successfully' })
+  @UseInterceptors(
+    FilesInterceptor('images', 10, {
+      storage: postImagesStorage,
+      fileFilter: imageFileFilter,
+      limits: { fileSize: 5 * 1024 * 1024 }, // 5MB por imagen
+    }),
+  )
+  async uploadImages(@UploadedFiles() files: Express.Multer.File[]) {
+    if (!files || files.length === 0) {
+      throw new BadRequestException('No se han subido imágenes');
+    }
+    const imageUrls = files.map((file) => `/uploads/posts/${file.filename}`);
+    return { images: imageUrls };
   }
 
   @Get()

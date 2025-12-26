@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 
 @Injectable()
@@ -16,26 +16,36 @@ export class FeedService {
     });
 
     if (!user) {
-      throw new Error('User not found');
+      throw new NotFoundException('User not found');
     }
 
     const followingIds = user.following.map((f) => f.followingId);
-    const groupIds = user.groupMemberships.map((m) => m.groupId);
 
-    // Personalized algorithm: Posts from followed users, user's groups, and posts matching interests
+    // Build where clause - if user has no following/groups/interests, get all posts
+    // IMPORTANT: Only show posts that are NOT in groups (groupId: null) in the main feed
+    const hasFilters = followingIds.length > 0 || user.interests.length > 0;
+
+    const whereClause = hasFilters
+      ? {
+          groupId: null, // Exclude group posts from main feed
+          OR: [
+            ...(followingIds.length > 0 ? [{ authorId: { in: followingIds } }] : []),
+            ...(user.interests.length > 0 ? [{ author: { interests: { hasSome: user.interests } } }] : []),
+          ],
+        }
+      : { groupId: null }; // Exclude group posts from main feed
+
+    // Get total count for pagination
+    const total = await this.prisma.post.count({ where: whereClause });
+
+    // Personalized algorithm: Posts from followed users and posts matching interests
     const posts = await this.prisma.post.findMany({
-      where: {
-        OR: [
-          { authorId: { in: followingIds } }, // Posts from followed users
-          { groupId: { in: groupIds } }, // Posts from user's groups
-          { author: { interests: { hasSome: user.interests } } }, // Posts from users with similar interests
-        ],
-      },
+      where: whereClause,
       skip,
       take,
       orderBy: [
-        { likesCount: 'desc' }, // More liked posts first
-        { createdAt: 'desc' }, // Then by date
+        { createdAt: 'desc' }, // Most recent first
+        { likesCount: 'desc' }, // Then by likes
       ],
       include: {
         author: {
@@ -53,6 +63,25 @@ export class FeedService {
             name: true,
           },
         },
+        likes: {
+          select: {
+            userId: true,
+          },
+        },
+        comments: {
+          include: {
+            author: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                profilePicture: true,
+              },
+            },
+          },
+          orderBy: { createdAt: 'asc' },
+          take: 10, // Limit comments to prevent large payloads
+        },
         _count: {
           select: {
             comments: true,
@@ -62,11 +91,12 @@ export class FeedService {
       },
     });
 
-    // If not enough personalized posts, fill with general posts
-    if (posts.length < take) {
+    // If not enough personalized posts, fill with general posts (excluding group posts)
+    if (posts.length < take && hasFilters) {
       const generalPosts = await this.prisma.post.findMany({
         where: {
           id: { notIn: posts.map((p) => p.id) },
+          groupId: null, // Exclude group posts
         },
         take: take - posts.length,
         orderBy: { createdAt: 'desc' },
@@ -86,6 +116,25 @@ export class FeedService {
               name: true,
             },
           },
+          likes: {
+            select: {
+              userId: true,
+            },
+          },
+          comments: {
+            include: {
+              author: {
+                select: {
+                  id: true,
+                  firstName: true,
+                  lastName: true,
+                  profilePicture: true,
+                },
+              },
+            },
+            orderBy: { createdAt: 'asc' },
+            take: 10,
+          },
           _count: {
             select: {
               comments: true,
@@ -98,6 +147,16 @@ export class FeedService {
       posts.push(...generalPosts);
     }
 
-    return posts;
+    // Return paginated response format
+    const page = Math.floor(skip / take) + 1;
+    return {
+      data: posts,
+      meta: {
+        total: total + (posts.length > total ? posts.length - total : 0),
+        page,
+        limit: take,
+        totalPages: Math.ceil(total / take) || 1,
+      },
+    };
   }
 }

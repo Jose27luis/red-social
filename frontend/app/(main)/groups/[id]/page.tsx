@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -11,7 +11,7 @@ import { groupsApi, postsApi } from '@/lib/api/endpoints';
 import { QUERY_KEYS } from '@/lib/constants';
 import { useAuthStore } from '@/store/useAuthStore';
 import { getInitials } from '@/lib/utils';
-import { Post, CreatePostDto, PostType, ApiError } from '@/types';
+import { Post, CreatePostDto, PostType, ApiError, GroupType } from '@/types';
 import PostCard from '@/components/feed/PostCard';
 import {
   Users,
@@ -25,11 +25,12 @@ import {
 } from 'lucide-react';
 import { AxiosError } from 'axios';
 
-export default function GroupDetailPage({ params }: { params: { id: string } }) {
+export default function GroupDetailPage() {
   const router = useRouter();
+  const params = useParams();
   const { user } = useAuthStore();
   const queryClient = useQueryClient();
-  const groupId = params.id;
+  const groupId = params.id as string;
 
   const [postContent, setPostContent] = useState('');
   const [postError, setPostError] = useState('');
@@ -37,11 +38,13 @@ export default function GroupDetailPage({ params }: { params: { id: string } }) 
   const { data: groupData, isLoading: groupLoading } = useQuery({
     queryKey: [QUERY_KEYS.GROUPS, groupId],
     queryFn: () => groupsApi.getById(groupId),
+    enabled: !!groupId,
   });
 
   const { data: postsData, isLoading: postsLoading } = useQuery({
-    queryKey: [QUERY_KEYS.GROUP_POSTS, groupId],
+    queryKey: [...QUERY_KEYS.GROUP_POSTS, groupId],
     queryFn: () => groupsApi.getPosts(groupId),
+    enabled: !!groupId,
   });
 
   const joinMutation = useMutation({
@@ -72,7 +75,7 @@ export default function GroupDetailPage({ params }: { params: { id: string } }) 
     onSuccess: () => {
       setPostContent('');
       setPostError('');
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.GROUP_POSTS, groupId] });
+      queryClient.invalidateQueries({ queryKey: [...QUERY_KEYS.GROUP_POSTS, groupId] });
     },
     onError: (error: AxiosError<ApiError>) => {
       const message = error.response?.data?.message || 'Error al crear la publicación';
@@ -100,8 +103,9 @@ export default function GroupDetailPage({ params }: { params: { id: string } }) 
   }
 
   const posts = postsData?.data?.data || [];
-  const isMember = group.members?.some((m) => m.userId === user?.id) || false;
-  const isOwner = group.ownerId === user?.id;
+  const isCreator = group.creatorId === user?.id || group.creator?.id === user?.id;
+  const isMember = group.members?.some((m) => m.userId === user?.id) || isCreator;
+  const isPublic = group.type === GroupType.PUBLIC || group.type === 'PUBLIC';
 
   const handleJoinToggle = () => {
     if (isMember) {
@@ -153,7 +157,7 @@ export default function GroupDetailPage({ params }: { params: { id: string } }) 
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-2">
                 <h1 className="text-3xl font-bold">{group.name}</h1>
-                {group.isPublic ? (
+                {isPublic ? (
                   <Globe className="h-5 w-5 text-muted-foreground" />
                 ) : (
                   <Lock className="h-5 w-5 text-muted-foreground" />
@@ -167,27 +171,28 @@ export default function GroupDetailPage({ params }: { params: { id: string } }) 
             </div>
 
             <div className="flex space-x-2">
-              {!isOwner && (
+              {!isCreator && !isMember && (
                 <Button
                   onClick={handleJoinToggle}
-                  disabled={joinMutation.isPending || leaveMutation.isPending}
-                  variant={isMember ? 'outline' : 'default'}
+                  disabled={joinMutation.isPending}
                 >
-                  {isMember ? (
-                    <>
-                      <UserMinus className="h-4 w-4 mr-2" />
-                      Salir del Grupo
-                    </>
-                  ) : (
-                    <>
-                      <UserPlus className="h-4 w-4 mr-2" />
-                      Unirse al Grupo
-                    </>
-                  )}
+                  <UserPlus className="h-4 w-4 mr-2" />
+                  Unirse al Grupo
                 </Button>
               )}
 
-              {isOwner && (
+              {!isCreator && isMember && (
+                <Button
+                  onClick={handleJoinToggle}
+                  disabled={leaveMutation.isPending}
+                  variant="outline"
+                >
+                  <UserMinus className="h-4 w-4 mr-2" />
+                  Salir del Grupo
+                </Button>
+              )}
+
+              {isCreator && (
                 <Button
                   variant="outline"
                   onClick={handleDelete}
@@ -200,22 +205,22 @@ export default function GroupDetailPage({ params }: { params: { id: string } }) 
             </div>
           </div>
 
-          {/* Owner Info */}
-          {group.owner && (
+          {/* Creator Info */}
+          {group.creator && (
             <div
               className="flex items-center space-x-3 p-3 rounded-lg bg-muted cursor-pointer hover:bg-muted/80 transition-colors"
-              onClick={() => router.push(`/profile/${group.owner?.id}`)}
+              onClick={() => router.push(`/profile/${group.creator?.id}`)}
             >
               <Avatar className="h-10 w-10">
-                <AvatarImage src={group.owner.profilePicture} />
+                <AvatarImage src={group.creator.profilePicture} />
                 <AvatarFallback>
-                  {getInitials(group.owner.firstName, group.owner.lastName)}
+                  {getInitials(group.creator.firstName, group.creator.lastName)}
                 </AvatarFallback>
               </Avatar>
               <div>
                 <p className="text-sm text-muted-foreground">Propietario</p>
                 <p className="font-medium">
-                  {group.owner.firstName} {group.owner.lastName}
+                  {group.creator.firstName} {group.creator.lastName}
                 </p>
               </div>
             </div>
@@ -335,7 +340,7 @@ export default function GroupDetailPage({ params }: { params: { id: string } }) 
                       {member.role === 'ADMIN' ? 'Administrador' : 'Miembro'}
                     </p>
                   </div>
-                  {member.userId === group.ownerId && (
+                  {member.userId === group.creatorId && (
                     <span className="text-xs px-2 py-0.5 bg-primary/10 text-primary rounded">
                       Propietario
                     </span>

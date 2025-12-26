@@ -7,7 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { groupsApi } from '@/lib/api/endpoints';
 import { QUERY_KEYS } from '@/lib/constants';
-import { ApiError, CreateGroupDto } from '@/types';
+import { ApiError, GroupType } from '@/types';
 import { Plus, X } from 'lucide-react';
 
 export default function CreateGroup() {
@@ -22,7 +22,7 @@ export default function CreateGroup() {
   });
 
   const createGroupMutation = useMutation({
-    mutationFn: (data: CreateGroupDto) => groupsApi.create(data),
+    mutationFn: (data: { name: string; description: string; type: GroupType }) => groupsApi.create(data),
     onSuccess: () => {
       setIsOpen(false);
       setFormData({
@@ -50,7 +50,7 @@ export default function CreateGroup() {
     createGroupMutation.mutate({
       name: formData.name.trim(),
       description: formData.description.trim(),
-      isPublic: formData.isPublic,
+      type: formData.isPublic ? GroupType.PUBLIC : GroupType.PRIVATE,
     });
   };
 

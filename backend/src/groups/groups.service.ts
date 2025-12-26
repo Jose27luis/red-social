@@ -58,28 +58,42 @@ export class GroupsService {
       where.type = type;
     }
 
-    return this.prisma.group.findMany({
-      where,
-      skip,
-      take,
-      include: {
-        creator: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            profilePicture: true,
+    const [groups, total] = await Promise.all([
+      this.prisma.group.findMany({
+        where,
+        skip,
+        take,
+        include: {
+          creator: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              profilePicture: true,
+            },
+          },
+          _count: {
+            select: {
+              members: true,
+              posts: true,
+            },
           },
         },
-        _count: {
-          select: {
-            members: true,
-            posts: true,
-          },
-        },
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prisma.group.count({ where }),
+    ]);
+
+    const page = Math.floor(skip / take) + 1;
+    return {
+      data: groups,
+      meta: {
+        total,
+        page,
+        limit: take,
+        totalPages: Math.ceil(total / take) || 1,
       },
-      orderBy: { createdAt: 'desc' },
-    });
+    };
   }
 
   /**
@@ -552,5 +566,79 @@ export class GroupsService {
     });
 
     return !!membership;
+  }
+
+  /**
+   * Get posts for a group
+   */
+  async getGroupPosts(groupId: string, userId: string, skip = 0, take = 20) {
+    // Verify group exists
+    const group = await this.prisma.group.findUnique({ where: { id: groupId } });
+    if (!group) {
+      throw new NotFoundException('Group not found');
+    }
+
+    // Verify user is a member
+    const isMember = await this.isMember(groupId, userId);
+    if (!isMember) {
+      throw new ForbiddenException('You must be a member to view group posts');
+    }
+
+    const [posts, total] = await Promise.all([
+      this.prisma.post.findMany({
+        where: { groupId },
+        skip,
+        take,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          author: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              profilePicture: true,
+              role: true,
+            },
+          },
+          likes: {
+            select: {
+              userId: true,
+            },
+          },
+          comments: {
+            include: {
+              author: {
+                select: {
+                  id: true,
+                  firstName: true,
+                  lastName: true,
+                  profilePicture: true,
+                },
+              },
+            },
+            orderBy: { createdAt: 'asc' },
+            take: 10,
+          },
+          _count: {
+            select: {
+              comments: true,
+              likes: true,
+            },
+          },
+        },
+      }),
+      this.prisma.post.count({ where: { groupId } }),
+    ]);
+
+    const page = Math.floor(skip / take) + 1;
+    return {
+      data: posts,
+      meta: {
+        total,
+        page,
+        limit: take,
+        totalPages: Math.ceil(total / take) || 1,
+      },
+    };
   }
 }

@@ -12,6 +12,7 @@ import { AxiosError } from 'axios';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Eye, EyeOff } from 'lucide-react';
 import { authApi } from '@/lib/api/endpoints';
 import { useAuthStore } from '@/store/useAuthStore';
 import { ApiError } from '@/types';
@@ -27,6 +28,7 @@ export default function LoginPage() {
   const router = useRouter();
   const setAuth = useAuthStore((state) => state.setAuth);
   const [error, setError] = useState<string>('');
+  const [showPassword, setShowPassword] = useState<boolean>(false);
 
   const {
     register,
@@ -55,13 +57,13 @@ export default function LoginPage() {
   };
 
   return (
-    <Card className="shadow-lg">
+    <Card className="shadow-lg border-0 lg:shadow-none lg:bg-transparent">
       <CardHeader className="space-y-1">
         <CardTitle className="text-2xl font-bold text-center">
-          Red Académica UNAMAD
+          Iniciar Sesión
         </CardTitle>
         <CardDescription className="text-center">
-          Ingresa tu email institucional para iniciar sesión
+          Ingresa tu email institucional para continuar
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -86,12 +88,22 @@ export default function LoginPage() {
             <label htmlFor="password" className="text-sm font-medium">
               Contraseña
             </label>
-            <Input
-              id="password"
-              type="password"
-              {...register('password')}
-              className={errors.password ? 'border-destructive' : ''}
-            />
+            <div className="relative flex items-center">
+              <Input
+                id="password"
+                type={showPassword ? 'text' : 'password'}
+                {...register('password')}
+                className={errors.password ? 'border-destructive pr-10' : 'pr-10'}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground hover:text-foreground transition-colors"
+                aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+              >
+                {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+              </button>
+            </div>
             {errors.password && (
               <p className="text-sm text-destructive">{errors.password.message}</p>
             )}

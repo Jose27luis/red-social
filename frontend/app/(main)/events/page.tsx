@@ -14,8 +14,8 @@ export default function EventsPage() {
   const [filter, setFilter] = useState<'all' | 'upcoming' | 'past'>('upcoming');
 
   const { data, isLoading, error } = useQuery({
-    queryKey: [...QUERY_KEYS.EVENTS, filter],
-    queryFn: () => eventsApi.getAll(),
+    queryKey: [...QUERY_KEYS.EVENTS, 'all'],
+    queryFn: () => eventsApi.getAll({ includeAll: true }),
   });
 
   const events = data?.data?.data || [];

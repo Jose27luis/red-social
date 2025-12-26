@@ -71,28 +71,42 @@ export class EventsService {
       };
     }
 
-    return this.prisma.event.findMany({
-      where,
-      skip,
-      take,
-      include: {
-        organizer: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            profilePicture: true,
-            role: true,
+    const [events, total] = await Promise.all([
+      this.prisma.event.findMany({
+        where,
+        skip,
+        take,
+        include: {
+          organizer: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              profilePicture: true,
+              role: true,
+            },
+          },
+          _count: {
+            select: {
+              attendances: true,
+            },
           },
         },
-        _count: {
-          select: {
-            attendances: true,
-          },
-        },
+        orderBy: { startDate: 'asc' },
+      }),
+      this.prisma.event.count({ where }),
+    ]);
+
+    const page = Math.floor(skip / take) + 1;
+    return {
+      data: events,
+      meta: {
+        total,
+        page,
+        limit: take,
+        totalPages: Math.ceil(total / take) || 1,
       },
-      orderBy: { startDate: 'asc' },
-    });
+    };
   }
 
   /**

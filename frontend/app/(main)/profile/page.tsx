@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import { Card, CardContent } from '@/components/ui/card';
@@ -10,16 +10,17 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAuthStore } from '@/store/useAuthStore';
 import { usersApi, postsApi } from '@/lib/api/endpoints';
 import { QUERY_KEYS } from '@/lib/constants';
-import { getInitials } from '@/lib/utils';
+import { getInitials, getImageUrl } from '@/lib/utils';
 import { ApiError, UpdateUserDto, Post } from '@/types';
 import PostCard from '@/components/feed/PostCard';
-import { Pencil, Save, X, Mail, Briefcase, GraduationCap, Calendar } from 'lucide-react';
+import { Pencil, Save, X, Mail, Briefcase, GraduationCap, Calendar, Camera } from 'lucide-react';
 
 export default function ProfilePage() {
   const { user: currentUser, setAuth } = useAuthStore();
   const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
   const [error, setError] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [formData, setFormData] = useState({
     firstName: currentUser?.firstName || '',
@@ -65,6 +66,33 @@ export default function ProfilePage() {
       setError(typeof message === 'string' ? message : message[0]);
     },
   });
+
+  const uploadPictureMutation = useMutation({
+    mutationFn: (formData: FormData) => usersApi.uploadProfilePicture(formData),
+    onSuccess: (response) => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.USER_PROFILE, currentUser?.id] });
+      // Update auth store with new profile picture
+      if (currentUser) {
+        setAuth({
+          user: response.data,
+          accessToken: localStorage.getItem('accessToken') || '',
+          refreshToken: localStorage.getItem('refreshToken') || '',
+        });
+      }
+    },
+    onError: (error) => {
+      console.error('Error al subir la foto de perfil:', error);
+    },
+  });
+
+  const handleProfilePictureChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const formData = new FormData();
+      formData.append('file', file);
+      uploadPictureMutation.mutate(formData);
+    }
+  };
 
   const handleSave = () => {
     if (!formData.firstName.trim() || !formData.lastName.trim()) {
@@ -121,12 +149,30 @@ export default function ProfilePage() {
           {/* Header */}
           <div className="flex items-start justify-between mb-6">
             <div className="flex items-center space-x-4">
-              <Avatar className="h-24 w-24">
-                <AvatarImage src={profile?.profilePicture} />
-                <AvatarFallback className="text-2xl">
-                  {profile ? getInitials(profile.firstName, profile.lastName) : 'U'}
-                </AvatarFallback>
-              </Avatar>
+              <div className="relative">
+                <Avatar className="h-24 w-24">
+                  <AvatarImage src={getImageUrl(profile?.profilePicture)} />
+                  <AvatarFallback className="text-2xl">
+                    {profile ? getInitials(profile.firstName, profile.lastName) : 'U'}
+                  </AvatarFallback>
+                </Avatar>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleProfilePictureChange}
+                  accept="image/jpeg,image/png,image/gif,image/webp"
+                  className="hidden"
+                />
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploadPictureMutation.isPending}
+                  className="absolute bottom-0 right-0 p-2 bg-primary text-primary-foreground rounded-full shadow-lg hover:bg-primary/90 transition-colors"
+                  title="Cambiar foto de perfil"
+                >
+                  <Camera className="h-4 w-4" />
+                </button>
+              </div>
               <div>
                 <h2 className="text-2xl font-bold">
                   {profile?.firstName} {profile?.lastName}

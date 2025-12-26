@@ -7,7 +7,6 @@ import {
   MinLength,
   IsUUID,
   ArrayMaxSize,
-  IsUrl,
   Matches,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
@@ -31,7 +30,8 @@ export class CreatePostDto {
   @ApiPropertyOptional({ type: [String], maxItems: 10 })
   @IsOptional()
   @IsArray({ message: 'Images must be an array' })
-  @IsUrl({}, { each: true, message: 'Each image must be a valid URL' })
+  @IsString({ each: true, message: 'Each image must be a string' })
+  @Matches(/^(\/uploads\/|https?:\/\/)/, { each: true, message: 'Each image must be a valid path or URL' })
   @ArrayMaxSize(10, { message: 'Cannot upload more than 10 images' })
   images?: string[];
 

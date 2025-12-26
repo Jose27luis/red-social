@@ -2,7 +2,7 @@
 . "$(dirname -- "$0")/_/husky.sh"
 
 # Run lint-staged for backend
-echo "🔍 Running backend lint-staged..."
+echo " Running backend lint-staged..."
 cd backend && npx lint-staged
 BACKEND_EXIT=$?
 
@@ -10,15 +10,15 @@ BACKEND_EXIT=$?
 cd ..
 
 # Run lint-staged for frontend
-echo "🔍 Running frontend lint-staged..."
+echo " Running frontend lint-staged..."
 cd frontend && npx lint-staged
 FRONTEND_EXIT=$?
 
 # Exit with error if either failed
 if [ $BACKEND_EXIT -ne 0 ] || [ $FRONTEND_EXIT -ne 0 ]; then
-  echo "❌ Pre-commit checks failed!"
+  echo " Pre-commit checks failed!"
   exit 1
 fi
 
-echo "✅ Pre-commit checks passed!"
+echo " Pre-commit checks passed!"
 exit 0

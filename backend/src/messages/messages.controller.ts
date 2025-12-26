@@ -23,7 +23,7 @@ import { CurrentUser } from '../common/decorators/current-user.decorator';
 @UseGuards(ThrottlerGuard, JwtAuthGuard)
 @ApiBearerAuth()
 export class MessagesController {
-  constructor(private messagesService: MessagesService) {}
+  constructor(private readonly messagesService: MessagesService) {}
 
   @Post()
   @ApiOperation({ summary: 'Send a message' })

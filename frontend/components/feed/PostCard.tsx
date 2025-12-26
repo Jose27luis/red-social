@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
+import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -17,7 +18,7 @@ import { SafeHTML } from '@/components/SafeHTML';
 import { QUERY_KEYS } from '@/lib/constants';
 import { Post, ApiError, UpdatePostDto } from '@/types';
 import { useAuthStore } from '@/store/useAuthStore';
-import { getInitials } from '@/lib/utils';
+import { getInitials, getImageUrl } from '@/lib/utils';
 import {
   Heart,
   MessageCircle,
@@ -40,17 +41,26 @@ export default function PostCard({ post }: PostCardProps) {
   const [showComments, setShowComments] = useState(false);
   const [commentContent, setCommentContent] = useState('');
   const [error, setError] = useState('');
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   const isAuthor = user?.id === post.authorId;
   const hasLiked = post.likes?.some((like) => like.userId === user?.id) || false;
+
+  const invalidatePostQueries = () => {
+    queryClient.invalidateQueries({ queryKey: QUERY_KEYS.FEED });
+    queryClient.invalidateQueries({ queryKey: QUERY_KEYS.POSTS });
+    // If post belongs to a group, also invalidate group posts
+    if (post.groupId) {
+      queryClient.invalidateQueries({ queryKey: [...QUERY_KEYS.GROUP_POSTS, post.groupId] });
+    }
+  };
 
   const updatePostMutation = useMutation({
     mutationFn: (data: UpdatePostDto) => postsApi.update(post.id, data),
     onSuccess: () => {
       setIsEditing(false);
       setError('');
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.FEED });
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.POSTS });
+      invalidatePostQueries();
     },
     onError: (error: AxiosError<ApiError>) => {
       const message = error.response?.data?.message || 'Error al actualizar la publicación';
@@ -61,24 +71,21 @@ export default function PostCard({ post }: PostCardProps) {
   const deletePostMutation = useMutation({
     mutationFn: () => postsApi.delete(post.id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.FEED });
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.POSTS });
+      invalidatePostQueries();
     },
   });
 
   const likePostMutation = useMutation({
     mutationFn: () => postsApi.like(post.id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.FEED });
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.POSTS });
+      invalidatePostQueries();
     },
   });
 
   const unlikePostMutation = useMutation({
     mutationFn: () => postsApi.unlike(post.id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.FEED });
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.POSTS });
+      invalidatePostQueries();
     },
   });
 
@@ -87,8 +94,7 @@ export default function PostCard({ post }: PostCardProps) {
       postsApi.createComment(post.id, { content }),
     onSuccess: () => {
       setCommentContent('');
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.FEED });
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.POSTS });
+      invalidatePostQueries();
     },
   });
 
@@ -137,7 +143,7 @@ export default function PostCard({ post }: PostCardProps) {
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center space-x-3">
             <Avatar className="h-10 w-10">
-              <AvatarImage src={post.author?.profilePicture} />
+              <AvatarImage src={getImageUrl(post.author?.profilePicture)} />
               <AvatarFallback>
                 {post.author
                   ? getInitials(post.author.firstName, post.author.lastName)
@@ -227,6 +233,41 @@ export default function PostCard({ post }: PostCardProps) {
           />
         )}
 
+        {/* Post Images */}
+        {post.images && post.images.length > 0 && (
+          <div className={`mb-4 grid gap-2 ${
+            post.images.length === 1
+              ? 'grid-cols-1'
+              : post.images.length === 2
+                ? 'grid-cols-2'
+                : post.images.length === 3
+                  ? 'grid-cols-2'
+                  : 'grid-cols-2 sm:grid-cols-3'
+          }`}>
+            {post.images.map((image, index) => (
+              <div
+                key={index}
+                className={`relative overflow-hidden rounded-lg ${
+                  post.images && post.images.length === 1
+                    ? 'aspect-video'
+                    : post.images.length === 3 && index === 0
+                      ? 'row-span-2 aspect-square'
+                      : 'aspect-square'
+                }`}
+              >
+                <Image
+                  src={getImageUrl(image) || ''}
+                  alt={`Imagen ${index + 1}`}
+                  fill
+                  unoptimized
+                  className="object-cover hover:scale-105 transition-transform cursor-pointer"
+                  onClick={() => setSelectedImage(getImageUrl(image) || null)}
+                />
+              </div>
+            ))}
+          </div>
+        )}
+
         {/* Actions */}
         <div className="flex items-center space-x-6 pt-3 border-t border-border">
           <Button
@@ -257,7 +298,7 @@ export default function PostCard({ post }: PostCardProps) {
             {/* Comment Input */}
             <div className="flex items-start space-x-3">
               <Avatar className="h-8 w-8">
-                <AvatarImage src={user?.profilePicture} />
+                <AvatarImage src={getImageUrl(user?.profilePicture)} />
                 <AvatarFallback>
                   {user ? getInitials(user.firstName, user.lastName) : 'U'}
                 </AvatarFallback>
@@ -294,7 +335,7 @@ export default function PostCard({ post }: PostCardProps) {
                 {post.comments.map((comment) => (
                   <div key={comment.id} className="flex items-start space-x-3">
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src={comment.author?.profilePicture} />
+                      <AvatarImage src={getImageUrl(comment.author?.profilePicture)} />
                       <AvatarFallback>
                         {comment.author
                           ? getInitials(
@@ -323,6 +364,32 @@ export default function PostCard({ post }: PostCardProps) {
                 ))}
               </div>
             )}
+          </div>
+        )}
+
+        {/* Image Modal */}
+        {selectedImage && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
+            onClick={() => setSelectedImage(null)}
+          >
+            <button
+              className="absolute top-4 right-4 p-2 bg-white/10 hover:bg-white/20 rounded-full transition-colors"
+              onClick={() => setSelectedImage(null)}
+            >
+              <X className="h-6 w-6 text-white" />
+            </button>
+            <div className="relative max-w-[90vw] max-h-[90vh]">
+              <Image
+                src={selectedImage}
+                alt="Imagen ampliada"
+                width={1200}
+                height={800}
+                unoptimized
+                className="object-contain max-h-[90vh] w-auto"
+                onClick={(e) => e.stopPropagation()}
+              />
+            </div>
           </div>
         )}
       </CardContent>

@@ -7,7 +7,7 @@ import { Post, Comment, Like, Prisma } from '@prisma/client';
 
 @Injectable()
 export class PostsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   /**
    * Create a new post
@@ -21,6 +21,22 @@ export class PostsService {
     // Validate images count
     if (data.images && data.images.length > 10) {
       throw new BadRequestException('Maximum 10 images allowed per post');
+    }
+
+    // If posting to a group, verify membership
+    if (data.groupId) {
+      const membership = await this.prisma.groupMember.findUnique({
+        where: {
+          groupId_userId: {
+            groupId: data.groupId,
+            userId: authorId,
+          },
+        },
+      });
+
+      if (!membership) {
+        throw new ForbiddenException('You must be a member of the group to post');
+      }
     }
 
     return this.prisma.post.create({

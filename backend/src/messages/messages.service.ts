@@ -4,7 +4,7 @@ import { SendMessageDto } from './dto/send-message.dto';
 
 @Injectable()
 export class MessagesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   /**
    * Send a message

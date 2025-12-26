@@ -55,7 +55,6 @@ export interface CreateGroupDto {
   name: string;
   description: string;
   type?: GroupType;
-  isPublic?: boolean; // Alias for type PUBLIC
   coverImage?: string;
 }
 

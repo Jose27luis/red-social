@@ -7,14 +7,7 @@
  * los validadores personalizados de seguridad.
  */
 
-import {
-  IsString,
-  IsEmail,
-  MinLength,
-  MaxLength,
-  IsOptional,
-  IsUrl,
-} from 'class-validator';
+import { IsString, IsEmail, MinLength, MaxLength, IsOptional, IsUrl } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsNotXSS,

@@ -68,3 +68,15 @@ export function validateEmail(email: string): boolean {
 export function validateUniversityEmail(email: string, domain: string): boolean {
   return email.endsWith(domain);
 }
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+
+export function getImageUrl(path?: string | null): string | undefined {
+  if (!path) return undefined;
+  // Si ya es una URL completa, retornarla tal cual
+  if (path.startsWith('http://') || path.startsWith('https://')) {
+    return path;
+  }
+  // Si es una ruta relativa, agregar la URL del backend
+  return `${API_URL}${path}`;
+}

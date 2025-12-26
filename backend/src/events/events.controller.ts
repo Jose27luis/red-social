@@ -11,14 +11,41 @@ import {
   Put,
   Query,
   UseGuards,
+  UseInterceptors,
+  UploadedFile,
+  BadRequestException,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
+import { ApiBearerAuth, ApiOperation, ApiQuery, ApiResponse, ApiTags, ApiConsumes } from '@nestjs/swagger';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { EventsService } from './events.service';
+
+// Configuración de almacenamiento para imágenes de eventos
+const eventImageStorage = diskStorage({
+  destination: './uploads/events',
+  filename: (req, file, callback) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    callback(null, `event-${uniqueSuffix}${extname(file.originalname)}`);
+  },
+});
+
+// Filtro para solo aceptar imágenes
+const imageFileFilter = (
+  req: any,
+  file: Express.Multer.File,
+  callback: (error: Error | null, acceptFile: boolean) => void,
+) => {
+  if (!file.mimetype.match(/\/(jpg|jpeg|png|gif|webp)$/)) {
+    return callback(new BadRequestException('Solo se permiten imágenes'), false);
+  }
+  callback(null, true);
+};
 
 @ApiTags('Events')
 @Controller('events')
@@ -32,6 +59,24 @@ export class EventsController {
   @ApiResponse({ status: 201, description: 'Event created successfully' })
   async create(@CurrentUser() user: any, @Body() createEventDto: CreateEventDto) {
     return this.eventsService.create(user.id, createEventDto);
+  }
+
+  @Post('upload-cover')
+  @ApiOperation({ summary: 'Upload event cover image' })
+  @ApiConsumes('multipart/form-data')
+  @ApiResponse({ status: 201, description: 'Cover image uploaded successfully' })
+  @UseInterceptors(
+    FileInterceptor('image', {
+      storage: eventImageStorage,
+      fileFilter: imageFileFilter,
+      limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+    }),
+  )
+  async uploadCover(@UploadedFile() file: Express.Multer.File) {
+    if (!file) {
+      throw new BadRequestException('No se ha subido ninguna imagen');
+    }
+    return { coverImage: `/uploads/events/${file.filename}` };
   }
 
   @Get()

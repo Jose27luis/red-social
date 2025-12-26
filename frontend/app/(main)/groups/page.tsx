@@ -13,12 +13,23 @@ import { Group } from '@/types';
 export default function GroupsPage() {
   const [filter, setFilter] = useState<'all' | 'my-groups'>('all');
 
-  const { data, isLoading, error } = useQuery({
+  const { data: allGroupsData, isLoading: isLoadingAll, error: errorAll } = useQuery({
     queryKey: QUERY_KEYS.GROUPS,
     queryFn: () => groupsApi.getAll(),
+    enabled: filter === 'all',
   });
 
-  const groups = data?.data?.data || [];
+  const { data: myGroupsData, isLoading: isLoadingMy, error: errorMy } = useQuery({
+    queryKey: QUERY_KEYS.MY_GROUPS,
+    queryFn: () => groupsApi.getMyGroups(),
+    enabled: filter === 'my-groups',
+  });
+
+  const isLoading = filter === 'all' ? isLoadingAll : isLoadingMy;
+  const error = filter === 'all' ? errorAll : errorMy;
+  const groups = filter === 'all'
+    ? (allGroupsData?.data?.data || [])
+    : (myGroupsData?.data || []);
 
   if (isLoading) {
     return (

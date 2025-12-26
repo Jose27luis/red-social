@@ -96,6 +96,13 @@ export const usersApi = {
 
   isFollowing: (id: string) =>
     api.get<{ isFollowing: boolean }>(`/users/${id}/is-following`),
+
+  uploadProfilePicture: (formData: FormData) =>
+    api.post<User>('/users/profile/picture', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    }),
 };
 
 // ============================================================================
@@ -146,6 +153,14 @@ export const postsApi = {
 
   deleteComment: (commentId: string) =>
     api.delete(`/posts/comments/${commentId}`),
+
+  // Upload images for posts
+  uploadImages: (formData: FormData) =>
+    api.post<{ images: string[] }>('/posts/upload-images', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    }),
 };
 
 // ============================================================================
@@ -259,6 +274,14 @@ export const eventsApi = {
 
   confirmAttendance: (id: string, qrCode: string) =>
     api.post(`/events/${id}/confirm`, { qrCode }),
+
+  // Upload cover image
+  uploadCover: (formData: FormData) =>
+    api.post<{ coverImage: string }>('/events/upload-cover', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    }),
 };
 
 // ============================================================================

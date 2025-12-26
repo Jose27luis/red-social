@@ -129,7 +129,8 @@ $RECYCLE.BIN/
 # ============================================
 # Uploads & Media
 # ============================================
-/uploads
+/uploads/*
+!/uploads/.gitkeep
 /public/uploads
 /media
 
