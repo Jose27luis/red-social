@@ -113,7 +113,7 @@ export default function PostCard({ post }: PostCardProps) {
   };
 
   const handleDelete = () => {
-    if (window.confirm('¿Estás seguro de que quieres eliminar esta publicación?')) {
+    if (globalThis.confirm('¿Estás seguro de que quieres eliminar esta publicación?')) {
       deletePostMutation.mutate();
     }
   };
@@ -370,8 +370,11 @@ export default function PostCard({ post }: PostCardProps) {
         {/* Image Modal */}
         {selectedImage && (
           <div
+            role="button"
+            tabIndex={0}
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
             onClick={() => setSelectedImage(null)}
+            onKeyDown={(e) => e.key === 'Escape' && setSelectedImage(null)}
           >
             <button
               className="absolute top-4 right-4 p-2 bg-white/10 hover:bg-white/20 rounded-full transition-colors"

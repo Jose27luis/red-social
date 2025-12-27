@@ -109,7 +109,7 @@ export default function GroupDetailPage() {
 
   const handleJoinToggle = () => {
     if (isMember) {
-      if (window.confirm('¿Estás seguro de que quieres salir de este grupo?')) {
+      if (globalThis.confirm('¿Estás seguro de que quieres salir de este grupo?')) {
         leaveMutation.mutate();
       }
     } else {
@@ -118,7 +118,7 @@ export default function GroupDetailPage() {
   };
 
   const handleDelete = () => {
-    if (window.confirm('¿Estás seguro de que quieres eliminar este grupo? Esta acción no se puede deshacer.')) {
+    if (globalThis.confirm('¿Estás seguro de que quieres eliminar este grupo? Esta acción no se puede deshacer.')) {
       deleteGroupMutation.mutate();
     }
   };
@@ -208,8 +208,11 @@ export default function GroupDetailPage() {
           {/* Creator Info */}
           {group.creator && (
             <div
+              role="button"
+              tabIndex={0}
               className="flex items-center space-x-3 p-3 rounded-lg bg-muted cursor-pointer hover:bg-muted/80 transition-colors"
               onClick={() => router.push(`/profile/${group.creator?.id}`)}
+              onKeyDown={(e) => e.key === 'Enter' && router.push(`/profile/${group.creator?.id}`)}
             >
               <Avatar className="h-10 w-10">
                 <AvatarImage src={group.creator.profilePicture} />
@@ -279,8 +282,8 @@ export default function GroupDetailPage() {
         <h2 className="text-2xl font-bold mb-4">Publicaciones del Grupo</h2>
         {postsLoading ? (
           <div className="space-y-4">
-            {[...Array(2)].map((_, i) => (
-              <Card key={i}>
+            {[...new Array<undefined>(2)].map((_, i) => (
+              <Card key={`skeleton-${i}`}>
                 <CardContent className="p-6">
                   <Skeleton className="h-32 w-full" />
                 </CardContent>
@@ -323,8 +326,11 @@ export default function GroupDetailPage() {
               {group.members.map((member) => (
                 <div
                   key={member.id}
+                  role="button"
+                  tabIndex={0}
                   className="flex items-center space-x-3 p-3 rounded-lg hover:bg-muted transition-colors cursor-pointer"
                   onClick={() => router.push(`/profile/${member.user?.id}`)}
+                  onKeyDown={(e) => e.key === 'Enter' && router.push(`/profile/${member.user?.id}`)}
                 >
                   <Avatar className="h-10 w-10">
                     <AvatarImage src={member.user?.profilePicture} />

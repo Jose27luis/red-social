@@ -35,8 +35,8 @@ export default function GroupsPage() {
     return (
       <div className="space-y-6">
         <Skeleton className="h-48 w-full rounded-lg" />
-        {[...Array(3)].map((_, i) => (
-          <Card key={i}>
+        {[...new Array<undefined>(3)].map((_, i) => (
+          <Card key={`skeleton-${i}`}>
             <CardContent className="p-6">
               <Skeleton className="h-32 w-full" />
             </CardContent>

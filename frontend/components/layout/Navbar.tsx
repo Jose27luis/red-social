@@ -147,10 +147,13 @@ export default function Navbar() {
                   notifications.map((notification: Notification) => (
                     <div
                       key={notification.id}
+                      role="button"
+                      tabIndex={0}
                       className={`flex items-start gap-3 p-3 hover:bg-muted/50 cursor-pointer border-b last:border-b-0 ${
                         !notification.isRead ? 'bg-primary/5' : ''
                       }`}
                       onClick={() => handleNotificationClick(notification)}
+                      onKeyDown={(e) => e.key === 'Enter' && handleNotificationClick(notification)}
                     >
                       <Avatar className="h-9 w-9 flex-shrink-0">
                         <AvatarImage src={getImageUrl(notification.sender?.profilePicture)} />
