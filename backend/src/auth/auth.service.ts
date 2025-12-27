@@ -182,4 +182,21 @@ export class AuthService {
   private generateRandomToken(): string {
     return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
   }
+
+  /**
+   * DEBUG: Check user verification status directly from database
+   */
+  async debugUserStatus(email: string): Promise<any> {
+    const user = await this.usersService.findByEmail(email);
+    if (!user) {
+      return { error: 'User not found', email };
+    }
+    return {
+      email: user.email,
+      isVerified: user.isVerified,
+      isActive: user.isActive,
+      verificationToken: user.verificationToken,
+      id: user.id,
+    };
+  }
 }

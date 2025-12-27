@@ -83,6 +83,13 @@ export class AuthController {
     return this.authService.verifyEmail(token);
   }
 
+  // DEBUG ENDPOINT - TEMPORAL para diagnosticar problema de verificación
+  @Get('debug-user')
+  @ApiOperation({ summary: 'Debug user verification status' })
+  async debugUser(@Query('email') email: string) {
+    return this.authService.debugUserStatus(email);
+  }
+
   // ==========================================
   // GET ME - Sin rate limit estricto
   // Usuario autenticado puede consultar sus datos frecuentemente
