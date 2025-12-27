@@ -125,7 +125,7 @@ export class MessagesService {
 
     return {
       otherUser,
-      messages: messages.reverse(), // Reverse to show oldest first
+      messages: [...messages].reverse(), // Reverse to show oldest first
     };
   }
 

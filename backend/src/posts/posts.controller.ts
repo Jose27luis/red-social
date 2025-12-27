@@ -16,7 +16,7 @@ import {
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
-import { extname } from 'path';
+import { extname } from 'node:path';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery, ApiConsumes } from '@nestjs/swagger';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import { PostsService } from './posts.service';
@@ -41,7 +41,7 @@ const imageFileFilter = (
   file: Express.Multer.File,
   callback: (error: Error | null, acceptFile: boolean) => void,
 ) => {
-  if (!file.mimetype.match(/\/(jpg|jpeg|png|gif|webp)$/)) {
+  if (!/\/(jpg|jpeg|png|gif|webp)$/.exec(file.mimetype)) {
     return callback(new BadRequestException('Solo se permiten imágenes (jpg, jpeg, png, gif, webp)'), false);
   }
   callback(null, true);

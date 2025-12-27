@@ -28,8 +28,8 @@ export class MessagesGateway implements OnGatewayConnection, OnGatewayDisconnect
   @WebSocketServer()
   server: Server;
 
-  private logger = new Logger('MessagesGateway');
-  private onlineUsers = new Map<string, string>(); // userId -> socketId
+  private readonly logger = new Logger('MessagesGateway');
+  private readonly onlineUsers = new Map<string, string>(); // userId -> socketId
 
   constructor(
     private readonly messagesService: MessagesService,

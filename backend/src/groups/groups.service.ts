@@ -476,7 +476,7 @@ export class GroupsService {
       },
     });
 
-    if (!adminMembership || adminMembership.role !== 'ADMIN') {
+    if (adminMembership?.role !== 'ADMIN') {
       throw new ForbiddenException('Only admins can update member roles');
     }
 

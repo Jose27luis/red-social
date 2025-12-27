@@ -107,7 +107,7 @@ export default function EventDetailPage() {
   };
 
   const handleDelete = () => {
-    if (window.confirm('¿Estás seguro de que quieres eliminar este evento?')) {
+    if (globalThis.confirm('¿Estás seguro de que quieres eliminar este evento?')) {
       deleteEventMutation.mutate();
     }
   };
@@ -270,8 +270,11 @@ export default function EventDetailPage() {
               {event.attendees.map((attendee) => (
                 <div
                   key={attendee.id}
+                  role="button"
+                  tabIndex={0}
                   className="flex items-center space-x-3 p-3 rounded-lg hover:bg-muted transition-colors cursor-pointer"
                   onClick={() => attendee.user && router.push(`/profile/${attendee.user.id}`)}
+                  onKeyDown={(e) => e.key === 'Enter' && attendee.user && router.push(`/profile/${attendee.user.id}`)}
                 >
                   <Avatar className="h-10 w-10">
                     <AvatarImage src={attendee.user?.profilePicture} />
