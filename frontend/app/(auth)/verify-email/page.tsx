@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useMutation } from '@tanstack/react-query';
@@ -14,7 +14,7 @@ import { ApiError } from '@/types';
 
 type VerificationStatus = 'loading' | 'success' | 'error' | 'no-token';
 
-export default function VerifyEmailPage() {
+function VerifyEmailContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
@@ -136,5 +136,26 @@ export default function VerifyEmailPage() {
     <Card className="shadow-lg border-0 lg:shadow-none lg:bg-transparent">
       {renderContent()}
     </Card>
+  );
+}
+
+function LoadingFallback() {
+  return (
+    <Card className="shadow-lg border-0 lg:shadow-none lg:bg-transparent">
+      <CardHeader className="text-center">
+        <div className="mx-auto mb-4 h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
+          <Loader2 className="h-8 w-8 text-primary animate-spin" />
+        </div>
+        <CardTitle className="text-2xl">Cargando...</CardTitle>
+      </CardHeader>
+    </Card>
+  );
+}
+
+export default function VerifyEmailPage() {
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <VerifyEmailContent />
+    </Suspense>
   );
 }

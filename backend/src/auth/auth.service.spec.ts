@@ -3,6 +3,7 @@ import { AuthService } from './auth.service';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { EmailService } from '../email/email.service';
 import { UnauthorizedException, BadRequestException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 
@@ -46,12 +47,17 @@ describe('AuthService', () => {
       get: jest.fn(),
     };
 
+    const mockEmailService = {
+      sendVerificationEmail: jest.fn().mockResolvedValue(true),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
         { provide: UsersService, useValue: mockUsersService },
         { provide: JwtService, useValue: mockJwtService },
         { provide: ConfigService, useValue: mockConfigService },
+        { provide: EmailService, useValue: mockEmailService },
       ],
     }).compile();
 
@@ -135,7 +141,7 @@ describe('AuthService', () => {
 
       const result = await service.register(registerDto);
 
-      expect(result.message).toContain('Registration successful');
+      expect(result.message).toContain('Registro exitoso');
       expect(usersService.create).toHaveBeenCalled();
     });
 
