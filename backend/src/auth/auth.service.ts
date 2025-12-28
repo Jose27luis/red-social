@@ -3,6 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 import { UsersService } from '../users/users.service';
+import { EmailService } from '../email/email.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginResponseDto } from './dto/login-response.dto';
 
@@ -14,6 +15,7 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
+    private readonly emailService: EmailService,
   ) {}
 
   /**
@@ -68,8 +70,7 @@ export class AuthService {
     // Generate verification token
     const verificationToken = this.generateRandomToken();
 
-    // Create user
-    // TODO: En producción, cambiar isVerified a false y enviar email de verificación
+    // Create user with isVerified = false
     await this.usersService.create({
       email,
       password: hashedPassword,
@@ -79,14 +80,20 @@ export class AuthService {
       department,
       career,
       verificationToken,
-      isVerified: true, // Auto-verificar en desarrollo
+      isVerified: false,
     });
 
-    // TODO: Send verification email
-    this.logger.log(`Verification token for ${email}: ${verificationToken}`);
+    // Send verification email
+    const emailSent = await this.emailService.sendVerificationEmail(email, firstName, verificationToken);
+
+    if (emailSent) {
+      this.logger.log(`Verification email sent to ${email}`);
+    } else {
+      this.logger.warn(`Could not send verification email to ${email}. Token: ${verificationToken}`);
+    }
 
     return {
-      message: 'Registration successful. Please check your email to verify your account.',
+      message: 'Registro exitoso. Por favor revisa tu correo para verificar tu cuenta.',
     };
   }
 
@@ -184,19 +191,32 @@ export class AuthService {
   }
 
   /**
-   * DEBUG: Check user verification status directly from database
+   * Resend verification email
    */
-  async debugUserStatus(email: string): Promise<any> {
+  async resendVerificationEmail(email: string): Promise<{ message: string }> {
     const user = await this.usersService.findByEmail(email);
+
     if (!user) {
-      return { error: 'User not found', email };
+      throw new BadRequestException('No existe una cuenta con este correo');
     }
+
+    if (user.isVerified) {
+      throw new BadRequestException('Esta cuenta ya está verificada');
+    }
+
+    // Generate new verification token
+    const newToken = this.generateRandomToken();
+    await this.usersService.updateVerificationToken(user.id, newToken);
+
+    // Send verification email
+    const emailSent = await this.emailService.sendVerificationEmail(email, user.firstName, newToken);
+
+    if (!emailSent) {
+      throw new BadRequestException('No se pudo enviar el correo de verificación');
+    }
+
     return {
-      email: user.email,
-      isVerified: user.isVerified,
-      isActive: user.isActive,
-      verificationToken: user.verificationToken,
-      id: user.id,
+      message: 'Se ha enviado un nuevo correo de verificación',
     };
   }
 }

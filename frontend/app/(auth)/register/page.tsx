@@ -27,8 +27,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { authApi } from '@/lib/api/endpoints';
-import { useAuthStore } from '@/store/useAuthStore';
 import { ApiError, UserRole } from '@/types';
+import { CheckCircle, Mail } from 'lucide-react';
 import { UNIVERSIDAD_DOMAIN, PASSWORD_REGEX } from '@/lib/constants';
 
 const DEPARTMENTS = ['Ingenieria', 'Ciencias empresariales', 'Educacion'] as const;
@@ -64,8 +64,8 @@ type RegisterFormData = z.infer<typeof registerSchema>;
 
 export default function RegisterPage() {
   const router = useRouter();
-  const setAuth = useAuthStore((state) => state.setAuth);
   const [error, setError] = useState<string>('');
+  const [success, setSuccess] = useState<boolean>(false);
   const [selectedDepartment, setSelectedDepartment] = useState<string>('');
 
   const {
@@ -86,13 +86,12 @@ export default function RegisterPage() {
 
   const registerMutation = useMutation({
     mutationFn: (data: RegisterFormData) => authApi.register(data),
-    onSuccess: (response) => {
-      setAuth(response.data);
-      router.push('/feed');
+    onSuccess: () => {
+      setSuccess(true);
     },
     onError: (error: AxiosError<ApiError>) => {
       const message = error.response?.data?.message || 'Error al registrarse';
-      setError(message);
+      setError(typeof message === 'string' ? message : message[0]);
     },
   });
 
@@ -100,6 +99,39 @@ export default function RegisterPage() {
     setError('');
     registerMutation.mutate(data);
   };
+
+  // Show success message after registration
+  if (success) {
+    return (
+      <Card className="shadow-lg border-0 lg:shadow-none lg:bg-transparent my-4">
+        <CardHeader className="text-center">
+          <div className="mx-auto mb-4 h-16 w-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+            <Mail className="h-8 w-8 text-green-600 dark:text-green-400" />
+          </div>
+          <CardTitle className="text-2xl font-bold text-green-600 dark:text-green-400">
+            ¡Registro Exitoso!
+          </CardTitle>
+          <CardDescription className="text-base mt-2">
+            Hemos enviado un correo de verificación a tu email institucional.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="text-center space-y-4">
+          <div className="bg-muted p-4 rounded-lg">
+            <div className="flex items-center justify-center gap-2 text-sm">
+              <CheckCircle className="h-4 w-4 text-green-500" />
+              <span>Revisa tu bandeja de entrada</span>
+            </div>
+            <p className="text-xs text-muted-foreground mt-2">
+              Si no ves el correo, revisa la carpeta de spam
+            </p>
+          </div>
+          <Button onClick={() => router.push('/login')} className="w-full">
+            Ir al Login
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className="shadow-lg border-0 lg:shadow-none lg:bg-transparent my-4">

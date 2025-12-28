@@ -83,11 +83,19 @@ export class AuthController {
     return this.authService.verifyEmail(token);
   }
 
-  // DEBUG ENDPOINT - TEMPORAL para diagnosticar problema de verificación
-  @Get('debug-user')
-  @ApiOperation({ summary: 'Debug user verification status' })
-  async debugUser(@Query('email') email: string) {
-    return this.authService.debugUserStatus(email);
+  // ==========================================
+  // RESEND VERIFICATION - Rate limit: 3 requests/minuto
+  // Previene spam de emails
+  // ==========================================
+  @Post('resend-verification')
+  @HttpCode(HttpStatus.OK)
+  @Throttle({ short: { ttl: 60000, limit: 3 } }) // 3 intentos por minuto
+  @ApiOperation({ summary: 'Resend verification email' })
+  @ApiResponse({ status: 200, description: 'Verification email sent' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiResponse({ status: 429, description: 'Too many requests' })
+  async resendVerification(@Body('email') email: string) {
+    return this.authService.resendVerificationEmail(email);
   }
 
   // ==========================================

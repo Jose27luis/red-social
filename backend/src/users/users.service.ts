@@ -204,6 +204,16 @@ export class UsersService {
   }
 
   /**
+   * Update verification token (for resending verification email)
+   */
+  async updateVerificationToken(id: string, token: string): Promise<User> {
+    return this.prisma.user.update({
+      where: { id },
+      data: { verificationToken: token },
+    });
+  }
+
+  /**
    * Update refresh token
    */
   async updateRefreshToken(id: string, refreshToken: string | null): Promise<User> {

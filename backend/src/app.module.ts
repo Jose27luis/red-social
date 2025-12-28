@@ -16,6 +16,7 @@ import { EventsModule } from './events/events.module';
 import { ResourcesModule } from './resources/resources.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { FeedModule } from './feed/feed.module';
+import { EmailModule } from './email/email.module';
 
 @Module({
   imports: [
@@ -51,6 +52,7 @@ import { FeedModule } from './feed/feed.module';
       },
     ]),
     DatabaseModule,
+    EmailModule,
     AuthModule,
     UsersModule,
     PostsModule,

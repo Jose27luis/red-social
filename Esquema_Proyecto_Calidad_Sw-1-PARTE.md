@@ -617,6 +617,178 @@ jmeter-tests/
 
 ---
 
+### 7.12 Despliegue en Producción
+
+Se ha desplegado la aplicación Red Académica UNAMAD en servicios cloud gratuitos para demostración y pruebas.
+
+#### 7.12.1 Arquitectura de Despliegue
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                        ARQUITECTURA DE PRODUCCIÓN                    │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                      │
+│   ┌─────────────┐         ┌─────────────┐         ┌─────────────┐  │
+│   │   Usuario   │────────▶│   Vercel    │────────▶│   Render    │  │
+│   │  (Browser)  │         │  (Frontend) │         │  (Backend)  │  │
+│   └─────────────┘         └─────────────┘         └──────┬──────┘  │
+│                                                          │          │
+│                                                          ▼          │
+│                                                   ┌─────────────┐  │
+│                                                   │ PostgreSQL  │  │
+│                                                   │  (Render)   │  │
+│                                                   └─────────────┘  │
+│                                                                      │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+#### 7.12.2 Servicios Utilizados
+
+| Componente | Servicio | Plan | URL |
+|------------|----------|------|-----|
+| **Frontend** | Vercel | Free | https://red-social-ashy.vercel.app |
+| **Backend API** | Render | Free | https://red-academica-api.onrender.com |
+| **Base de Datos** | Render PostgreSQL | Free | Internal URL (privada) |
+
+#### 7.12.3 Paso 1: Configurar PostgreSQL en Render
+
+1. Crear cuenta en [Render](https://render.com)
+2. Ir a **Dashboard** → **New** → **PostgreSQL**
+3. Configurar:
+   - **Name**: `redacademica`
+   - **Database**: `redacademica`
+   - **User**: `redacademica`
+   - **Region**: Oregon (US West)
+   - **Plan**: Free
+4. Click en **Create Database**
+5. Esperar a que el estado cambie a "Available"
+6. Copiar las URLs:
+   - **Internal Database URL**: Para usar dentro de Render
+   - **External Database URL**: Para conexiones externas (migraciones)
+
+#### 7.12.4 Paso 2: Desplegar Backend en Render
+
+1. Ir a **Dashboard** → **New** → **Web Service**
+2. Conectar repositorio de GitHub
+3. Configurar:
+   - **Name**: `red-academica-api`
+   - **Region**: Oregon (US West)
+   - **Branch**: `main`
+   - **Root Directory**: `backend`
+   - **Runtime**: Node
+   - **Build Command**:
+     ```bash
+     npm install --include=dev && npx prisma generate && npx nest build --webpack=false
+     ```
+   - **Start Command**:
+     ```bash
+     node dist/main
+     ```
+   - **Plan**: Free
+
+4. Configurar **Environment Variables**:
+
+| Variable | Valor |
+|----------|-------|
+| `DATABASE_URL` | (Internal Database URL de PostgreSQL) |
+| `JWT_SECRET` | (clave secreta segura) |
+| `JWT_REFRESH_SECRET` | (otra clave secreta) |
+| `JWT_EXPIRES_IN` | `15m` |
+| `JWT_REFRESH_EXPIRES_IN` | `7d` |
+| `FRONTEND_URL` | `https://red-social-ashy.vercel.app` |
+| `NODE_ENV` | `production` |
+| `PORT` | `3001` |
+
+5. Click en **Create Web Service**
+6. Esperar a que el deploy termine (~3-5 minutos)
+
+#### 7.12.5 Paso 2.1: Ejecutar Migraciones de Prisma
+
+Desde la máquina local, ejecutar las migraciones usando la **External Database URL**:
+
+```bash
+cd backend
+
+# Configurar variable de entorno temporal
+set DATABASE_URL=postgresql://user:password@host/database
+
+# Ejecutar migraciones
+npx prisma migrate deploy
+
+# Verificar que las tablas se crearon
+npx prisma db pull
+```
+
+**Nota**: Se usa la External URL porque Render Free no permite acceso a Shell.
+
+#### 7.12.6 Paso 3: Desplegar Frontend en Vercel
+
+1. Crear cuenta en [Vercel](https://vercel.com)
+2. Click en **Add New** → **Project**
+3. Importar repositorio de GitHub
+4. Configurar:
+   - **Framework Preset**: Next.js (auto-detectado)
+   - **Root Directory**: `frontend`
+5. Configurar **Environment Variables**:
+
+| Variable | Valor |
+|----------|-------|
+| `NEXT_PUBLIC_API_URL` | `https://red-academica-api.onrender.com` |
+
+6. Click en **Deploy**
+7. Esperar a que el deploy termine (~2-3 minutos)
+
+#### 7.12.7 Paso 4: Configurar CORS en Backend
+
+Asegurarse de que la variable `FRONTEND_URL` en Render coincida exactamente con la URL de Vercel:
+
+```
+FRONTEND_URL=https://red-social-ashy.vercel.app
+```
+
+Si la URL no coincide, se producirán errores de CORS:
+```
+Access to XMLHttpRequest blocked by CORS policy
+```
+
+#### 7.12.8 Verificación del Despliegue
+
+1. **Verificar Backend**: Acceder a `https://red-academica-api.onrender.com/api` para ver la documentación Swagger
+2. **Verificar Frontend**: Acceder a `https://red-social-ashy.vercel.app` para ver la interfaz
+3. **Verificar Conexión BD**: El backend debe poder conectarse a PostgreSQL
+
+#### 7.12.9 Consideraciones del Plan Gratuito
+
+| Limitación | Descripción | Impacto |
+|------------|-------------|---------|
+| **Sleep Mode (Render)** | El servidor entra en sleep después de 15 min de inactividad | Primera petición tarda ~30 segundos |
+| **Sin Shell (Render Free)** | No hay acceso a terminal remota | Migraciones deben ejecutarse localmente |
+| **Almacenamiento BD** | 1GB máximo en PostgreSQL Free | Suficiente para demo |
+| **Builds (Vercel)** | 100 deploys/día en plan Free | Suficiente para desarrollo |
+
+#### 7.12.10 Troubleshooting Común
+
+| Problema | Causa | Solución |
+|----------|-------|----------|
+| `nest: not found` | devDependencies no instaladas | Usar `npm install --include=dev` |
+| `Cannot find module dist/main` | Build incompleto | Verificar `tsconfig.build.json` existe |
+| CORS error | FRONTEND_URL incorrecta | Actualizar variable en Render |
+| Login falla | Usuario no verificado | Actualizar `isVerified=true` en BD |
+| Timeout en primera petición | Servidor en sleep | Esperar ~30 segundos |
+
+#### 7.12.11 Archivo tsconfig.build.json
+
+Se requiere este archivo para que NestJS compile correctamente en producción:
+
+```json
+{
+  "extends": "./tsconfig.json",
+  "exclude": ["node_modules", "test", "dist", "**/*spec.ts"]
+}
+```
+
+---
+
 ## 8. CONCLUSIONES
 
 ### 8.1 Resultados Esperados
@@ -646,6 +818,9 @@ jmeter-tests/
 - [x] ~~Configurar Codecov para seguimiento de cobertura~~ ✅ **Completado**
 - [x] ~~Configurar SonarQube Cloud~~ ✅ **Completado**
 - [x] ~~Agregar pruebas de rendimiento con JMeter~~ ✅ **Completado**
+- [x] ~~Corregir bugs detectados por SonarQube~~ ✅ **Completado**
+- [x] ~~Desplegar aplicación en producción~~ ✅ **Completado - Vercel + Render**
+- [ ] Implementar verificación de email con Gmail SMTP
 - [ ] Implementar pruebas E2E con Cypress
 - [ ] Implementar monitoreo en producción
 - [ ] Completar la documentación de API
