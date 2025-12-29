@@ -789,6 +789,222 @@ Se requiere este archivo para que NestJS compile correctamente en producción:
 
 ---
 
+### 7.13 Sistema de Verificación de Email
+
+Se implementó un sistema de verificación de correo electrónico para garantizar que los usuarios registrados pertenezcan a la comunidad universitaria UNAMAD.
+
+#### 7.13.1 Arquitectura del Sistema de Verificación
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    FLUJO DE VERIFICACIÓN DE EMAIL                            │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│   ┌──────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐ │
+│   │ Usuario  │───▶│   Registro   │───▶│  Genera      │───▶│ Envía Email  │ │
+│   │          │    │  (Frontend)  │    │  Token       │    │ (SMTP/API)   │ │
+│   └──────────┘    └──────────────┘    └──────────────┘    └──────┬───────┘ │
+│                                                                   │         │
+│                                                                   ▼         │
+│   ┌──────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐ │
+│   │ Usuario  │◀───│   Login      │◀───│  Verificar   │◀───│ Click Link   │ │
+│   │ Activo   │    │  Habilitado  │    │  Token       │    │ en Email     │ │
+│   └──────────┘    └──────────────┘    └──────────────┘    └──────────────┘ │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+#### 7.13.2 Componentes Implementados
+
+##### Backend (NestJS)
+
+| Archivo | Descripción |
+|---------|-------------|
+| `src/email/email.module.ts` | Módulo global de email |
+| `src/email/email.service.ts` | Servicio de envío con Nodemailer |
+| `src/auth/auth.service.ts` | Integración con registro y verificación |
+| `src/auth/auth.controller.ts` | Endpoints de verificación y reenvío |
+
+##### Frontend (Next.js)
+
+| Archivo | Descripción |
+|---------|-------------|
+| `app/(auth)/verify-email/page.tsx` | Página de verificación de token |
+| `app/(auth)/register/page.tsx` | Mensaje de confirmación post-registro |
+| `lib/api/endpoints.ts` | Función `resendVerification` |
+
+#### 7.13.3 Configuración de Gmail SMTP
+
+Se configuró Gmail SMTP para el envío de correos de verificación:
+
+```env
+# Variables de entorno requeridas
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=correo@gmail.com
+SMTP_PASS=xxxx xxxx xxxx xxxx  # App Password de 16 caracteres
+FRONTEND_URL=https://tu-app.vercel.app
+```
+
+**Requisitos para Gmail App Password:**
+1. Tener habilitada la verificación en 2 pasos (2FA)
+2. Ir a https://myaccount.google.com/apppasswords
+3. Generar contraseña de aplicación para "Correo"
+4. Usar la contraseña de 16 caracteres (sin espacios) en `SMTP_PASS`
+
+**Nota:** Las cuentas institucionales (@unamad.edu.pe) pueden no tener acceso a App Passwords si el administrador de Google Workspace lo tiene deshabilitado.
+
+#### 7.13.4 EmailService - Implementación
+
+```typescript
+@Injectable()
+export class EmailService {
+  private transporter: Transporter;
+
+  constructor(private readonly configService: ConfigService) {
+    this.initializeTransporter();
+  }
+
+  private initializeTransporter(): void {
+    const host = this.configService.get<string>('SMTP_HOST');
+    const port = this.configService.get<number>('SMTP_PORT');
+    const user = this.configService.get<string>('SMTP_USER');
+    const pass = this.configService.get<string>('SMTP_PASS');
+
+    if (!host || !port || !user || !pass) {
+      this.logger.warn('SMTP not configured - email sending disabled');
+      return;
+    }
+
+    this.transporter = nodemailer.createTransport({
+      host,
+      port,
+      secure: false, // TLS
+      auth: { user, pass },
+    });
+  }
+
+  async sendVerificationEmail(email: string, token: string): Promise<boolean> {
+    const frontendUrl = this.configService.get<string>('FRONTEND_URL');
+    const verificationUrl = `${frontendUrl}/verify-email?token=${token}`;
+
+    // Envía email con plantilla HTML
+    await this.transporter.sendMail({
+      from: '"Red Académica UNAMAD" <noreply@unamad.edu.pe>',
+      to: email,
+      subject: 'Verifica tu cuenta - Red Académica UNAMAD',
+      html: this.getVerificationEmailTemplate(verificationUrl),
+    });
+  }
+}
+```
+
+#### 7.13.5 Plantilla de Email HTML
+
+Se diseñó una plantilla HTML profesional con:
+- Logo de UNAMAD (placeholder)
+- Mensaje de bienvenida personalizado
+- Botón de verificación con estilos inline
+- Enlace alternativo en texto
+- Footer con información de contacto
+- Diseño responsive
+
+#### 7.13.6 Endpoints de API
+
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| `POST` | `/auth/register` | Registra usuario y envía email de verificación |
+| `GET` | `/auth/verify-email?token=xxx` | Verifica el token y activa la cuenta |
+| `POST` | `/auth/resend-verification` | Reenvía email de verificación |
+
+**Ejemplo de uso - Reenvío de verificación:**
+```bash
+curl -X POST https://api.example.com/auth/resend-verification \
+  -H "Content-Type: application/json" \
+  -d '{"email": "usuario@unamad.edu.pe"}'
+```
+
+#### 7.13.7 Página de Verificación (Frontend)
+
+La página `/verify-email` maneja los siguientes estados:
+
+| Estado | Descripción | UI |
+|--------|-------------|-----|
+| `loading` | Verificando token | Spinner animado |
+| `success` | Token válido, cuenta activada | Icono verde, redirección a login |
+| `error` | Token inválido o expirado | Icono rojo, opción de reenvío |
+| `no-token` | No se proporcionó token | Mensaje informativo |
+
+**Requisito técnico - Suspense Boundary:**
+```tsx
+// Next.js requiere Suspense para useSearchParams
+export default function VerifyEmailPage() {
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <VerifyEmailContent />
+    </Suspense>
+  );
+}
+```
+
+#### 7.13.8 Tests Actualizados
+
+Se actualizó `auth.service.spec.ts` para incluir el mock de EmailService:
+
+```typescript
+const mockEmailService = {
+  sendVerificationEmail: jest.fn().mockResolvedValue(true),
+};
+
+const module = await Test.createTestingModule({
+  providers: [
+    AuthService,
+    { provide: EmailService, useValue: mockEmailService },
+    // ... otros providers
+  ],
+}).compile();
+```
+
+#### 7.13.9 Limitación en Render Free Tier
+
+**Problema detectado:** Render bloquea conexiones SMTP salientes en el plan gratuito.
+
+```
+[Nest] ERROR [EmailService] SMTP connection failed: Connection timeout
+```
+
+**Síntomas:**
+- El email se envía correctamente en desarrollo local
+- En producción (Render), la conexión SMTP hace timeout después de ~2 minutos
+- El registro del usuario se completa pero sin enviar el email
+
+**Soluciones disponibles:**
+
+| Opción | Descripción | Costo |
+|--------|-------------|-------|
+| **Resend API** | Servicio de email vía HTTP | Gratis (100 emails/día) |
+| **SendGrid API** | Servicio de email vía HTTP | Gratis (100 emails/día) |
+| **Render Paid** | Desbloquea SMTP saliente | $7/mes |
+| **Verificación manual** | Actualizar BD directamente | Gratis (temporal) |
+
+**Verificación manual de usuarios (workaround temporal):**
+```sql
+-- Conectar a PostgreSQL de Render usando External URL
+psql "postgresql://user:pass@host/db?sslmode=require"
+
+-- Verificar usuario manualmente
+UPDATE users SET "isVerified" = true WHERE email = 'usuario@unamad.edu.pe';
+```
+
+#### 7.13.10 Commits Relacionados
+
+| Commit | Descripción |
+|--------|-------------|
+| `2e860a9` | feat: agregamos autenticacion con gmail |
+| `0c20568` | fix: arreglamos bugs de test y build para despliegue |
+
+---
+
 ## 8. CONCLUSIONES
 
 ### 8.1 Resultados Esperados
@@ -820,7 +1036,8 @@ Se requiere este archivo para que NestJS compile correctamente en producción:
 - [x] ~~Agregar pruebas de rendimiento con JMeter~~ ✅ **Completado**
 - [x] ~~Corregir bugs detectados por SonarQube~~ ✅ **Completado**
 - [x] ~~Desplegar aplicación en producción~~ ✅ **Completado - Vercel + Render**
-- [ ] Implementar verificación de email con Gmail SMTP
+- [x] ~~Implementar verificación de email con Gmail SMTP~~ ✅ **Completado - Funcional en local, limitado en Render Free**
+- [ ] Migrar a servicio de email HTTP (Resend) para producción
 - [ ] Implementar pruebas E2E con Cypress
 - [ ] Implementar monitoreo en producción
 - [ ] Completar la documentación de API
