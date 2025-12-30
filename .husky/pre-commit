@@ -2,7 +2,7 @@
 . "$(dirname -- "$0")/_/husky.sh"
 
 # Run lint-staged for backend
-echo " Running backend lint-staged..."
+echo "Running backend lint-staged..."
 cd backend && npx lint-staged
 BACKEND_EXIT=$?
 
@@ -10,15 +10,35 @@ BACKEND_EXIT=$?
 cd ..
 
 # Run lint-staged for frontend
-echo " Running frontend lint-staged..."
+echo "Running frontend lint-staged..."
 cd frontend && npx lint-staged
 FRONTEND_EXIT=$?
 
-# Exit with error if either failed
+# Go back to root
+cd ..
+
+# Exit with error if lint-staged failed
 if [ $BACKEND_EXIT -ne 0 ] || [ $FRONTEND_EXIT -ne 0 ]; then
-  echo " Pre-commit checks failed!"
+  echo "Pre-commit lint checks failed!"
   exit 1
 fi
 
-echo " Pre-commit checks passed!"
+echo "Lint checks passed!"
+
+# Run GGA (Gentleman Guardian Angel) AI Code Review
+# Solo si gga está instalado y hay archivos staged
+if command -v gga &> /dev/null; then
+  echo "Running GGA AI Code Review..."
+  gga run
+  GGA_EXIT=$?
+  if [ $GGA_EXIT -ne 0 ]; then
+    echo "GGA AI Code Review found issues!"
+    exit 1
+  fi
+  echo "GGA AI Code Review passed!"
+else
+  echo "GGA not installed, skipping AI review..."
+fi
+
+echo "All pre-commit checks passed!"
 exit 0

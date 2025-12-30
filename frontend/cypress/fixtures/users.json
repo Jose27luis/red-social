@@ -1,0 +1,20 @@
+{
+  "validUser": {
+    "email": "18121040@unamad.edu.pe",
+    "password": "Teco27@.",
+    "firstName": "Jose",
+    "lastName": "Garcia"
+  },
+  "newUser": {
+    "email": "testuser@unamad.edu.pe",
+    "password": "TestPassword123!",
+    "firstName": "Test",
+    "lastName": "User",
+    "department": "Ingeniería",
+    "career": "Sistemas"
+  },
+  "invalidUser": {
+    "email": "invalid@gmail.com",
+    "password": "password123"
+  }
+}
