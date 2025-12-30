@@ -100,7 +100,7 @@ Cypress.Commands.add('register', (userData) => {
 // Contains text (case insensitive)
 Cypress.Commands.add('containsText', (text: string) => {
   // eslint-disable-next-line security/detect-non-literal-regexp
-  return cy.contains(new RegExp(text, 'i'));
+  return cy.contains(new RegExp(text, 'i')) as unknown as Cypress.Chainable<JQuery<HTMLElement>>;
 });
 
 export {};
