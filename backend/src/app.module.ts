@@ -17,6 +17,7 @@ import { ResourcesModule } from './resources/resources.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { FeedModule } from './feed/feed.module';
 import { EmailModule } from './email/email.module';
+import { AccessLogsModule } from './access-logs/access-logs.module';
 
 @Module({
   imports: [
@@ -62,6 +63,7 @@ import { EmailModule } from './email/email.module';
     ResourcesModule,
     NotificationsModule,
     FeedModule,
+    AccessLogsModule,
   ],
   controllers: [AppController],
   providers: [

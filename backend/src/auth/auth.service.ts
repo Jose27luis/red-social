@@ -4,8 +4,25 @@ import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 import { UsersService } from '../users/users.service';
 import { EmailService } from '../email/email.service';
+import { AccessLogsService } from '../access-logs/access-logs.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginResponseDto } from './dto/login-response.dto';
+import { UserRole } from '@prisma/client';
+
+interface ValidatedUser {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: UserRole;
+  profilePicture: string | null;
+}
+
+interface JwtPayload {
+  email: string;
+  sub: string;
+  role: UserRole;
+}
 
 @Injectable()
 export class AuthService {
@@ -16,6 +33,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly emailService: EmailService,
+    private readonly accessLogsService: AccessLogsService,
   ) {}
 
   /**
@@ -100,14 +118,24 @@ export class AuthService {
   /**
    * Login user and return tokens
    */
-  async login(user: any): Promise<LoginResponseDto> {
-    const payload = { email: user.email, sub: user.id, role: user.role };
+  async login(user: ValidatedUser, ipAddress?: string, userAgent?: string): Promise<LoginResponseDto> {
+    const payload: JwtPayload = { email: user.email, sub: user.id, role: user.role };
 
     const accessToken = this.jwtService.sign(payload);
     const refreshToken = await this.generateRefreshToken(payload);
 
     // Store refresh token in database
     await this.usersService.updateRefreshToken(user.id, refreshToken);
+
+    // Register access log
+    if (ipAddress) {
+      await this.accessLogsService.createAccessLog({
+        userId: user.id,
+        ipAddress,
+        userAgent,
+        success: true,
+      });
+    }
 
     return {
       accessToken,
@@ -137,7 +165,7 @@ export class AuthService {
       throw new UnauthorizedException('Access denied');
     }
 
-    const payload = { email: user.email, sub: user.id, role: user.role };
+    const payload: JwtPayload = { email: user.email, sub: user.id, role: user.role };
     const newAccessToken = this.jwtService.sign(payload);
     const newRefreshToken = await this.generateRefreshToken(payload);
 
@@ -174,7 +202,7 @@ export class AuthService {
   /**
    * Generate refresh token
    */
-  private async generateRefreshToken(payload: any): Promise<string> {
+  private async generateRefreshToken(payload: JwtPayload): Promise<string> {
     const refreshToken = this.jwtService.sign(payload, {
       secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
       expiresIn: this.configService.get<string>('JWT_REFRESH_EXPIRES_IN', '7d'),

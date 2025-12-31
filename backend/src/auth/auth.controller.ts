@@ -1,4 +1,5 @@
-import { Controller, Post, Body, UseGuards, Get, Query, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Get, Query, HttpCode, HttpStatus, Req } from '@nestjs/common';
+import { Request } from 'express';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
@@ -10,6 +11,27 @@ import { LocalAuthGuard } from './guards/local-auth.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { JwtRefreshAuthGuard } from './guards/jwt-refresh-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { UserRole } from '@prisma/client';
+
+interface ValidatedUser {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: UserRole;
+  profilePicture: string | null;
+}
+
+interface RefreshTokenUser {
+  id: string;
+  refreshToken: string;
+}
+
+interface CurrentUserPayload {
+  id: string;
+  email: string;
+  role: UserRole;
+}
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -42,9 +64,10 @@ export class AuthController {
   @ApiResponse({ status: 200, description: 'Login successful', type: LoginResponseDto })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 429, description: 'Too many login attempts. Try again later.' })
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async login(@Body() loginDto: LoginDto, @CurrentUser() user: any) {
-    return this.authService.login(user);
+  async login(@Body() loginDto: LoginDto, @CurrentUser() user: ValidatedUser, @Req() req: Request) {
+    const ipAddress = req.ip || req.headers['x-forwarded-for']?.toString() || 'unknown';
+    const userAgent = req.headers['user-agent'] || 'unknown';
+    return this.authService.login(user, ipAddress, userAgent);
   }
 
   // ==========================================
@@ -59,8 +82,7 @@ export class AuthController {
   @ApiResponse({ status: 200, description: 'Token refreshed successfully' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 429, description: 'Too many requests' })
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async refreshTokens(@Body() refreshTokenDto: RefreshTokenDto, @CurrentUser() user: any) {
+  async refreshTokens(@Body() refreshTokenDto: RefreshTokenDto, @CurrentUser() user: RefreshTokenUser) {
     return this.authService.refreshTokens(user.id, user.refreshToken);
   }
 
@@ -70,8 +92,7 @@ export class AuthController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Logout user' })
   @ApiResponse({ status: 200, description: 'Logout successful' })
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async logout(@CurrentUser() user: any) {
+  async logout(@CurrentUser() user: CurrentUserPayload) {
     return this.authService.logout(user.id);
   }
 
@@ -107,8 +128,7 @@ export class AuthController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get current user' })
   @ApiResponse({ status: 200, description: 'Current user retrieved' })
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async getCurrentUser(@CurrentUser() user: any) {
+  async getCurrentUser(@CurrentUser() user: CurrentUserPayload) {
     return user;
   }
 }

@@ -1005,6 +1005,420 @@ UPDATE users SET "isVerified" = true WHERE email = 'usuario@unamad.edu.pe';
 
 ---
 
+### 7.14 Pruebas E2E con Cypress
+
+Se implementaron pruebas End-to-End (E2E) utilizando Cypress para validar flujos completos de usuario.
+
+#### 7.14.1 Configuración de Cypress
+
+**Instalación:**
+```bash
+cd frontend
+npm install -D cypress @testing-library/cypress start-server-and-test
+```
+
+**Archivo de configuración (`cypress.config.ts`):**
+```typescript
+import { defineConfig } from 'cypress';
+
+export default defineConfig({
+  e2e: {
+    baseUrl: 'http://localhost:3000',
+    supportFile: 'cypress/support/e2e.ts',
+    specPattern: 'cypress/e2e/**/*.cy.{js,jsx,ts,tsx}',
+    viewportWidth: 1280,
+    viewportHeight: 720,
+    video: false,
+    screenshotOnRunFailure: true,
+    env: {
+      apiUrl: 'http://localhost:3001',
+    },
+  },
+});
+```
+
+#### 7.14.2 Estructura de Archivos
+
+```
+frontend/cypress/
+├── e2e/
+│   ├── auth.cy.ts          # Tests de autenticación
+│   ├── feed.cy.ts          # Tests del feed
+│   └── navigation.cy.ts    # Tests de navegación
+├── fixtures/
+│   └── users.json          # Datos de prueba
+├── support/
+│   ├── commands.ts         # Comandos personalizados
+│   └── e2e.ts              # Configuración global
+└── tsconfig.json           # Configuración TypeScript
+```
+
+#### 7.14.3 Tests Implementados
+
+##### Tests de Autenticación (`auth.cy.ts`)
+
+| Test | Descripción |
+|------|-------------|
+| Mostrar formulario de login | Verifica elementos del formulario |
+| Error con credenciales inválidas | Valida mensaje de error |
+| Validar email institucional | Solo acepta @unamad.edu.pe |
+| Registro de usuario | Flujo completo de registro |
+| Login exitoso | Redirección a feed + tokens |
+| Protección de rutas | Redirección a login si no autenticado |
+| Logout | Limpieza de tokens y redirección |
+
+##### Tests del Feed (`feed.cy.ts`)
+
+| Test | Descripción |
+|------|-------------|
+| Visualización del feed | Carga correcta de la página |
+| Crear publicación | Escribir y publicar contenido |
+| Interacción con posts | Like y comentarios |
+| Navegación desde feed | Acceso a grupos, eventos, perfil |
+
+##### Tests de Navegación (`navigation.cy.ts`)
+
+| Test | Descripción |
+|------|-------------|
+| Enlaces de navegación | Verificar todos los enlaces |
+| Navegación entre secciones | Flujo completo de navegación |
+| Responsive design | Pruebas en mobile, tablet, desktop |
+
+#### 7.14.4 Comandos Personalizados
+
+```typescript
+// cypress/support/commands.ts
+
+// Login via UI
+Cypress.Commands.add('login', (email, password) => {
+  cy.visit('/login');
+  cy.get('input[name="email"]').type(email);
+  cy.get('input[name="password"]').type(password);
+  cy.get('button[type="submit"]').click();
+  cy.url().should('include', '/feed');
+});
+
+// Login via API (más rápido)
+Cypress.Commands.add('loginViaApi', (email, password) => {
+  cy.request({
+    method: 'POST',
+    url: `${Cypress.env('apiUrl')}/auth/login`,
+    body: { email, password },
+  }).then((response) => {
+    window.localStorage.setItem('accessToken', response.body.accessToken);
+  });
+});
+```
+
+#### 7.14.5 Scripts de Ejecución
+
+```json
+{
+  "scripts": {
+    "cypress:open": "cypress open",
+    "cypress:run": "cypress run",
+    "e2e": "start-server-and-test dev http://localhost:3002 cypress:run",
+    "e2e:open": "start-server-and-test dev http://localhost:3002 cypress:open"
+  }
+}
+```
+
+| Comando | Descripción |
+|---------|-------------|
+| `npm run cypress:open` | Abre Cypress UI (modo interactivo) |
+| `npm run cypress:run` | Ejecuta tests en modo headless |
+| `npm run e2e` | Inicia servidor + ejecuta tests |
+| `npm run e2e:open` | Inicia servidor + abre Cypress UI |
+
+#### 7.14.6 Integración con CI/CD
+
+Se agregó un job de E2E en GitHub Actions:
+
+```yaml
+frontend-e2e:
+  name: Frontend E2E Tests (Cypress)
+  runs-on: ubuntu-latest
+  needs: [frontend-lint]
+
+  services:
+    postgres:
+      image: postgres:16-alpine
+
+  steps:
+    - name: Run Cypress tests
+      uses: cypress-io/github-action@v6
+      with:
+        start: npm run dev
+        wait-on: 'http://localhost:3002'
+        browser: chrome
+```
+
+#### 7.14.7 Pirámide de Testing Completa
+
+```
+                    ┌───────────┐
+                    │    E2E    │  ← Cypress (flujos completos)
+                    │  (pocos)  │
+                    └─────┬─────┘
+                          │
+                ┌─────────┴─────────┐
+                │   Integración     │  ← Jest + Supertest (APIs)
+                │    (algunos)      │
+                └─────────┬─────────┘
+                          │
+          ┌───────────────┴───────────────┐
+          │         Unitarias             │  ← Jest (servicios, componentes)
+          │          (muchos)             │
+          │        278 tests, 93%+        │
+          └───────────────────────────────┘
+```
+
+#### 7.14.8 Beneficios de las Pruebas E2E
+
+| Beneficio | Descripción |
+|-----------|-------------|
+| Validación de flujos reales | Simula interacción real del usuario |
+| Detección de regresiones | Identifica errores en integraciones |
+| Documentación viva | Los tests documentan el comportamiento esperado |
+| Confianza en deploys | Mayor seguridad al desplegar cambios |
+
+---
+
+### 7.15 GGA (Gentleman Guardian Angel) - AI Code Review
+
+Se implementó GGA para revisión automática de código usando IA antes de cada commit.
+
+#### 7.15.1 ¿Qué es GGA?
+
+GGA es una herramienta de code review automatizado que utiliza IA (Claude, Gemini, Codex, Ollama) para validar el código contra estándares definidos.
+
+#### 7.15.2 Instalación
+
+```bash
+# Clonar repositorio
+git clone https://github.com/Gentleman-Programming/gentleman-guardian-angel.git ~/gga-install
+
+# Instalar
+cd ~/gga-install && bash install.sh
+
+# Verificar
+gga version
+```
+
+#### 7.15.3 Configuración del Proyecto
+
+**Archivo `.gga`:**
+```
+PROVIDER="claude"
+FILE_PATTERNS="*.ts,*.tsx,*.js,*.jsx"
+EXCLUDE_PATTERNS="*.test.ts,*.spec.ts,*.test.tsx,*.spec.tsx,*.d.ts"
+RULES_FILE="AGENTS.md"
+STRICT_MODE="true"
+```
+
+#### 7.15.4 Estándares de Código (`AGENTS.md`)
+
+El archivo `AGENTS.md` define las reglas que la IA debe verificar:
+
+- **TypeScript**: No usar `any`, preferir `const`, usar optional chaining
+- **NestJS**: Usar DTOs, manejar excepciones, no exponer secretos
+- **Next.js**: Componentes funcionales, React Query para estado servidor
+- **Testing**: Descripciones claras, mocks para dependencias
+- **Git**: Conventional Commits, no commitear secretos
+
+#### 7.15.5 Integración con Husky
+
+```bash
+# .husky/pre-commit
+
+# 1. Lint-staged (ESLint + Prettier)
+cd backend && npx lint-staged
+cd frontend && npx lint-staged
+
+# 2. GGA AI Code Review
+if command -v gga &> /dev/null; then
+  gga run
+fi
+```
+
+#### 7.15.6 Flujo de Trabajo
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    FLUJO DE COMMIT CON GGA                       │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│   git commit -m "feat: nueva funcionalidad"                     │
+│         │                                                        │
+│         ▼                                                        │
+│   ┌─────────────────────────────────────────┐                   │
+│   │         .husky/pre-commit               │                   │
+│   ├─────────────────────────────────────────┤                   │
+│   │  1. lint-staged (ESLint + Prettier)     │                   │
+│   │  2. GGA (Claude AI Review)              │                   │
+│   └─────────────────────────────────────────┘                   │
+│         │                                                        │
+│         ▼                                                        │
+│   Claude analiza código vs AGENTS.md                            │
+│         │                                                        │
+│         ├── ✅ PASSED → Commit se realiza                       │
+│         └── ❌ FAILED → Muestra violaciones, bloquea commit     │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+#### 7.15.7 Ejemplo de Revisión
+
+**Código con problemas:**
+```typescript
+const data: any = await fetch(url);  // ❌ Uso de any
+console.log(data);                    // ❌ console.log en producción
+```
+
+**Respuesta de GGA:**
+```
+STATUS: FAILED
+
+Violations:
+1. Line 1: No usar "any" - definir tipo específico
+2. Line 2: No usar console.log - usar Logger de NestJS
+```
+
+---
+
+### 7.16 Sistema de Historial de Accesos (Access Logs)
+
+#### 7.16.1 Descripción
+
+Se implementó un sistema de registro de accesos que permite a los usuarios ver el historial de inicios de sesión en su cuenta, incluyendo información sobre el dispositivo, navegador, sistema operativo y ubicación aproximada.
+
+#### 7.16.2 Modelo de Datos
+
+```prisma
+model AccessLog {
+  id        String   @id @default(uuid())
+  userId    String
+  ipAddress String
+  userAgent String?
+  device    String?   // Desktop, Mobile, Tablet
+  browser   String?   // Chrome, Firefox, Safari, Edge
+  os        String?   // Windows, macOS, Linux, Android, iOS
+  country   String?
+  city      String?
+  success   Boolean  @default(true)
+  failReason String?
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([createdAt])
+  @@index([success])
+  @@map("access_logs")
+}
+```
+
+#### 7.16.3 Arquitectura
+
+```
+┌─────────────┐     ┌──────────────┐     ┌──────────────┐     ┌─────────────┐
+│   Usuario   │────▶│    Login     │────▶│  AuthService │────▶│ AccessLogs  │
+│   Login     │     │  Controller  │     │              │     │  Service    │
+└─────────────┘     └──────────────┘     └──────────────┘     └──────┬──────┘
+                           │                                         │
+                           │ IP, User-Agent                         ▼
+                           │                                  ┌─────────────┐
+                           └─────────────────────────────────▶│  PostgreSQL │
+                                                              │  (Render)   │
+                                                              └─────────────┘
+```
+
+#### 7.16.4 Funcionalidades
+
+| Función | Descripción |
+|---------|-------------|
+| **Registro automático** | Cada login exitoso se registra automáticamente |
+| **Detección de dispositivo** | Identifica si es Desktop, Mobile o Tablet |
+| **Detección de navegador** | Chrome, Firefox, Safari, Edge, Opera |
+| **Detección de SO** | Windows, macOS, Linux, Android, iOS |
+| **Geolocalización** | País y ciudad aproximada vía ip-api.com |
+| **Intentos fallidos** | Contador de intentos fallidos en 24h |
+| **Paginación** | Historial paginado (20 items por página) |
+
+#### 7.16.5 Endpoints API
+
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| GET | `/access-logs` | Obtener historial de accesos (paginado) |
+| GET | `/access-logs/failed-attempts` | Obtener contador de intentos fallidos |
+
+**Ejemplo de respuesta:**
+```json
+{
+  "data": [
+    {
+      "id": "uuid",
+      "ipAddress": "192.168.1.1",
+      "device": "Desktop",
+      "browser": "Chrome",
+      "os": "Windows",
+      "country": "Peru",
+      "city": "Puerto Maldonado",
+      "success": true,
+      "createdAt": "2025-12-31T19:00:00.000Z"
+    }
+  ],
+  "meta": {
+    "total": 50,
+    "page": 1,
+    "limit": 20,
+    "totalPages": 3
+  }
+}
+```
+
+#### 7.16.6 Interfaz de Usuario
+
+Se creó la página `/settings/security` que muestra:
+- **Resumen de seguridad**: Total de accesos, intentos fallidos, último acceso
+- **Lista de accesos**: Con iconos para dispositivo, color para navegador
+- **Geolocalización**: Ciudad y país de cada acceso
+- **Paginación**: Navegación entre páginas de historial
+
+#### 7.16.7 Archivos Creados/Modificados
+
+**Backend:**
+- `backend/prisma/schema.prisma` - Modelo AccessLog
+- `backend/src/access-logs/access-logs.module.ts`
+- `backend/src/access-logs/access-logs.service.ts`
+- `backend/src/access-logs/access-logs.controller.ts`
+- `backend/src/access-logs/access-logs.service.spec.ts`
+- `backend/src/auth/auth.service.ts` - Integración con AccessLogsService
+- `backend/src/auth/auth.controller.ts` - Captura IP y User-Agent
+- `backend/src/auth/auth.module.ts` - Import AccessLogsModule
+
+**Frontend:**
+- `frontend/app/(main)/settings/security/page.tsx`
+
+#### 7.16.8 Tests
+
+```bash
+npm test -- --testPathPattern="access-logs"
+
+PASS src/access-logs/access-logs.service.spec.ts
+  AccessLogsService
+    ✓ should be defined
+    ✓ should create an access log
+    ✓ should return paginated access logs
+    ✓ should return count of failed attempts
+    ✓ should delete old logs and return count
+
+Test Suites: 1 passed, 1 total
+Tests:       5 passed, 5 total
+```
+
+---
+
 ## 8. CONCLUSIONES
 
 ### 8.1 Resultados Esperados
@@ -1037,8 +1451,13 @@ UPDATE users SET "isVerified" = true WHERE email = 'usuario@unamad.edu.pe';
 - [x] ~~Corregir bugs detectados por SonarQube~~ ✅ **Completado**
 - [x] ~~Desplegar aplicación en producción~~ ✅ **Completado - Vercel + Render**
 - [x] ~~Implementar verificación de email con Gmail SMTP~~ ✅ **Completado - Funcional en local, limitado en Render Free**
-- [ ] Migrar a servicio de email HTTP (Resend) para producción
-- [ ] Implementar pruebas E2E con Cypress
+- [x] ~~Implementar pruebas E2E con Cypress~~ ✅ **Completado - 3 archivos de tests, integrado en CI/CD**
+- [x] ~~Implementar GGA (AI Code Review)~~ ✅ **Completado - Claude revisa código en pre-commit**
+- [x] ~~Migrar a servicio de email HTTP (Resend)~~ ✅ **Completado - Limitado a email del owner en plan gratuito**
+- [x] ~~Implementar historial de accesos~~ ✅ **Completado - Registro de logins con geolocalización**
+- [ ] Implementar Tutor IA (chatbot académico)
+- [ ] Implementar indicador "escribiendo..." en mensajes
+- [ ] Implementar usuarios online en tiempo real
 - [ ] Implementar monitoreo en producción
 - [ ] Completar la documentación de API
 
