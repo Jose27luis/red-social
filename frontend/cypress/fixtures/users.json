@@ -1,20 +1,20 @@
 {
   "validUser": {
-    "email": "18121040@unamad.edu.pe",
-    "password": "Teco27@.",
-    "firstName": "Jose",
-    "lastName": "Garcia"
+    "email": "cypress-test@unamad.edu.pe",
+    "password": "CypressTest123!",
+    "firstName": "Cypress",
+    "lastName": "TestUser"
   },
   "newUser": {
-    "email": "testuser@unamad.edu.pe",
-    "password": "TestPassword123!",
-    "firstName": "Test",
-    "lastName": "User",
-    "department": "Ingeniería",
-    "career": "Sistemas"
+    "email": "new-cypress-user@unamad.edu.pe",
+    "password": "NewTestPassword123!",
+    "firstName": "New",
+    "lastName": "TestUser",
+    "department": "Ingeniería de Sistemas",
+    "career": "Ingeniería de Sistemas"
   },
   "invalidUser": {
     "email": "invalid@gmail.com",
-    "password": "password123"
+    "password": "wrongpassword123"
   }
 }
