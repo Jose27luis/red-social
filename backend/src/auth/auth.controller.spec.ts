@@ -1,10 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { Request } from 'express';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { JwtRefreshAuthGuard } from './guards/jwt-refresh-auth.guard';
+import { UserRole } from '@prisma/client';
 
 describe('AuthController', () => {
   let controller: AuthController;
@@ -15,8 +17,17 @@ describe('AuthController', () => {
     email: 'test@unamad.edu.pe',
     firstName: 'John',
     lastName: 'Doe',
-    role: 'STUDENT',
+    role: UserRole.STUDENT,
+    profilePicture: null,
   };
+
+  const mockRequest = {
+    ip: '127.0.0.1',
+    headers: {
+      'user-agent': 'Mozilla/5.0 Test Browser',
+      'x-forwarded-for': undefined,
+    },
+  } as unknown as Request;
 
   const mockLoginResponse = {
     accessToken: 'access-token',
@@ -84,10 +95,10 @@ describe('AuthController', () => {
     it('should login user and return tokens', async () => {
       authService.login.mockResolvedValue(mockLoginResponse as any);
 
-      const result = await controller.login(loginDto, mockUser);
+      const result = await controller.login(loginDto, mockUser, mockRequest);
 
       expect(result).toEqual(mockLoginResponse);
-      expect(authService.login).toHaveBeenCalledWith(mockUser);
+      expect(authService.login).toHaveBeenCalledWith(mockUser, '127.0.0.1', 'Mozilla/5.0 Test Browser');
     });
   });
 

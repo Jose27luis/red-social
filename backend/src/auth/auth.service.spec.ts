@@ -4,7 +4,9 @@ import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { EmailService } from '../email/email.service';
+import { AccessLogsService } from '../access-logs/access-logs.service';
 import { UnauthorizedException, BadRequestException } from '@nestjs/common';
+import { UserRole } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 
 jest.mock('bcrypt');
@@ -21,7 +23,7 @@ describe('AuthService', () => {
     password: 'hashedPassword123',
     firstName: 'John',
     lastName: 'Doe',
-    role: 'STUDENT',
+    role: UserRole.STUDENT,
     isVerified: true,
     isActive: true,
     profilePicture: null,
@@ -51,6 +53,10 @@ describe('AuthService', () => {
       sendVerificationEmail: jest.fn().mockResolvedValue(true),
     };
 
+    const mockAccessLogsService = {
+      createAccessLog: jest.fn().mockResolvedValue({}),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
@@ -58,6 +64,7 @@ describe('AuthService', () => {
         { provide: JwtService, useValue: mockJwtService },
         { provide: ConfigService, useValue: mockConfigService },
         { provide: EmailService, useValue: mockEmailService },
+        { provide: AccessLogsService, useValue: mockAccessLogsService },
       ],
     }).compile();
 
@@ -164,7 +171,7 @@ describe('AuthService', () => {
       (bcrypt.hash as jest.Mock).mockResolvedValue('hashedRefreshToken');
       usersService.updateRefreshToken.mockResolvedValue(mockUser as any);
 
-      const result = await service.login(mockUser);
+      const result = await service.login(mockUser, '127.0.0.1', 'Mozilla/5.0 Test');
 
       expect(result.accessToken).toBeDefined();
       expect(result.refreshToken).toBeDefined();

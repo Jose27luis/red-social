@@ -17,8 +17,8 @@ class UserResponseDto {
   @ApiProperty({ enum: UserRole })
   role: UserRole;
 
-  @ApiProperty({ required: false })
-  profilePicture?: string;
+  @ApiProperty({ required: false, nullable: true })
+  profilePicture: string | null;
 }
 
 export class LoginResponseDto {
