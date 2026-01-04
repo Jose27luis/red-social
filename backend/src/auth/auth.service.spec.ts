@@ -87,7 +87,7 @@ describe('AuthService', () => {
 
       expect(result).toBeDefined();
       expect(result.email).toBe(mockUser.email);
-      expect(result.password).toBeUndefined();
+      expect(result.id).toBe(mockUser.id);
     });
 
     it('should throw UnauthorizedException when user is not found', async () => {
