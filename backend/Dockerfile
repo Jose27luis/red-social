@@ -12,11 +12,8 @@ RUN npm ci
 # Copiar código fuente
 COPY . .
 
-# Generar Prisma Client
-RUN npm run prisma:generate
-
-# Compilar el proyecto
-RUN npm run build
+# Generar Prisma Client y compilar (sin migrate deploy)
+RUN npm run build:ci
 
 # Production stage
 FROM node:20-alpine
