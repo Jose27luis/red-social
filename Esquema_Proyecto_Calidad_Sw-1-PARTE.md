@@ -1419,6 +1419,133 @@ Tests:       5 passed, 5 total
 
 ---
 
+### 7.17 Git Flow - Gestión de Ramas
+
+#### 7.17.1 Descripción
+Implementación del flujo de trabajo Git Flow para gestionar el desarrollo y las releases del proyecto de manera organizada y profesional.
+
+#### 7.17.2 Estructura de Ramas
+
+```
+main (producción)
+  │
+  └── dev (desarrollo/integración)
+        │
+        ├── feature/nueva-funcionalidad
+        ├── feature/otra-funcionalidad
+        └── fix/correccion-bug
+```
+
+#### 7.17.3 Descripción de Ramas
+
+| Rama | Propósito | Protección |
+|------|-----------|------------|
+| `main` | Código estable en producción | Requiere PR y aprobación |
+| `dev` | Integración de features | Requiere CI passing |
+| `feature/*` | Desarrollo de nuevas funcionalidades | Ninguna |
+| `fix/*` | Corrección de bugs | Ninguna |
+| `hotfix/*` | Correcciones urgentes en producción | Merge directo a main + dev |
+
+#### 7.17.4 Flujo de Trabajo
+
+**1. Desarrollo de nueva funcionalidad:**
+```bash
+# Crear rama desde dev
+git checkout dev
+git pull origin dev
+git checkout -b feature/nombre-feature
+
+# Desarrollar y hacer commits
+git add .
+git commit -m "feat: descripción del cambio"
+
+# Actualizar con dev antes de merge
+git checkout dev
+git pull origin dev
+git checkout feature/nombre-feature
+git merge dev
+
+# Push y crear PR hacia dev
+git push -u origin feature/nombre-feature
+# Crear Pull Request en GitHub: feature/* → dev
+```
+
+**2. Release a producción:**
+```bash
+# Cuando dev está listo para producción
+git checkout main
+git pull origin main
+git merge dev
+git push origin main
+
+# Opcional: crear tag de versión
+git tag -a v1.0.0 -m "Release versión 1.0.0"
+git push origin v1.0.0
+```
+
+**3. Hotfix en producción:**
+```bash
+# Crear hotfix desde main
+git checkout main
+git checkout -b hotfix/fix-critico
+
+# Corregir y commit
+git commit -m "fix: corrección crítica"
+
+# Merge a main y dev
+git checkout main
+git merge hotfix/fix-critico
+git push origin main
+
+git checkout dev
+git merge hotfix/fix-critico
+git push origin dev
+```
+
+#### 7.17.5 Configuración en GitHub
+
+Para proteger las ramas principales, configurar en **Settings → Branches → Branch protection rules**:
+
+**Rama `main`:**
+- ✅ Require a pull request before merging
+- ✅ Require status checks to pass (CI/CD)
+- ✅ Require conversation resolution before merging
+- ✅ Do not allow bypassing the above settings
+
+**Rama `dev`:**
+- ✅ Require status checks to pass (CI/CD)
+
+#### 7.17.6 Comandos Útiles
+
+```bash
+# Ver todas las ramas
+git branch -a
+
+# Cambiar a rama dev
+git checkout dev
+
+# Actualizar rama actual
+git pull origin $(git branch --show-current)
+
+# Ver historial de merges
+git log --oneline --graph --all
+
+# Eliminar rama local después de merge
+git branch -d feature/nombre-feature
+
+# Eliminar rama remota
+git push origin --delete feature/nombre-feature
+```
+
+#### 7.17.7 Estado Actual
+
+- **Rama principal de producción:** `main`
+- **Rama de desarrollo:** `dev`
+- **CI/CD:** Configurado para ambas ramas
+- **Flujo activo:** Todas las nuevas features se desarrollan en `dev`
+
+---
+
 ## 8. CONCLUSIONES
 
 ### 8.1 Resultados Esperados
@@ -1455,6 +1582,7 @@ Tests:       5 passed, 5 total
 - [x] ~~Implementar GGA (AI Code Review)~~ ✅ **Completado - Claude revisa código en pre-commit**
 - [x] ~~Migrar a servicio de email HTTP (Resend)~~ ✅ **Completado - Limitado a email del owner en plan gratuito**
 - [x] ~~Implementar historial de accesos~~ ✅ **Completado - Registro de logins con geolocalización**
+- [x] ~~Implementar Git Flow~~ ✅ **Completado - Ramas main/dev configuradas**
 - [ ] Implementar Tutor IA (chatbot académico)
 - [ ] Implementar indicador "escribiendo..." en mensajes
 - [ ] Implementar usuarios online en tiempo real
