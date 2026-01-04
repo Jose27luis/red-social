@@ -16,7 +16,7 @@ import { useThemeStore } from '@/store/useThemeStore';
 import { notificationsApi } from '@/lib/api/endpoints';
 import { QUERY_KEYS } from '@/lib/constants';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Bell, LogOut, Moon, Sun, User, CheckCheck, Trash2 } from 'lucide-react';
+import { Bell, LogOut, Moon, Sun, User, CheckCheck, Trash2, Shield } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Notification } from '@/types';
@@ -227,6 +227,10 @@ export default function Navbar() {
               <DropdownMenuItem onClick={() => router.push('/profile')}>
                 <User className="mr-2 h-4 w-4" />
                 Mi Perfil
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => router.push('/settings/security')}>
+                <Shield className="mr-2 h-4 w-4" />
+                Seguridad
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleLogout} className="text-destructive">
