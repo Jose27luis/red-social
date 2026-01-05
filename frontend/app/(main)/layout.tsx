@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/useAuthStore';
 import Navbar from '@/components/layout/Navbar';
 import Sidebar from '@/components/layout/Sidebar';
+import TutorWidget from '@/components/tutor/TutorWidget';
 
 export default function MainLayout({
   children,
@@ -43,6 +44,7 @@ export default function MainLayout({
           </div>
         </main>
       </div>
+      <TutorWidget />
     </div>
   );
 }
