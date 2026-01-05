@@ -43,6 +43,7 @@ describe('AuthService', () => {
 
     const mockJwtService = {
       sign: jest.fn(),
+      signAsync: jest.fn(),
     };
 
     const mockConfigService = {
@@ -168,6 +169,7 @@ describe('AuthService', () => {
   describe('login', () => {
     it('should return access and refresh tokens', async () => {
       jwtService.sign.mockReturnValue('accessToken');
+      jwtService.signAsync.mockResolvedValue('refreshToken');
       (bcrypt.hash as jest.Mock).mockResolvedValue('hashedRefreshToken');
       usersService.updateRefreshToken.mockResolvedValue(mockUser as any);
 
@@ -185,6 +187,7 @@ describe('AuthService', () => {
       usersService.findById.mockResolvedValue(mockUser as any);
       (bcrypt.compare as jest.Mock).mockResolvedValue(true);
       jwtService.sign.mockReturnValue('newAccessToken');
+      jwtService.signAsync.mockResolvedValue('newRefreshToken');
       (bcrypt.hash as jest.Mock).mockResolvedValue('newHashedRefreshToken');
       usersService.updateRefreshToken.mockResolvedValue(mockUser as any);
 

@@ -207,9 +207,10 @@ export class AuthService {
    * Genera el refresh token
    */
   private async generateRefreshToken(payload: JwtPayload): Promise<string> {
-    const refreshToken = this.jwtService.sign(payload, {
+    // 7 dias en segundos = 604800
+    const refreshToken = await this.jwtService.signAsync(payload, {
       secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
-      expiresIn: this.configService.get<string>('JWT_REFRESH_EXPIRES_IN', '7d'),
+      expiresIn: this.configService.get<number>('JWT_REFRESH_EXPIRES_IN_SECONDS', 604800),
     });
 
     return bcrypt.hash(refreshToken, 10);

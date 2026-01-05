@@ -12,7 +12,7 @@ import { MessagesGateway } from './messages.gateway';
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get<string>('JWT_SECRET'),
         signOptions: {
-          expiresIn: configService.get<string>('JWT_EXPIRATION', '15m'),
+          expiresIn: configService.get<number>('JWT_EXPIRES_IN_SECONDS', 900),
         },
       }),
       inject: [ConfigService],
