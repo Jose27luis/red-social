@@ -32,7 +32,7 @@ export class GeminiService implements OnModuleInit {
 
     this.genAI = new GoogleGenerativeAI(apiKey);
     this.model = this.genAI.getGenerativeModel({
-      model: 'gemini-1.5-flash',
+      model: 'gemini-2.5-flash',
       tools: this.tools,
     });
 
