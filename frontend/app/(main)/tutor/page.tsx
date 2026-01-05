@@ -186,38 +186,58 @@ export default function TutorPage() {
         <div className="lg:col-span-3">
           <Card className="h-full flex flex-col">
             <CardContent className="p-6 flex-1 flex flex-col">
-              {!selectedConversation && messages.length === 0 ? (
-                <div className="flex-1 flex items-center justify-center">
-                  <div className="text-center max-w-md">
-                    <div className="h-20 w-20 mx-auto mb-6 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center">
-                      <Bot className="h-10 w-10 text-white" />
-                    </div>
-                    <h3 className="text-xl font-bold mb-2">
-                      Hola {user?.firstName}!
-                    </h3>
-                    <p className="text-muted-foreground mb-6">
-                      Soy tu tutor academico de UNAMAD. Puedo ayudarte con:
-                    </p>
-                    <div className="grid grid-cols-2 gap-3 text-sm text-left">
-                      <div className="p-3 rounded-lg bg-muted">
-                        📚 Resolver dudas academicas
+              {/* Lista de mensajes */}
+              <div className="flex-1 overflow-y-auto mb-4 space-y-4">
+                {!selectedConversation && messages.length === 0 ? (
+                  <div className="flex-1 flex items-center justify-center h-full">
+                    <div className="text-center max-w-md">
+                      <div className="h-20 w-20 mx-auto mb-6 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center">
+                        <Bot className="h-10 w-10 text-white" />
                       </div>
-                      <div className="p-3 rounded-lg bg-muted">
-                        🔍 Buscar companeros de estudio
-                      </div>
-                      <div className="p-3 rounded-lg bg-muted">
-                        💬 Enviar mensajes por ti
-                      </div>
-                      <div className="p-3 rounded-lg bg-muted">
-                        📅 Inscribirte a eventos
+                      <h3 className="text-xl font-bold mb-2">
+                        Hola {user?.firstName}!
+                      </h3>
+                      <p className="text-muted-foreground mb-6">
+                        Soy tu tutor academico de UNAMAD. Puedo ayudarte con:
+                      </p>
+                      <div className="grid grid-cols-2 gap-3 text-sm text-left">
+                        <button
+                          type="button"
+                          onClick={() => sendMessageMutation.mutate('Ayudame con una duda academica')}
+                          disabled={isThinking}
+                          className="p-3 rounded-lg bg-muted hover:bg-muted/80 transition-colors text-left disabled:opacity-50"
+                        >
+                          📚 Resolver dudas academicas
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => sendMessageMutation.mutate('Busca estudiantes de mi carrera')}
+                          disabled={isThinking}
+                          className="p-3 rounded-lg bg-muted hover:bg-muted/80 transition-colors text-left disabled:opacity-50"
+                        >
+                          🔍 Buscar companeros de estudio
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => sendMessageMutation.mutate('Quiero enviar un mensaje a alguien')}
+                          disabled={isThinking}
+                          className="p-3 rounded-lg bg-muted hover:bg-muted/80 transition-colors text-left disabled:opacity-50"
+                        >
+                          💬 Enviar mensajes por ti
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => sendMessageMutation.mutate('Que eventos hay disponibles?')}
+                          disabled={isThinking}
+                          className="p-3 rounded-lg bg-muted hover:bg-muted/80 transition-colors text-left disabled:opacity-50"
+                        >
+                          📅 Inscribirte a eventos
+                        </button>
                       </div>
                     </div>
                   </div>
-                </div>
-              ) : (
-                <>
-                  {/* Lista de mensajes */}
-                  <div className="flex-1 overflow-y-auto mb-4 space-y-4">
+                ) : (
+                  <>
                     {messages.map((message) => {
                       const isUser = message.role === 'user';
 
@@ -264,53 +284,53 @@ export default function TutorPage() {
                         </div>
                       );
                     })}
+                  </>
+                )}
 
-                    {/* Indicador de pensando */}
-                    {isThinking && (
-                      <div className="flex gap-3 justify-start">
-                        <Avatar className="h-8 w-8 flex-shrink-0">
-                          <AvatarFallback className="bg-gradient-to-r from-purple-500 to-pink-500 text-white">
-                            <Bot className="h-4 w-4" />
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="bg-muted rounded-lg px-4 py-3">
-                          <div className="flex space-x-1">
-                            <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                            <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                            <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-                          </div>
-                        </div>
+                {/* Indicador de pensando */}
+                {isThinking && (
+                  <div className="flex gap-3 justify-start">
+                    <Avatar className="h-8 w-8 flex-shrink-0">
+                      <AvatarFallback className="bg-gradient-to-r from-purple-500 to-pink-500 text-white">
+                        <Bot className="h-4 w-4" />
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="bg-muted rounded-lg px-4 py-3">
+                      <div className="flex space-x-1">
+                        <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                        <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                        <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                       </div>
-                    )}
-
-                    <div ref={messagesEndRef} />
-                  </div>
-
-                  {/* Input de mensaje */}
-                  <form onSubmit={handleSendMessage} className="border-t pt-4">
-                    <div className="flex space-x-2">
-                      <input
-                        type="text"
-                        value={messageContent}
-                        onChange={(e) => setMessageContent(e.target.value)}
-                        placeholder="Escribe tu mensaje al tutor..."
-                        className="flex-1 px-4 py-2 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                        maxLength={2000}
-                        disabled={isThinking}
-                      />
-                      <Button
-                        type="submit"
-                        disabled={!messageContent.trim() || isThinking}
-                      >
-                        <Send className="h-4 w-4" />
-                      </Button>
                     </div>
-                    <p className="text-xs text-muted-foreground mt-2">
-                      Puedes pedirme que busque usuarios, envie mensajes, o te ayude con temas academicos.
-                    </p>
-                  </form>
-                </>
-              )}
+                  </div>
+                )}
+
+                <div ref={messagesEndRef} />
+              </div>
+
+              {/* Input de mensaje - siempre visible */}
+              <form onSubmit={handleSendMessage} className="border-t pt-4">
+                <div className="flex space-x-2">
+                  <input
+                    type="text"
+                    value={messageContent}
+                    onChange={(e) => setMessageContent(e.target.value)}
+                    placeholder="Escribe tu mensaje al tutor..."
+                    className="flex-1 px-4 py-2 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                    maxLength={2000}
+                    disabled={isThinking}
+                  />
+                  <Button
+                    type="submit"
+                    disabled={!messageContent.trim() || isThinking}
+                  >
+                    <Send className="h-4 w-4" />
+                  </Button>
+                </div>
+                <p className="text-xs text-muted-foreground mt-2">
+                  Puedes pedirme que busque usuarios, envie mensajes, o te ayude con temas academicos.
+                </p>
+              </form>
             </CardContent>
           </Card>
         </div>
