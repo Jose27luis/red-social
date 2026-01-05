@@ -28,6 +28,10 @@ import {
   PaginatedNotifications,
   PaginationParams,
   SearchParams,
+  SendTutorMessageDto,
+  TutorChatResponse,
+  TutorConversation,
+  TutorConversationWithMessages,
 } from '@/types';
 
 // ============================================================================
@@ -373,4 +377,26 @@ export const notificationsApi = {
 export const feedApi = {
   getFeed: (params?: PaginationParams) =>
     api.get<PaginatedPosts>('/feed', { params }),
+};
+
+// ============================================================================
+// TUTOR IA ENDPOINTS
+// ============================================================================
+
+export const tutorApi = {
+  // Enviar mensaje al tutor
+  sendMessage: (data: SendTutorMessageDto) =>
+    api.post<TutorChatResponse>('/tutor/chat', data),
+
+  // Obtener lista de conversaciones
+  getConversations: () =>
+    api.get<TutorConversation[]>('/tutor/conversations'),
+
+  // Obtener una conversacion con mensajes
+  getConversation: (id: string) =>
+    api.get<TutorConversationWithMessages>(`/tutor/conversations/${id}`),
+
+  // Eliminar conversacion
+  deleteConversation: (id: string) =>
+    api.delete(`/tutor/conversations/${id}`),
 };

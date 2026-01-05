@@ -63,6 +63,10 @@ export const QUERY_KEYS = {
 
   // Feed
   FEED: ['feed'],
+
+  // Tutor IA
+  TUTOR_CONVERSATIONS: ['tutor', 'conversations'],
+  TUTOR_CONVERSATION: (id: string) => ['tutor', 'conversations', id],
 };
 
 // Role labels

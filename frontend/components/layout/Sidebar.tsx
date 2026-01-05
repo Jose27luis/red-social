@@ -8,7 +8,8 @@ import {
   Calendar,
   MessageSquare,
   FolderOpen,
-  User
+  User,
+  Bot
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -17,6 +18,7 @@ const navigation = [
   { name: 'Grupos', href: '/groups', icon: Users },
   { name: 'Eventos', href: '/events', icon: Calendar },
   { name: 'Mensajes', href: '/messages', icon: MessageSquare },
+  { name: 'Tutor IA', href: '/tutor', icon: Bot },
   { name: 'Recursos', href: '/resources', icon: FolderOpen },
   { name: 'Mi Perfil', href: '/profile', icon: User },
 ];
@@ -53,7 +55,7 @@ export default function Sidebar() {
       {/* Mobile Bottom Navigation */}
       <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-card border-t border-border">
         <div className="flex justify-around py-2">
-          {navigation.slice(0, 5).map((item) => {
+          {navigation.slice(0, 6).map((item) => {
             const isActive = pathname === item.href;
             return (
               <Link

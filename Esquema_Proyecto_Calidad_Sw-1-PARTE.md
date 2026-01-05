@@ -1546,6 +1546,311 @@ git push origin --delete feature/nombre-feature
 
 ---
 
+### 7.18 Tutor IA - Chatbot Académico
+
+#### 7.18.1 Descripción
+Implementación de un asistente virtual académico usando Google Gemini API que ayuda a estudiantes con dudas académicas, recuerda conversaciones anteriores y personaliza respuestas según la carrera del usuario.
+
+#### 7.18.2 Características
+
+| Característica | Descripción |
+|----------------|-------------|
+| Chat simple | Responde preguntas académicas generales |
+| Contexto de conversación | Recuerda mensajes anteriores del usuario |
+| Personalización por carrera | Adapta respuestas al campo de estudio |
+| Historial persistente | Guarda conversaciones en base de datos |
+
+#### 7.18.3 Modelo de Datos (Prisma)
+
+```prisma
+model TutorConversation {
+  id        String   @id @default(uuid())
+  userId    String
+  title     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages  TutorMessage[]
+  @@index([userId])
+  @@map("tutor_conversations")
+}
+
+model TutorMessage {
+  id             String   @id @default(uuid())
+  conversationId String
+  role           String   // "user" | "assistant"
+  content        String   @db.Text
+  createdAt      DateTime @default(now())
+  conversation   TutorConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  @@index([conversationId])
+  @@map("tutor_messages")
+}
+```
+
+#### 7.18.4 Arquitectura Backend
+
+```
+backend/src/tutor/
+├── tutor.module.ts
+├── tutor.controller.ts
+├── tutor.service.ts
+├── gemini.service.ts
+└── dto/
+    ├── send-message.dto.ts
+    └── conversation.dto.ts
+```
+
+**Endpoints API:**
+
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| POST | `/tutor/chat` | Enviar mensaje y obtener respuesta de IA |
+| GET | `/tutor/conversations` | Listar conversaciones del usuario |
+| GET | `/tutor/conversations/:id` | Obtener mensajes de una conversación |
+| POST | `/tutor/conversations` | Crear nueva conversación |
+| DELETE | `/tutor/conversations/:id` | Eliminar conversación |
+
+#### 7.18.5 Integración con Gemini API
+
+**Dependencia:**
+```bash
+npm install @google/generative-ai
+```
+
+**System Prompt personalizado por carrera:**
+```typescript
+buildSystemPrompt(career?: string): string {
+  let prompt = `Eres un tutor académico de la Universidad Nacional Amazónica
+de Madre de Dios (UNAMAD). Tu rol es ayudar a estudiantes con sus dudas
+académicas de manera clara y didáctica. Responde en español.`;
+
+  if (career) {
+    prompt += `\n\nEl estudiante cursa ${career}.
+Adapta tus respuestas a su campo de estudio.`;
+  }
+  return prompt;
+}
+```
+
+#### 7.18.6 Frontend
+
+**Estructura:**
+```
+frontend/
+├── app/(main)/tutor/page.tsx
+└── components/tutor/
+    ├── ChatInterface.tsx
+    ├── MessageBubble.tsx
+    └── ConversationList.tsx
+```
+
+**Características UI:**
+- Diseño similar al módulo de mensajes
+- Indicador de "pensando..." mientras Gemini responde
+- Renderizado de Markdown en respuestas
+- Auto-scroll al último mensaje
+- Lista de conversaciones anteriores
+
+#### 7.18.7 Configuración
+
+**Variable de entorno:**
+```env
+GEMINI_API_KEY=tu_api_key_de_google_ai_studio
+```
+
+**Obtener API Key:**
+1. Ir a https://aistudio.google.com/
+2. Crear proyecto o seleccionar existente
+3. Generar API Key
+4. Agregar a variables de entorno en Render
+
+#### 7.18.8 Orden de Implementación
+
+1. Agregar modelos a Prisma schema y crear migración
+2. Instalar @google/generative-ai
+3. Crear gemini.service.ts con integración de API
+4. Crear módulo tutor (controller, service, DTOs)
+5. Agregar endpoints en frontend
+6. Crear página /tutor y componentes
+7. Agregar enlace en navegación
+8. Tests y documentación
+
+#### 7.18.9 Capacidades de Agente (Function Calling)
+
+El Tutor IA actúa como un agente autónomo que puede ejecutar acciones en nombre del usuario usando **Gemini Function Calling**.
+
+**Acciones disponibles:**
+
+| Función | Descripción | Parámetros |
+|---------|-------------|------------|
+| `searchUsers` | Buscar usuarios por nombre y/o carrera | `name?`, `career?` |
+| `sendMessage` | Enviar mensaje a un usuario | `userId`, `content` |
+| `createConversation` | Iniciar nueva conversación | `userId` |
+| `searchPosts` | Buscar publicaciones | `query`, `authorId?` |
+| `createPost` | Crear una publicación | `content` |
+| `searchGroups` | Buscar grupos de estudio | `query`, `career?` |
+| `joinGroup` | Unirse a un grupo | `groupId` |
+| `searchEvents` | Buscar eventos | `query`, `startDate?` |
+| `registerToEvent` | Registrarse a un evento | `eventId` |
+
+**Arquitectura de Function Calling:**
+
+```typescript
+// gemini.service.ts
+const tools = [
+  {
+    functionDeclarations: [
+      {
+        name: "searchUsers",
+        description: "Buscar usuarios en la plataforma por nombre o carrera",
+        parameters: {
+          type: "object",
+          properties: {
+            name: { type: "string", description: "Nombre del usuario" },
+            career: { type: "string", description: "Carrera del usuario" }
+          }
+        }
+      },
+      {
+        name: "sendMessage",
+        description: "Enviar un mensaje directo a un usuario",
+        parameters: {
+          type: "object",
+          properties: {
+            userId: { type: "string", description: "ID del usuario destinatario" },
+            content: { type: "string", description: "Contenido del mensaje" }
+          },
+          required: ["userId", "content"]
+        }
+      },
+      // ... más funciones
+    ]
+  }
+];
+```
+
+**Flujo de ejecución:**
+
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│ Usuario: "Envía un saludo a Juan Pérez de Contabilidad"                │
+└──────────────────────────┬─────────────────────────────────────────────┘
+                           │
+                           ▼
+┌────────────────────────────────────────────────────────────────────────┐
+│ Gemini interpreta y llama: searchUsers(name: "Juan Pérez",             │
+│                                        career: "Contabilidad")         │
+└──────────────────────────┬─────────────────────────────────────────────┘
+                           │
+                           ▼
+┌────────────────────────────────────────────────────────────────────────┐
+│ Sistema ejecuta búsqueda → Retorna usuario encontrado                   │
+└──────────────────────────┬─────────────────────────────────────────────┘
+                           │
+                           ▼
+┌────────────────────────────────────────────────────────────────────────┐
+│ Gemini llama: sendMessage(userId: "uuid-juan", content: "¡Hola!")      │
+└──────────────────────────┬─────────────────────────────────────────────┘
+                           │
+                           ▼
+┌────────────────────────────────────────────────────────────────────────┐
+│ Sistema envía mensaje → Retorna confirmación                           │
+└──────────────────────────┬─────────────────────────────────────────────┘
+                           │
+                           ▼
+┌────────────────────────────────────────────────────────────────────────┐
+│ Respuesta: "He encontrado a Juan Pérez (Contabilidad) y le envié       │
+│ el mensaje '¡Hola!'. La conversación está lista para continuar."       │
+└────────────────────────────────────────────────────────────────────────┘
+```
+
+**Implementación del ejecutor de funciones:**
+
+```typescript
+// tutor.service.ts
+async executeFunction(
+  functionName: string,
+  args: Record<string, unknown>,
+  userId: string
+): Promise<string> {
+  switch (functionName) {
+    case 'searchUsers':
+      const users = await this.usersService.searchUsers(args);
+      return JSON.stringify({ success: true, users });
+
+    case 'sendMessage':
+      const message = await this.messagesService.sendMessage(
+        userId,
+        args.userId as string,
+        args.content as string
+      );
+      return JSON.stringify({ success: true, messageId: message.id });
+
+    case 'createConversation':
+      const conv = await this.messagesService.createConversation(
+        userId,
+        args.userId as string
+      );
+      return JSON.stringify({ success: true, conversationId: conv.id });
+
+    // ... más casos
+  }
+}
+```
+
+**Seguridad del Agente:**
+
+| Control | Descripción |
+|---------|-------------|
+| **Confirmación** | Mostrar al usuario qué acción ejecutará antes de hacerla |
+| **Rate Limit** | Máximo 5 acciones por mensaje |
+| **Scope** | Solo acciones en nombre del usuario autenticado |
+| **Auditoría** | Registrar todas las acciones ejecutadas |
+| **Permisos** | Validar que el usuario puede realizar la acción |
+
+**Ejemplo de interacción completa:**
+
+```
+Usuario: "Quiero hablar con María García de Ingeniería de Sistemas,
+          pregúntale si quiere estudiar juntos para el examen de Base de Datos"
+
+Tutor: 🔍 Buscando a María García de Ingeniería de Sistemas...
+       ✅ Encontré a María García (Ingeniería de Sistemas)
+       📨 Enviando mensaje...
+       ✅ Mensaje enviado correctamente.
+
+       He contactado a María García preguntándole si desea estudiar
+       contigo para el examen de Base de Datos. Te notificaré cuando responda.
+```
+
+#### 7.18.10 Consideraciones
+
+**Rate Limiting:**
+- Limitar a 20 mensajes/minuto por usuario
+- Máximo 5 acciones de agente por mensaje
+- Gemini 1.5 Flash: ~$0.075 por millón de tokens (económico)
+
+**Seguridad:**
+- Validar longitud de mensajes (máx 2000 caracteres)
+- Sanitizar respuestas HTML/Markdown
+- No almacenar información sensible
+- Confirmar acciones sensibles antes de ejecutar
+- Logging de todas las acciones del agente
+
+**Orden de Implementación Actualizado:**
+
+1. Agregar modelos a Prisma schema y crear migración
+2. Instalar @google/generative-ai
+3. Crear gemini.service.ts con integración de API y function calling
+4. Crear módulo tutor (controller, service, DTOs)
+5. Implementar ejecutor de funciones con integración a servicios existentes
+6. Crear página /tutor y componentes de chat
+7. Agregar UI para mostrar acciones del agente
+8. Agregar enlace en navegación
+9. Tests y documentación
+
+---
+
 ## 8. CONCLUSIONES
 
 ### 8.1 Resultados Esperados

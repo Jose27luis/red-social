@@ -18,6 +18,7 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { FeedModule } from './feed/feed.module';
 import { EmailModule } from './email/email.module';
 import { AccessLogsModule } from './access-logs/access-logs.module';
+import { TutorModule } from './tutor/tutor.module';
 
 @Module({
   imports: [
@@ -64,6 +65,7 @@ import { AccessLogsModule } from './access-logs/access-logs.module';
     NotificationsModule,
     FeedModule,
     AccessLogsModule,
+    TutorModule,
   ],
   controllers: [AppController],
   providers: [

@@ -22,6 +22,9 @@ export * from './resource';
 // Notification types
 export * from './notification';
 
+// Tutor IA types
+export * from './tutor';
+
 // Common types
 export interface ApiError {
   message: string;
