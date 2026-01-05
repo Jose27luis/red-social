@@ -233,6 +233,7 @@ export class GeminiService implements OnModuleInit {
   async continueWithFunctionResults(
     userMessage: string,
     history: Content[],
+    functionCalls: FunctionCall[],
     functionResults: { name: string; result: string }[],
     systemPrompt: string,
   ): Promise<GeminiResponse> {
@@ -240,7 +241,15 @@ export class GeminiService implements OnModuleInit {
       throw new Error('Gemini service not initialized.');
     }
 
-    // Build the history with function call and results
+    // Construir las partes de la llamada a funcion del modelo
+    const functionCallParts = functionCalls.map((fc) => ({
+      functionCall: {
+        name: fc.name,
+        args: fc.args,
+      },
+    }));
+
+    // Construir las respuestas de las funciones
     const functionResponseParts = functionResults.map((fr) => ({
       functionResponse: {
         name: fr.name,
@@ -252,7 +261,7 @@ export class GeminiService implements OnModuleInit {
       history: [
         ...history,
         { role: 'user', parts: [{ text: userMessage }] },
-        { role: 'model', parts: functionResponseParts },
+        { role: 'model', parts: functionCallParts },
       ],
       systemInstruction: {
         role: 'user',
@@ -260,16 +269,15 @@ export class GeminiService implements OnModuleInit {
       },
     });
 
-    const result = await chat.sendMessage(
-      'Continua con la respuesta basandote en los resultados de las funciones ejecutadas.',
-    );
+    // Enviar los resultados de las funciones
+    const result = await chat.sendMessage(functionResponseParts);
     const response = result.response;
 
-    // Check for more function calls
-    const functionCalls = response.functionCalls();
-    if (functionCalls && functionCalls.length > 0) {
+    // Verificar si hay mas llamadas a funciones
+    const newFunctionCalls = response.functionCalls();
+    if (newFunctionCalls && newFunctionCalls.length > 0) {
       return {
-        functionCalls: functionCalls.map((fc) => ({
+        functionCalls: newFunctionCalls.map((fc) => ({
           name: fc.name,
           args: fc.args as Record<string, unknown>,
         })),

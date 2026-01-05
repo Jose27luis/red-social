@@ -101,12 +101,14 @@ export class TutorService {
     let response: GeminiResponse;
     let functionCallCount = 0;
     let allFunctionResults: { name: string; result: string }[] = [];
+    let lastFunctionCalls: { name: string; args: Record<string, unknown> }[] = [];
 
     try {
       response = await this.geminiService.chat(dto.content, history, systemPrompt);
 
       // Handle function calls iteratively
       while (response.functionCalls && functionCallCount < this.MAX_FUNCTION_CALLS) {
+        lastFunctionCalls = response.functionCalls;
         const functionResults = await this.executeFunctions(
           response.functionCalls,
           { id: userId, career: user.career || undefined },
@@ -119,7 +121,8 @@ export class TutorService {
         response = await this.geminiService.continueWithFunctionResults(
           dto.content,
           history,
-          allFunctionResults,
+          lastFunctionCalls,
+          functionResults,
           systemPrompt,
         );
       }
