@@ -81,7 +81,7 @@ describe('GeminiService', () => {
 
   describe('continueWithFunctionResults', () => {
     it('deberia lanzar error cuando el modelo no esta inicializado', async () => {
-      await expect(service.continueWithFunctionResults('test', [], [], 'prompt')).rejects.toThrow(
+      await expect(service.continueWithFunctionResults('test', [], [], [], 'prompt')).rejects.toThrow(
         'Gemini service not initialized',
       );
     });
