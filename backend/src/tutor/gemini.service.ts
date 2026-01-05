@@ -205,7 +205,10 @@ export class GeminiService implements OnModuleInit {
 
     const chat = this.model.startChat({
       history,
-      systemInstruction: systemPrompt,
+      systemInstruction: {
+        role: 'user',
+        parts: [{ text: systemPrompt }],
+      },
     });
 
     const result = await chat.sendMessage(userMessage);
@@ -251,7 +254,10 @@ export class GeminiService implements OnModuleInit {
         { role: 'user', parts: [{ text: userMessage }] },
         { role: 'model', parts: functionResponseParts },
       ],
-      systemInstruction: systemPrompt,
+      systemInstruction: {
+        role: 'user',
+        parts: [{ text: systemPrompt }],
+      },
     });
 
     const result = await chat.sendMessage(
