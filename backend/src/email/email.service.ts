@@ -33,10 +33,11 @@ export class EmailService {
     const frontendUrl = this.configService.get<string>('FRONTEND_URL', 'http://localhost:3002');
     const verificationLink = `${frontendUrl}/verify-email?token=${verificationToken}`;
     const html = this.getVerificationEmailTemplate(firstName, verificationLink);
+    const from = this.configService.get<string>('MAIL_FROM', 'Red Académica UNAMAD <noreply@citec.com.pe>');
 
     try {
       const { error } = await this.resend.emails.send({
-        from: 'Red Académica UNAMAD <onboarding@resend.dev>',
+        from,
         to: [to],
         subject: 'Verifica tu cuenta - Red Académica UNAMAD',
         html,
