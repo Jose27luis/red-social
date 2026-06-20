@@ -114,11 +114,11 @@ export default function TutorPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center">
+          <div className="flex h-12 w-12 items-center justify-center rounded-[13px] bg-gradient-to-br from-[#b01e54] to-[#e23e7d] shadow-lg shadow-primary/30">
             <Bot className="h-6 w-6 text-white" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold">Tutor IA</h1>
+            <h1 className="font-serif text-2xl font-bold tracking-tight">Tutor IA</h1>
             <p className="text-sm text-muted-foreground">
               Tu asistente academico con inteligencia artificial
             </p>
@@ -191,7 +191,7 @@ export default function TutorPage() {
                 {!selectedConversation && messages.length === 0 ? (
                   <div className="flex-1 flex items-center justify-center h-full">
                     <div className="text-center max-w-md">
-                      <div className="h-20 w-20 mx-auto mb-6 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center">
+                      <div className="h-16 w-16 mx-auto mb-6 rounded-[18px] bg-gradient-to-br from-[#b01e54] to-[#e23e7d] shadow-lg shadow-primary/30 flex items-center justify-center">
                         <Bot className="h-10 w-10 text-white" />
                       </div>
                       <h3 className="text-xl font-bold mb-2">
@@ -248,7 +248,7 @@ export default function TutorPage() {
                         >
                           {!isUser && (
                             <Avatar className="h-8 w-8 flex-shrink-0">
-                              <AvatarFallback className="bg-gradient-to-r from-purple-500 to-pink-500 text-white">
+                              <AvatarFallback className="bg-gradient-to-r from-[#b01e54] to-[#e23e7d] text-white">
                                 <Bot className="h-4 w-4" />
                               </AvatarFallback>
                             </Avatar>
@@ -291,7 +291,7 @@ export default function TutorPage() {
                 {isThinking && (
                   <div className="flex gap-3 justify-start">
                     <Avatar className="h-8 w-8 flex-shrink-0">
-                      <AvatarFallback className="bg-gradient-to-r from-purple-500 to-pink-500 text-white">
+                      <AvatarFallback className="bg-gradient-to-r from-[#b01e54] to-[#e23e7d] text-white">
                         <Bot className="h-4 w-4" />
                       </AvatarFallback>
                     </Avatar>
