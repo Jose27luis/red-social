@@ -52,8 +52,15 @@ export default function FeedPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Feed</h1>
+      <div className="flex items-end justify-between gap-4">
+        <div>
+          <h1 className="font-serif text-[27px] font-bold tracking-tight text-foreground">
+            Feed institucional
+          </h1>
+          <p className="mt-1 text-[13.5px] text-muted-foreground">
+            Lo último de tu comunidad académica
+          </p>
+        </div>
       </div>
 
       <CreatePost />

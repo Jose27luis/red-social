@@ -142,9 +142,9 @@ export default function PostCard({ post }: PostCardProps) {
         {/* Header */}
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center space-x-3">
-            <Avatar className="h-10 w-10">
+            <Avatar className="h-10 w-10 rounded-[11px]">
               <AvatarImage src={getImageUrl(post.author?.profilePicture)} />
-              <AvatarFallback>
+              <AvatarFallback className="rounded-[11px] bg-gradient-to-br from-[#b01e54] to-[#e23e7d] font-bold text-white">
                 {post.author
                   ? getInitials(post.author.firstName, post.author.lastName)
                   : 'U'}
