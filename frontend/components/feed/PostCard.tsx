@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
@@ -48,30 +48,22 @@ export default function PostCard({ post }: PostCardProps) {
   const isAuthor = user?.id === post.authorId;
   const hasLiked = post.likes?.some((like) => like.userId === user?.id) || false;
 
-  const [saved, setSaved] = useState(false);
   const [shareCopied, setShareCopied] = useState(false);
 
-  useEffect(() => {
-    try {
-      const ids = JSON.parse(localStorage.getItem('saved_posts') || '[]') as string[];
-      setSaved(ids.includes(post.id));
-    } catch {
-      setSaved(false);
-    }
-  }, [post.id]);
+  const { data: savedIds } = useQuery({
+    queryKey: ['saved-post-ids'],
+    queryFn: () => postsApi.getSavedIds().then((res) => res.data.ids),
+  });
+  const saved = savedIds?.includes(post.id) || false;
 
-  const handleSave = () => {
-    try {
-      const ids = JSON.parse(localStorage.getItem('saved_posts') || '[]') as string[];
-      const next = ids.includes(post.id)
-        ? ids.filter((id) => id !== post.id)
-        : [...ids, post.id];
-      localStorage.setItem('saved_posts', JSON.stringify(next));
-      setSaved(next.includes(post.id));
-    } catch {
-      return;
-    }
-  };
+  const saveMutation = useMutation({
+    mutationFn: () => (saved ? postsApi.unsave(post.id) : postsApi.save(post.id)),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['saved-post-ids'] });
+    },
+  });
+
+  const handleSave = () => saveMutation.mutate();
 
   const handleShare = async () => {
     const url = typeof window !== 'undefined' ? window.location.href : '';

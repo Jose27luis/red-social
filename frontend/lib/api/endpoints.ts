@@ -178,6 +178,12 @@ export const postsApi = {
   deleteComment: (commentId: string) =>
     api.delete(`/posts/comments/${commentId}`),
 
+  save: (id: string) => api.post(`/posts/${id}/save`),
+
+  unsave: (id: string) => api.delete(`/posts/${id}/save`),
+
+  getSavedIds: () => api.get<{ ids: string[] }>('/posts/saved/ids'),
+
   // Upload images for posts
   uploadImages: (formData: FormData) =>
     api.post<{ images: string[] }>('/posts/upload-images', formData, {
