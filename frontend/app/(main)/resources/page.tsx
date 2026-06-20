@@ -79,7 +79,6 @@ export default function ResourcesPage() {
         <UploadResource />
       </div>
 
-      {/* Search Bar */}
       <div className="space-y-1">
         <label className="text-sm font-medium">Buscar recursos</label>
         <input
@@ -91,7 +90,6 @@ export default function ResourcesPage() {
         />
       </div>
 
-      {/* Filter Tabs */}
       <div className="flex flex-wrap gap-2">
         {RESOURCE_TYPES.map((type) => (
           <button
@@ -108,7 +106,6 @@ export default function ResourcesPage() {
         ))}
       </div>
 
-      {/* Resources List */}
       {filteredResources.length === 0 ? (
         <Card>
           <CardContent className="p-12 text-center">
