@@ -13,7 +13,6 @@ export default function AuthLayout({
 
   return (
     <div className="min-h-screen flex relative">
-      {/* Toggle button */}
       <button
         onClick={() => setIsSwapped(!isSwapped)}
         className={`absolute top-4 right-4 z-50 p-3 rounded-full shadow-lg transition-all duration-500 hover:scale-110 ${
@@ -26,7 +25,6 @@ export default function AuthLayout({
         {isSwapped ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
       </button>
 
-      {/* Left side - Image */}
       <div
         className={`hidden lg:flex lg:w-1/2 relative items-start justify-center transition-all duration-500 ${
           isSwapped ? 'bg-background' : 'bg-primary'
@@ -71,14 +69,12 @@ export default function AuthLayout({
         </div>
       </div>
 
-      {/* Right side - Form */}
       <div
         className={`w-full lg:w-1/2 flex items-center justify-center p-4 sm:p-8 transition-all duration-500 ${
           isSwapped ? 'bg-primary' : 'bg-background'
         }`}
       >
         <div className="w-full max-w-md">
-          {/* Mobile logo */}
           <div className="lg:hidden flex justify-center mb-8">
             <div
               className={`rounded-full p-4 transition-all duration-500 ${
