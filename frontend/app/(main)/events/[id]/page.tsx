@@ -125,7 +125,6 @@ export default function EventDetailPage() {
 
       <Card>
         <CardContent className="p-8">
-          {/* Header */}
           <div className="flex items-start justify-between mb-6">
             <div className="flex-1">
               <h1 className="text-3xl font-bold mb-2">{event.title}</h1>
@@ -157,7 +156,6 @@ export default function EventDetailPage() {
             )}
           </div>
 
-          {/* Event Details */}
           <div className="space-y-4 mb-6">
             <div className="flex items-start">
               <Calendar className="h-5 w-5 mr-3 mt-0.5 text-muted-foreground" />
@@ -200,13 +198,11 @@ export default function EventDetailPage() {
             </div>
           </div>
 
-          {/* Description */}
           <div className="mb-6">
             <h2 className="text-xl font-bold mb-2">Descripción</h2>
             <p className="text-foreground whitespace-pre-wrap">{event.description}</p>
           </div>
 
-          {/* Actions */}
           <div className="flex space-x-2 pt-4 border-t border-border">
             {!isOrganizer && (
               <Button
@@ -239,14 +235,12 @@ export default function EventDetailPage() {
             )}
           </div>
 
-          {/* QR Code Display */}
           {showQR && isAttending && (
             <div className="mt-6 p-6 bg-muted rounded-lg text-center">
               <p className="text-sm text-muted-foreground mb-4">
                 Presenta este código QR en el evento para confirmar tu asistencia
               </p>
               <div className="bg-white p-4 rounded-lg inline-block">
-                {/* Note: In production, you would use a QR code library like qrcode.react */}
                 <div className="w-48 h-48 flex items-center justify-center border-2 border-dashed border-muted-foreground">
                   <QrCode className="h-24 w-24 text-muted-foreground" />
                 </div>
@@ -259,7 +253,6 @@ export default function EventDetailPage() {
         </CardContent>
       </Card>
 
-      {/* Attendees List */}
       {event.attendees && event.attendees.length > 0 && (
         <Card>
           <CardContent className="p-6">
