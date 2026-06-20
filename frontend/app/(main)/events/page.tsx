@@ -61,7 +61,7 @@ export default function EventsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Eventos</h1>
+        <h1 className="font-serif text-[27px] font-bold tracking-tight text-foreground">Eventos</h1>
       </div>
 
       <CreateEvent />

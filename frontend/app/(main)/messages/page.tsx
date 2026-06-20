@@ -218,7 +218,7 @@ export default function MessagesPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Mensajes</h1>
+        <h1 className="font-serif text-[27px] font-bold tracking-tight text-foreground">Mensajes</h1>
         <div className="flex items-center gap-2">
           <Circle
             className={`h-3 w-3 ${isConnected ? 'fill-green-500 text-green-500' : 'fill-gray-400 text-gray-400'}`}
