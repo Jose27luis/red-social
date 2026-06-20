@@ -182,7 +182,7 @@ export default function RegisterPage() {
             <Input
               id="email"
               type="email"
-              placeholder="ejemplo@unamad.edu.pe"
+              aria-label="Correo institucional"
               {...register('email')}
               className={errors.email ? 'border-destructive' : ''}
             />
