@@ -122,7 +122,6 @@ export default function SecurityPage() {
         </div>
       </div>
 
-      {/* Security Summary */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
           <CardContent className="p-4 flex items-center gap-4">
@@ -167,7 +166,6 @@ export default function SecurityPage() {
         </Card>
       </div>
 
-      {/* Access History */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -244,7 +242,6 @@ export default function SecurityPage() {
             </div>
           )}
 
-          {/* Pagination */}
           {meta && meta.totalPages > 1 && (
             <div className="flex items-center justify-between mt-6 pt-4 border-t">
               <p className="text-sm text-muted-foreground">
