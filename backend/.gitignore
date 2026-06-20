@@ -125,6 +125,7 @@ $RECYCLE.BIN/
 # PostgreSQL dumps
 *.sql
 *.dump
+!prisma/migrations/**/*.sql
 
 # ============================================
 # Uploads & Media

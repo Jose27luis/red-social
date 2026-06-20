@@ -343,4 +343,26 @@ export class PostsService {
 
     return !!like;
   }
+
+  async savePost(postId: string, userId: string): Promise<{ saved: boolean }> {
+    await this.prisma.savedPost.upsert({
+      where: { postId_userId: { postId, userId } },
+      update: {},
+      create: { postId, userId },
+    });
+    return { saved: true };
+  }
+
+  async unsavePost(postId: string, userId: string): Promise<{ saved: boolean }> {
+    await this.prisma.savedPost.deleteMany({ where: { postId, userId } });
+    return { saved: false };
+  }
+
+  async getSavedPostIds(userId: string): Promise<string[]> {
+    const rows = await this.prisma.savedPost.findMany({
+      where: { userId },
+      select: { postId: true },
+    });
+    return rows.map((row) => row.postId);
+  }
 }

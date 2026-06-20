@@ -166,4 +166,23 @@ export class PostsController {
     const hasLiked = await this.postsService.hasUserLikedPost(postId, user.id);
     return { hasLiked };
   }
+
+  @Get('saved/ids')
+  @ApiOperation({ summary: 'Get IDs of posts saved by the current user' })
+  async getSavedPostIds(@CurrentUser() user: { id: string }) {
+    const ids = await this.postsService.getSavedPostIds(user.id);
+    return { ids };
+  }
+
+  @Post(':id/save')
+  @ApiOperation({ summary: 'Save a post' })
+  async savePost(@Param('id') postId: string, @CurrentUser() user: { id: string }) {
+    return this.postsService.savePost(postId, user.id);
+  }
+
+  @Delete(':id/save')
+  @ApiOperation({ summary: 'Unsave a post' })
+  async unsavePost(@Param('id') postId: string, @CurrentUser() user: { id: string }) {
+    return this.postsService.unsavePost(postId, user.id);
+  }
 }
