@@ -70,7 +70,6 @@ export default function EventsPage() {
         <CreateEvent />
       </div>
 
-      {/* Filter Tabs */}
       <div className="flex space-x-2 border-b border-border">
         <button
           onClick={() => setFilter('all')}
@@ -104,7 +103,6 @@ export default function EventsPage() {
         </button>
       </div>
 
-      {/* Events List */}
       {filteredEvents.length === 0 ? (
         <Card>
           <CardContent className="p-12 text-center">
