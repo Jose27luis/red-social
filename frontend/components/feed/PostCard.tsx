@@ -173,7 +173,6 @@ export default function PostCard({ post }: PostCardProps) {
   return (
     <Card>
       <CardContent className="p-6">
-        {/* Header */}
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center space-x-3">
             <Avatar className="h-10 w-10 rounded-[11px]">
@@ -222,7 +221,6 @@ export default function PostCard({ post }: PostCardProps) {
           )}
         </div>
 
-        {/* Content */}
         {isEditing ? (
           <div className="space-y-3">
             <textarea
@@ -267,7 +265,6 @@ export default function PostCard({ post }: PostCardProps) {
           />
         )}
 
-        {/* Post Images */}
         {post.images && post.images.length > 0 && (
           <div className={`mb-4 grid gap-2 ${
             post.images.length === 1
@@ -302,7 +299,6 @@ export default function PostCard({ post }: PostCardProps) {
           </div>
         )}
 
-        {/* Actions */}
         <div className="flex items-center gap-1 border-t border-border pt-2">
           <Button
             variant="ghost"
@@ -342,10 +338,8 @@ export default function PostCard({ post }: PostCardProps) {
           </Button>
         </div>
 
-        {/* Comments Section */}
         {showComments && (
           <div className="mt-4 pt-4 border-t border-border space-y-4">
-            {/* Comment Input */}
             <div className="flex items-start space-x-3">
               <Avatar className="h-8 w-8">
                 <AvatarImage src={getImageUrl(user?.profilePicture)} />
@@ -358,7 +352,7 @@ export default function PostCard({ post }: PostCardProps) {
                   type="text"
                   value={commentContent}
                   onChange={(e) => setCommentContent(e.target.value)}
-                  placeholder="Escribe un comentario..."
+                  aria-label="Escribe un comentario..."
                   className="flex-1 px-3 py-2 rounded-lg border border-input bg-background text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
@@ -379,7 +373,6 @@ export default function PostCard({ post }: PostCardProps) {
               </div>
             </div>
 
-            {/* Comments List */}
             {post.comments && post.comments.length > 0 && (
               <div className="space-y-3">
                 {post.comments.map((comment) => (
@@ -417,7 +410,6 @@ export default function PostCard({ post }: PostCardProps) {
           </div>
         )}
 
-        {/* Image Modal */}
         {selectedImage && (
           <div
             role="button"
