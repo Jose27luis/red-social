@@ -3,12 +3,18 @@
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
-import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 import { resourcesApi } from '@/lib/api/endpoints';
 import { QUERY_KEYS } from '@/lib/constants';
 import { ApiError, ResourceType } from '@/types';
-import { Upload, X, File } from 'lucide-react';
+import { Upload, File } from 'lucide-react';
 
 const RESOURCE_TYPES = [
   { value: ResourceType.DOCUMENT, label: 'Documento' },
@@ -89,32 +95,27 @@ export default function UploadResource() {
     uploadResourceMutation.mutate(data);
   };
 
-  if (!isOpen) {
-    return (
-      <Button onClick={() => setIsOpen(true)} className="w-full">
-        <Upload className="h-4 w-4 mr-2" />
-        Subir Nuevo Recurso
-      </Button>
-    );
-  }
-
   return (
-    <Card>
-      <CardContent className="p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-bold">Subir Nuevo Recurso</h3>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => {
-              setIsOpen(false);
-              setFile(null);
-              setError('');
-            }}
-          >
-            <X className="h-4 w-4" />
-          </Button>
-        </div>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        setIsOpen(open);
+        if (!open) {
+          setFile(null);
+          setError('');
+        }
+      }}
+    >
+      <DialogTrigger asChild>
+        <Button size="sm" className="h-9">
+          <Upload className="mr-2 h-4 w-4" />
+          Subir recurso
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-h-[85vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Subir nuevo recurso</DialogTitle>
+        </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* File Upload */}
@@ -162,7 +163,6 @@ export default function UploadResource() {
               type="text"
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              placeholder="Título del recurso"
               className="w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
               maxLength={200}
             />
@@ -175,7 +175,6 @@ export default function UploadResource() {
             <textarea
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              placeholder="Describe el recurso..."
               className="w-full min-h-[100px] px-3 py-2 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring resize-none"
               maxLength={1000}
             />
@@ -223,7 +222,7 @@ export default function UploadResource() {
             </Button>
           </div>
         </form>
-      </CardContent>
-    </Card>
+      </DialogContent>
+    </Dialog>
   );
 }

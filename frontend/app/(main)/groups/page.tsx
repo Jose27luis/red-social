@@ -65,9 +65,8 @@ export default function GroupsPage() {
             Comunidades académicas y de investigación
           </p>
         </div>
+        <CreateGroup />
       </div>
-
-      <CreateGroup />
 
       {/* Filter Tabs */}
       <div className="flex space-x-2 border-b border-border">

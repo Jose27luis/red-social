@@ -60,11 +60,15 @@ export default function EventsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="font-serif text-[27px] font-bold tracking-tight text-foreground">Eventos</h1>
+      <div className="flex items-end justify-between gap-4">
+        <div>
+          <h1 className="font-serif text-[27px] font-bold tracking-tight text-foreground">Eventos</h1>
+          <p className="mt-1 text-[13.5px] text-muted-foreground">
+            Agenda académica y actividades de la universidad
+          </p>
+        </div>
+        <CreateEvent />
       </div>
-
-      <CreateEvent />
 
       {/* Filter Tabs */}
       <div className="flex space-x-2 border-b border-border">

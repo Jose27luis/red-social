@@ -69,20 +69,25 @@ export default function ResourcesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="font-serif text-[27px] font-bold tracking-tight text-foreground">Recursos Compartidos</h1>
+      <div className="flex items-end justify-between gap-4">
+        <div>
+          <h1 className="font-serif text-[27px] font-bold tracking-tight text-foreground">Recursos Compartidos</h1>
+          <p className="mt-1 text-[13.5px] text-muted-foreground">
+            Material académico compartido por la comunidad
+          </p>
+        </div>
+        <UploadResource />
       </div>
 
-      <UploadResource />
-
       {/* Search Bar */}
-      <div>
+      <div className="space-y-1">
+        <label className="text-sm font-medium">Buscar recursos</label>
         <input
           type="text"
+          aria-label="Buscar recursos"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Buscar recursos..."
-          className="w-full px-4 py-3 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+          className="w-full px-4 py-3 rounded-lg border border-input bg-secondary text-foreground focus:outline-none focus:ring-2 focus:ring-ring/30"
         />
       </div>
 

@@ -4,8 +4,14 @@ import { useState, useRef } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import Image from 'next/image';
-import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 import { eventsApi } from '@/lib/api/endpoints';
 import { QUERY_KEYS } from '@/lib/constants';
 import { ApiError, CreateEventDto } from '@/types';
@@ -114,32 +120,27 @@ export default function CreateEvent() {
 
   const isLoading = createEventMutation.isPending || isUploading;
 
-  if (!isOpen) {
-    return (
-      <Button onClick={() => setIsOpen(true)} className="w-full">
-        <Plus className="h-4 w-4 mr-2" />
-        Crear Nuevo Evento
-      </Button>
-    );
-  }
-
   return (
-    <Card>
-      <CardContent className="p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-bold">Crear Nuevo Evento</h3>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => {
-              setIsOpen(false);
-              setError('');
-              removeImage();
-            }}
-          >
-            <X className="h-4 w-4" />
-          </Button>
-        </div>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        setIsOpen(open);
+        if (!open) {
+          setError('');
+          removeImage();
+        }
+      }}
+    >
+      <DialogTrigger asChild>
+        <Button size="sm" className="h-9">
+          <Plus className="mr-2 h-4 w-4" />
+          Crear evento
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-h-[85vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Crear nuevo evento</DialogTitle>
+        </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Cover Image */}
@@ -190,7 +191,6 @@ export default function CreateEvent() {
               type="text"
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              placeholder="Título del evento"
               className="w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
               maxLength={200}
               disabled={isLoading}
@@ -204,7 +204,6 @@ export default function CreateEvent() {
             <textarea
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              placeholder="Describe el evento..."
               className="w-full min-h-[100px] px-3 py-2 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring resize-none"
               maxLength={2000}
               disabled={isLoading}
@@ -219,7 +218,6 @@ export default function CreateEvent() {
               type="text"
               value={formData.location}
               onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-              placeholder="Lugar del evento"
               className="w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
               maxLength={200}
               disabled={isLoading}
@@ -262,7 +260,6 @@ export default function CreateEvent() {
               type="number"
               value={formData.maxAttendees}
               onChange={(e) => setFormData({ ...formData, maxAttendees: e.target.value })}
-              placeholder="Dejar vacío para ilimitado"
               min="1"
               className="w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
               disabled={isLoading}
@@ -302,7 +299,7 @@ export default function CreateEvent() {
             </Button>
           </div>
         </form>
-      </CardContent>
-    </Card>
+      </DialogContent>
+    </Dialog>
   );
 }
