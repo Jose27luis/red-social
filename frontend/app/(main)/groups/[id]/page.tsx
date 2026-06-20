@@ -150,7 +150,6 @@ export default function GroupDetailPage() {
         Volver
       </Button>
 
-      {/* Group Info Card */}
       <Card>
         <CardContent className="p-8">
           <div className="flex items-start justify-between mb-6">
@@ -205,7 +204,6 @@ export default function GroupDetailPage() {
             </div>
           </div>
 
-          {/* Creator Info */}
           {group.creator && (
             <div
               role="button"
@@ -231,7 +229,6 @@ export default function GroupDetailPage() {
         </CardContent>
       </Card>
 
-      {/* Create Post (only for members) */}
       {isMember && (
         <Card>
           <CardContent className="p-6">
@@ -248,7 +245,7 @@ export default function GroupDetailPage() {
                   <textarea
                     value={postContent}
                     onChange={(e) => setPostContent(e.target.value)}
-                    placeholder="Comparte algo con el grupo..."
+                    aria-label="Comparte algo con el grupo..."
                     className="w-full min-h-[100px] p-3 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring resize-none"
                     disabled={createPostMutation.isPending}
                   />
@@ -277,7 +274,6 @@ export default function GroupDetailPage() {
         </Card>
       )}
 
-      {/* Group Posts */}
       <div>
         <h2 className="text-2xl font-bold mb-4">Publicaciones del Grupo</h2>
         {postsLoading ? (
@@ -315,7 +311,6 @@ export default function GroupDetailPage() {
         )}
       </div>
 
-      {/* Members List */}
       {isMember && group.members && group.members.length > 0 && (
         <Card>
           <CardContent className="p-6">
