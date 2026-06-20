@@ -19,6 +19,7 @@ import { FeedModule } from './feed/feed.module';
 import { EmailModule } from './email/email.module';
 import { AccessLogsModule } from './access-logs/access-logs.module';
 import { TutorModule } from './tutor/tutor.module';
+import { AdminModule } from './admin/admin.module';
 
 @Module({
   imports: [
@@ -66,6 +67,7 @@ import { TutorModule } from './tutor/tutor.module';
     FeedModule,
     AccessLogsModule,
     TutorModule,
+    AdminModule,
   ],
   controllers: [AppController],
   providers: [
