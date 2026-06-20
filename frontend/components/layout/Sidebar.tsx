@@ -9,9 +9,12 @@ import {
   MessageSquare,
   FolderOpen,
   User,
-  Bot
+  Bot,
+  Shield
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useAuthStore } from '@/store/useAuthStore';
+import { UserRole } from '@/types';
 
 const navigation = [
   { name: 'Feed', href: '/feed', icon: Home },
@@ -25,13 +28,18 @@ const navigation = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const role = useAuthStore((state) => state.user?.role);
+  const navItems =
+    role === UserRole.ADMIN
+      ? [...navigation, { name: 'Administración', href: '/admin', icon: Shield }]
+      : navigation;
 
   return (
     <>
       {/* Desktop Sidebar */}
       <aside className="hidden lg:flex lg:flex-col lg:fixed lg:inset-y-0 lg:w-64 lg:pt-16 bg-card border-r border-border">
         <nav className="flex-1 px-4 py-6 space-y-1">
-          {navigation.map((item) => {
+          {navItems.map((item) => {
             const isActive = pathname === item.href;
             return (
               <Link
@@ -55,7 +63,7 @@ export default function Sidebar() {
       {/* Mobile Bottom Navigation */}
       <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-card border-t border-border">
         <div className="flex justify-around py-2">
-          {navigation.slice(0, 6).map((item) => {
+          {navItems.slice(0, 6).map((item) => {
             const isActive = pathname === item.href;
             return (
               <Link

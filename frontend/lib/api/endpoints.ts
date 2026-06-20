@@ -4,6 +4,7 @@ import {
   RegisterDto,
   LoginResponse,
   User,
+  UserRole,
   UpdateUserDto,
   CreatePostDto,
   UpdatePostDto,
@@ -109,6 +110,23 @@ export const usersApi = {
         'Content-Type': 'multipart/form-data',
       },
     }),
+};
+
+export const adminApi = {
+  getUsers: (params?: { search?: string; skip?: number; take?: number }) =>
+    api.get<{ data: User[]; total: number }>('/admin/users', { params }),
+
+  updateUser: (
+    id: string,
+    data: Partial<{
+      firstName: string;
+      lastName: string;
+      department: string;
+      career: string;
+      role: UserRole;
+      isActive: boolean;
+    }>,
+  ) => api.patch<User>(`/admin/users/${id}`, data),
 };
 
 // ============================================================================
