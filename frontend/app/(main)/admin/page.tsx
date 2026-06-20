@@ -189,14 +189,38 @@ export default function AdminPage() {
   }
 
   const users = data?.data ?? [];
+  const kpis = [
+    { label: 'Usuarios registrados', value: data?.total ?? 0 },
+    { label: 'Usuarios activos', value: users.filter((item) => item.isActive).length },
+    { label: 'Usuarios inactivos', value: users.filter((item) => !item.isActive).length },
+    { label: 'Administradores', value: users.filter((item) => item.role === UserRole.ADMIN).length },
+  ];
 
   return (
-    <div className="mx-auto max-w-5xl p-4 sm:p-6">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold">Administración de usuarios</h1>
-        <p className="text-sm text-muted-foreground">
-          {data ? `${data.total} usuarios en el sistema` : 'Gestión de usuarios'}
-        </p>
+    <div>
+      <div className="mb-5 flex items-end justify-between gap-4">
+        <div>
+          <span className="mb-2 inline-block rounded-md border border-primary/15 bg-accent px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-primary">
+            Panel de control
+          </span>
+          <h1 className="font-serif text-[27px] font-bold tracking-tight text-foreground">
+            Administración
+          </h1>
+          <p className="mt-1 text-[13.5px] text-muted-foreground">
+            Gestión de usuarios de la plataforma
+          </p>
+        </div>
+      </div>
+
+      <div className="mb-5 grid grid-cols-2 gap-4 lg:grid-cols-4">
+        {kpis.map((kpi) => (
+          <div key={kpi.label} className="rounded-[15px] border border-border bg-card p-4 shadow-sm">
+            <div className="text-[28px] font-bold tabular-nums leading-none tracking-tight text-foreground">
+              {kpi.value}
+            </div>
+            <div className="mt-1.5 text-[12.5px] text-muted-foreground">{kpi.label}</div>
+          </div>
+        ))}
       </div>
 
       <div className="mb-4 space-y-1">
@@ -204,9 +228,9 @@ export default function AdminPage() {
         <Input value={search} onChange={(e) => setSearch(e.target.value)} />
       </div>
 
-      <div className="overflow-x-auto rounded-lg border">
+      <div className="overflow-x-auto rounded-[15px] border border-border bg-card shadow-sm">
         <table className="w-full text-sm">
-          <thead className="bg-muted/50 text-left">
+          <thead className="bg-secondary text-left text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
             <tr>
               <th className="px-4 py-3 font-medium">Usuario</th>
               <th className="px-4 py-3 font-medium">Rol</th>
