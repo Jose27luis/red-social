@@ -58,8 +58,13 @@ export default function GroupsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="font-serif text-[27px] font-bold tracking-tight text-foreground">Grupos</h1>
+      <div className="flex items-end justify-between gap-4">
+        <div>
+          <h1 className="font-serif text-[27px] font-bold tracking-tight text-foreground">Grupos</h1>
+          <p className="mt-1 text-[13.5px] text-muted-foreground">
+            Comunidades académicas y de investigación
+          </p>
+        </div>
       </div>
 
       <CreateGroup />
@@ -98,7 +103,7 @@ export default function GroupsPage() {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {groups.map((group: Group) => (
             <GroupCard key={group.id} group={group} />
           ))}
