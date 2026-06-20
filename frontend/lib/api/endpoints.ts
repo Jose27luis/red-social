@@ -324,7 +324,10 @@ export const messagesApi = {
   getConversations: () => api.get<Conversation[]>('/messages/conversations'),
 
   getConversation: (userId: string, params?: PaginationParams) =>
-    api.get<Message[]>(`/messages/conversation/${userId}`, { params }),
+    api.get<{ otherUser: Conversation['user']; messages: Message[] }>(
+      `/messages/conversation/${userId}`,
+      { params },
+    ),
 
   markConversationAsRead: (userId: string) =>
     api.patch(`/messages/conversation/${userId}/read`),
