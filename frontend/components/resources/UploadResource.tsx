@@ -118,7 +118,6 @@ export default function UploadResource() {
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* File Upload */}
           <div>
             <label className="text-sm font-medium mb-1 block">
               Archivo <span className="text-destructive">*</span>
