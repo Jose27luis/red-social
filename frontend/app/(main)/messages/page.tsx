@@ -76,7 +76,7 @@ export default function MessagesPage() {
     (conversation: Conversation) => conversation.user.id === selectedConversation
   );
   const messages: Message[] = useMemo(
-    () => (Array.isArray(messagesData?.data) ? messagesData?.data : []),
+    () => messagesData?.data?.messages ?? [],
     [messagesData]
   );
 
