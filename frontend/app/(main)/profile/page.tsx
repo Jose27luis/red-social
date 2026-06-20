@@ -15,6 +15,13 @@ import { ApiError, UpdateUserDto, Post } from '@/types';
 import PostCard from '@/components/feed/PostCard';
 import { Pencil, Save, X, Mail, Briefcase, GraduationCap, Calendar, Camera } from 'lucide-react';
 
+const roleLabels: Record<string, string> = {
+  STUDENT: 'Estudiante',
+  PROFESSOR: 'Profesor',
+  ADMIN: 'Administrador',
+  ALUMNI: 'Egresado',
+};
+
 export default function ProfilePage() {
   const { user: currentUser, setAuth } = useAuthStore();
   const queryClient = useQueryClient();
@@ -30,14 +37,12 @@ export default function ProfilePage() {
     career: currentUser?.career || '',
   });
 
-  // Get user profile
   const { data: profileData, isLoading: profileLoading } = useQuery({
     queryKey: [QUERY_KEYS.USER_PROFILE, currentUser?.id],
     queryFn: () => usersApi.getById(currentUser!.id),
     enabled: !!currentUser?.id,
   });
 
-  // Get user posts
   const { data: postsData, isLoading: postsLoading } = useQuery({
     queryKey: [QUERY_KEYS.USER_POSTS, currentUser?.id],
     queryFn: () => postsApi.getAll({ authorId: currentUser!.id }),
@@ -49,8 +54,6 @@ export default function ProfilePage() {
     onSuccess: (response) => {
       setIsEditing(false);
       setError('');
-
-      // Update auth store with new user data
       if (currentUser) {
         setAuth({
           user: response.data,
@@ -58,20 +61,18 @@ export default function ProfilePage() {
           refreshToken: localStorage.getItem('refreshToken') || '',
         });
       }
-
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.USER_PROFILE, currentUser?.id] });
     },
-    onError: (error: AxiosError<ApiError>) => {
-      const message = error.response?.data?.message || 'Error al actualizar el perfil';
+    onError: (err: AxiosError<ApiError>) => {
+      const message = err.response?.data?.message || 'Error al actualizar el perfil';
       setError(typeof message === 'string' ? message : message[0]);
     },
   });
 
   const uploadPictureMutation = useMutation({
-    mutationFn: (formData: FormData) => usersApi.uploadProfilePicture(formData),
+    mutationFn: (data: FormData) => usersApi.uploadProfilePicture(data),
     onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.USER_PROFILE, currentUser?.id] });
-      // Update auth store with new profile picture
       if (currentUser) {
         setAuth({
           user: response.data,
@@ -80,17 +81,17 @@ export default function ProfilePage() {
         });
       }
     },
-    onError: (error) => {
-      console.error('Error al subir la foto de perfil:', error);
+    onError: (err) => {
+      console.error('Error al subir la foto de perfil:', err);
     },
   });
 
   const handleProfilePictureChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      const formData = new FormData();
-      formData.append('file', file);
-      uploadPictureMutation.mutate(formData);
+      const data = new FormData();
+      data.append('file', file);
+      uploadPictureMutation.mutate(data);
     }
   };
 
@@ -99,7 +100,6 @@ export default function ProfilePage() {
       setError('El nombre y apellido son requeridos');
       return;
     }
-
     updateProfileMutation.mutate(formData);
   };
 
@@ -117,271 +117,236 @@ export default function ProfilePage() {
 
   if (profileLoading) {
     return (
-      <div className="space-y-6">
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center space-x-4 mb-6">
-              <Skeleton className="h-24 w-24 rounded-full" />
-              <div className="space-y-2 flex-1">
-                <Skeleton className="h-6 w-48" />
-                <Skeleton className="h-4 w-64" />
-              </div>
+      <Card>
+        <CardContent className="p-6">
+          <div className="mb-6 flex items-center space-x-4">
+            <Skeleton className="h-24 w-24 rounded-[24px]" />
+            <div className="flex-1 space-y-2">
+              <Skeleton className="h-6 w-48" />
+              <Skeleton className="h-4 w-64" />
             </div>
-            <Skeleton className="h-20 w-full" />
-          </CardContent>
-        </Card>
-      </div>
+          </div>
+          <Skeleton className="h-20 w-full" />
+        </CardContent>
+      </Card>
     );
   }
 
   const profile = profileData?.data;
   const posts = postsData?.data?.data || [];
+  const roleLabel = profile?.role ? roleLabels[profile.role] ?? profile.role : '';
+  const subtitle = [roleLabel, profile?.career || profile?.department].filter(Boolean).join(' · ');
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="font-serif text-[27px] font-bold tracking-tight text-foreground">Mi Perfil</h1>
-      </div>
-
-      {/* Profile Card */}
-      <Card>
-        <CardContent className="p-6">
-          {/* Header */}
-          <div className="flex items-start justify-between mb-6">
-            <div className="flex items-center space-x-4">
-              <div className="relative">
-                <Avatar className="h-24 w-24">
-                  <AvatarImage src={getImageUrl(profile?.profilePicture)} />
-                  <AvatarFallback className="text-2xl">
-                    {profile ? getInitials(profile.firstName, profile.lastName) : 'U'}
-                  </AvatarFallback>
-                </Avatar>
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  onChange={handleProfilePictureChange}
-                  accept="image/jpeg,image/png,image/gif,image/webp"
-                  className="hidden"
-                />
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={uploadPictureMutation.isPending}
-                  className="absolute bottom-0 right-0 p-2 bg-primary text-primary-foreground rounded-full shadow-lg hover:bg-primary/90 transition-colors"
-                  title="Cambiar foto de perfil"
-                >
-                  <Camera className="h-4 w-4" />
-                </button>
-              </div>
-              <div>
-                <h2 className="text-2xl font-bold">
-                  {profile?.firstName} {profile?.lastName}
-                </h2>
-                <p className="text-muted-foreground flex items-center gap-2">
-                  <Mail className="h-4 w-4" />
-                  {profile?.email}
-                </p>
-                <div className="flex items-center gap-2 mt-1">
-                  <span className="text-xs px-2 py-1 bg-primary/10 text-primary rounded">
-                    {profile?.role}
-                  </span>
-                  {profile?.isVerified && (
-                    <span className="text-xs px-2 py-1 bg-green-500/10 text-green-500 rounded">
-                      Verificado
-                    </span>
-                  )}
-                </div>
-              </div>
+    <div className="space-y-5">
+      <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+        <div className="h-[120px] bg-gradient-to-r from-[#7a1340] via-[#b01e54] to-[#e23e7d]" />
+        <div className="px-6 pb-6">
+          <div className="-mt-11 flex items-end gap-4">
+            <div className="relative flex-none">
+              <Avatar className="h-24 w-24 rounded-[24px] border-4 border-card">
+                <AvatarImage src={getImageUrl(profile?.profilePicture)} />
+                <AvatarFallback className="rounded-[24px] bg-gradient-to-br from-[#b01e54] to-[#e23e7d] text-3xl font-bold text-white">
+                  {profile ? getInitials(profile.firstName, profile.lastName) : 'U'}
+                </AvatarFallback>
+              </Avatar>
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleProfilePictureChange}
+                accept="image/jpeg,image/png,image/gif,image/webp"
+                className="hidden"
+              />
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploadPictureMutation.isPending}
+                className="absolute bottom-0 right-0 rounded-full bg-primary p-2 text-primary-foreground shadow-lg transition-colors hover:bg-primary/90"
+                title="Cambiar foto de perfil"
+              >
+                <Camera className="h-4 w-4" />
+              </button>
             </div>
-
+            <div className="flex-1 pb-1.5">
+              <h1 className="text-[22px] font-bold text-foreground">
+                {profile?.firstName} {profile?.lastName}
+              </h1>
+              <p className="mt-0.5 text-[13.5px] text-muted-foreground">{subtitle}</p>
+            </div>
             {!isEditing && (
-              <Button onClick={() => setIsEditing(true)} variant="outline">
-                <Pencil className="h-4 w-4 mr-2" />
-                Editar Perfil
+              <Button variant="outline" onClick={() => setIsEditing(true)} className="mb-1.5">
+                <Pencil className="mr-2 h-4 w-4" />
+                Editar perfil
               </Button>
             )}
           </div>
 
-          {/* Editable Fields */}
-          {isEditing ? (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium mb-1 block">Nombre</label>
-                  <input
-                    type="text"
-                    value={formData.firstName}
-                    onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-                    className="w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-medium mb-1 block">Apellido</label>
-                  <input
-                    type="text"
-                    value={formData.lastName}
-                    onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-                    className="w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="text-sm font-medium mb-1 block">Biografía</label>
-                <textarea
-                  value={formData.bio}
-                  onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
-                  placeholder="Cuéntanos sobre ti..."
-                  className="w-full min-h-[100px] px-3 py-2 rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring resize-none"
-                  maxLength={500}
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  {formData.bio.length}/500
-                </p>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium mb-1 block">Departamento</label>
-                  <input
-                    type="text"
-                    value={formData.department}
-                    onChange={(e) => setFormData({ ...formData, department: e.target.value })}
-                    placeholder="Ej: Ingeniería"
-                    className="w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-medium mb-1 block">Carrera</label>
-                  <input
-                    type="text"
-                    value={formData.career}
-                    onChange={(e) => setFormData({ ...formData, career: e.target.value })}
-                    placeholder="Ej: Ingeniería de Sistemas"
-                    className="w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                  />
-                </div>
-              </div>
-
-              {error && (
-                <p className="text-sm text-destructive">{error}</p>
-              )}
-
-              <div className="flex space-x-2 pt-4">
-                <Button
-                  onClick={handleSave}
-                  disabled={updateProfileMutation.isPending}
-                >
-                  <Save className="h-4 w-4 mr-2" />
-                  {updateProfileMutation.isPending ? 'Guardando...' : 'Guardar Cambios'}
-                </Button>
-                <Button variant="outline" onClick={handleCancel}>
-                  <X className="h-4 w-4 mr-2" />
-                  Cancelar
-                </Button>
-              </div>
+          <div className="mt-5 flex gap-8 border-t border-border pt-4">
+            <div>
+              <div className="text-xl font-bold tabular-nums text-foreground">{posts.length}</div>
+              <div className="text-xs text-muted-foreground">Publicaciones</div>
             </div>
-          ) : (
-            <div className="space-y-4">
-              {profile?.bio && (
-                <div>
-                  <h3 className="text-sm font-medium text-muted-foreground mb-1">Biografía</h3>
-                  <p className="text-foreground">{profile.bio}</p>
+            <div>
+              <div className="text-xl font-bold tabular-nums text-foreground">{profile?.followersCount || 0}</div>
+              <div className="text-xs text-muted-foreground">Seguidores</div>
+            </div>
+            <div>
+              <div className="text-xl font-bold tabular-nums text-foreground">{profile?.followingCount || 0}</div>
+              <div className="text-xs text-muted-foreground">Siguiendo</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {isEditing ? (
+        <div className="rounded-[15px] border border-border bg-card p-6 shadow-sm">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="space-y-1">
+              <label className="text-sm font-medium">Nombre</label>
+              <input
+                type="text"
+                value={formData.firstName}
+                onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                className="w-full rounded-lg border border-input bg-secondary px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/30"
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-sm font-medium">Apellido</label>
+              <input
+                type="text"
+                value={formData.lastName}
+                onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                className="w-full rounded-lg border border-input bg-secondary px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/30"
+              />
+            </div>
+          </div>
+
+          <div className="mt-4 space-y-1">
+            <label className="text-sm font-medium">Biografía</label>
+            <textarea
+              value={formData.bio}
+              onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
+              className="min-h-[100px] w-full resize-none rounded-lg border border-input bg-secondary px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/30"
+              maxLength={500}
+            />
+            <p className="text-xs text-muted-foreground">{formData.bio.length}/500</p>
+          </div>
+
+          <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="space-y-1">
+              <label className="text-sm font-medium">Departamento</label>
+              <input
+                type="text"
+                value={formData.department}
+                onChange={(e) => setFormData({ ...formData, department: e.target.value })}
+                className="w-full rounded-lg border border-input bg-secondary px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/30"
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-sm font-medium">Carrera</label>
+              <input
+                type="text"
+                value={formData.career}
+                onChange={(e) => setFormData({ ...formData, career: e.target.value })}
+                className="w-full rounded-lg border border-input bg-secondary px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/30"
+              />
+            </div>
+          </div>
+
+          {error && <p className="mt-3 text-sm text-destructive">{error}</p>}
+
+          <div className="mt-5 flex gap-2">
+            <Button onClick={handleSave} disabled={updateProfileMutation.isPending}>
+              <Save className="mr-2 h-4 w-4" />
+              {updateProfileMutation.isPending ? 'Guardando...' : 'Guardar cambios'}
+            </Button>
+            <Button variant="outline" onClick={handleCancel}>
+              <X className="mr-2 h-4 w-4" />
+              Cancelar
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-[1fr_320px]">
+          <div className="flex flex-col gap-5">
+            {profile?.bio && (
+              <div className="rounded-[15px] border border-border bg-card p-5 shadow-sm">
+                <div className="mb-2 text-sm font-bold text-foreground">Sobre mí</div>
+                <p className="text-[13.5px] leading-relaxed text-foreground/80">{profile.bio}</p>
+              </div>
+            )}
+
+            <div className="rounded-[15px] border border-border bg-card p-5 shadow-sm">
+              <div className="mb-3 text-sm font-bold text-foreground">Mis publicaciones</div>
+              {postsLoading ? (
+                <Skeleton className="h-32 w-full" />
+              ) : posts.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No has publicado nada aún.</p>
+              ) : (
+                <div className="space-y-4">
+                  {posts.map((post: Post) => (
+                    <PostCard key={post.id} post={post} />
+                  ))}
                 </div>
               )}
+            </div>
+          </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                {profile?.department && (
-                  <div>
-                    <h3 className="text-sm font-medium text-muted-foreground mb-1 flex items-center gap-2">
-                      <Briefcase className="h-4 w-4" />
-                      Departamento
-                    </h3>
-                    <p className="text-foreground">{profile.department}</p>
-                  </div>
-                )}
-                {profile?.career && (
-                  <div>
-                    <h3 className="text-sm font-medium text-muted-foreground mb-1 flex items-center gap-2">
-                      <GraduationCap className="h-4 w-4" />
-                      Carrera
-                    </h3>
-                    <p className="text-foreground">{profile.career}</p>
-                  </div>
-                )}
+          <div className="rounded-[15px] border border-border bg-card p-5 shadow-sm">
+            <div className="mb-3 text-sm font-bold text-foreground">Información</div>
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center gap-3">
+                <span className="flex h-8 w-8 flex-none items-center justify-center rounded-lg bg-secondary text-muted-foreground">
+                  <Mail className="h-4 w-4" />
+                </span>
+                <div className="min-w-0">
+                  <div className="text-[11px] text-muted-foreground">Correo institucional</div>
+                  <div className="truncate text-[13px] font-semibold text-foreground">{profile?.email}</div>
+                </div>
               </div>
-
+              {profile?.department && (
+                <div className="flex items-center gap-3">
+                  <span className="flex h-8 w-8 flex-none items-center justify-center rounded-lg bg-secondary text-muted-foreground">
+                    <Briefcase className="h-4 w-4" />
+                  </span>
+                  <div className="min-w-0">
+                    <div className="text-[11px] text-muted-foreground">Departamento</div>
+                    <div className="text-[13px] font-semibold text-foreground">{profile.department}</div>
+                  </div>
+                </div>
+              )}
+              {profile?.career && (
+                <div className="flex items-center gap-3">
+                  <span className="flex h-8 w-8 flex-none items-center justify-center rounded-lg bg-secondary text-muted-foreground">
+                    <GraduationCap className="h-4 w-4" />
+                  </span>
+                  <div className="min-w-0">
+                    <div className="text-[11px] text-muted-foreground">Carrera</div>
+                    <div className="text-[13px] font-semibold text-foreground">{profile.career}</div>
+                  </div>
+                </div>
+              )}
               {profile?.createdAt && (
-                <div>
-                  <h3 className="text-sm font-medium text-muted-foreground mb-1 flex items-center gap-2">
+                <div className="flex items-center gap-3">
+                  <span className="flex h-8 w-8 flex-none items-center justify-center rounded-lg bg-secondary text-muted-foreground">
                     <Calendar className="h-4 w-4" />
-                    Miembro desde
-                  </h3>
-                  <p className="text-foreground">
-                    {new Date(profile.createdAt).toLocaleDateString('es-PE', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric',
-                    })}
-                  </p>
+                  </span>
+                  <div className="min-w-0">
+                    <div className="text-[11px] text-muted-foreground">Miembro desde</div>
+                    <div className="text-[13px] font-semibold text-foreground">
+                      {new Date(profile.createdAt).toLocaleDateString('es-PE', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                      })}
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* User Stats */}
-      <div className="grid grid-cols-3 gap-4">
-        <Card>
-          <CardContent className="p-4 text-center">
-            <p className="text-2xl font-bold">{posts.length}</p>
-            <p className="text-sm text-muted-foreground">Publicaciones</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 text-center">
-            <p className="text-2xl font-bold">{profile?.followersCount || 0}</p>
-            <p className="text-sm text-muted-foreground">Seguidores</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 text-center">
-            <p className="text-2xl font-bold">{profile?.followingCount || 0}</p>
-            <p className="text-sm text-muted-foreground">Siguiendo</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* User Posts */}
-      <div>
-        <h2 className="text-2xl font-bold mb-4">Mis Publicaciones</h2>
-        {postsLoading ? (
-          <div className="space-y-4">
-            {[...Array(2)].map((_, i) => (
-              <Card key={i}>
-                <CardContent className="p-6">
-                  <Skeleton className="h-32 w-full" />
-                </CardContent>
-              </Card>
-            ))}
           </div>
-        ) : posts.length === 0 ? (
-          <Card>
-            <CardContent className="p-12 text-center">
-              <p className="text-muted-foreground">
-                No has publicado nada aún.
-              </p>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="space-y-4">
-            {posts.map((post: Post) => (
-              <PostCard key={post.id} post={post} />
-            ))}
-          </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
