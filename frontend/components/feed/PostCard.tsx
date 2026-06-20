@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import Image from 'next/image';
@@ -22,6 +22,8 @@ import { getInitials, getImageUrl } from '@/lib/utils';
 import {
   Heart,
   MessageCircle,
+  Share2,
+  Bookmark,
   MoreVertical,
   Pencil,
   Trash2,
@@ -45,6 +47,46 @@ export default function PostCard({ post }: PostCardProps) {
 
   const isAuthor = user?.id === post.authorId;
   const hasLiked = post.likes?.some((like) => like.userId === user?.id) || false;
+
+  const [saved, setSaved] = useState(false);
+  const [shareCopied, setShareCopied] = useState(false);
+
+  useEffect(() => {
+    try {
+      const ids = JSON.parse(localStorage.getItem('saved_posts') || '[]') as string[];
+      setSaved(ids.includes(post.id));
+    } catch {
+      setSaved(false);
+    }
+  }, [post.id]);
+
+  const handleSave = () => {
+    try {
+      const ids = JSON.parse(localStorage.getItem('saved_posts') || '[]') as string[];
+      const next = ids.includes(post.id)
+        ? ids.filter((id) => id !== post.id)
+        : [...ids, post.id];
+      localStorage.setItem('saved_posts', JSON.stringify(next));
+      setSaved(next.includes(post.id));
+    } catch {
+      return;
+    }
+  };
+
+  const handleShare = async () => {
+    const url = typeof window !== 'undefined' ? window.location.href : '';
+    try {
+      if (typeof navigator !== 'undefined' && navigator.share) {
+        await navigator.share({ title: 'Red Académica UNAMAD', text: post.content, url });
+      } else {
+        await navigator.clipboard.writeText(`${post.content}\n${url}`);
+        setShareCopied(true);
+        setTimeout(() => setShareCopied(false), 2000);
+      }
+    } catch {
+      return;
+    }
+  };
 
   const invalidatePostQueries = () => {
     queryClient.invalidateQueries({ queryKey: QUERY_KEYS.FEED });
@@ -269,26 +311,42 @@ export default function PostCard({ post }: PostCardProps) {
         )}
 
         {/* Actions */}
-        <div className="flex items-center space-x-6 pt-3 border-t border-border">
+        <div className="flex items-center gap-1 border-t border-border pt-2">
           <Button
             variant="ghost"
             size="sm"
             onClick={handleLike}
-            className={hasLiked ? 'text-red-500' : ''}
+            className={hasLiked ? 'text-red-500' : 'text-muted-foreground'}
           >
-            <Heart
-              className={`h-4 w-4 mr-2 ${hasLiked ? 'fill-current' : ''}`}
-            />
-            {post.likesCount || 0}
+            <Heart className={`mr-2 h-4 w-4 ${hasLiked ? 'fill-current' : ''}`} />
+            <span className="tabular-nums">{post.likesCount || 0}</span>
           </Button>
 
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setShowComments(!showComments)}
+            className="text-muted-foreground"
           >
-            <MessageCircle className="h-4 w-4 mr-2" />
-            {post.commentsCount || 0}
+            <MessageCircle className="mr-2 h-4 w-4" />
+            <span className="tabular-nums">{post.commentsCount || 0}</span>
+          </Button>
+
+          <Button variant="ghost" size="sm" onClick={handleShare} className="text-muted-foreground">
+            <Share2 className="mr-2 h-4 w-4" />
+            {shareCopied ? 'Copiado' : 'Compartir'}
+          </Button>
+
+          <div className="flex-1" />
+
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleSave}
+            className={saved ? 'text-primary' : 'text-muted-foreground'}
+            title={saved ? 'Quitar de guardados' : 'Guardar'}
+          >
+            <Bookmark className={`h-4 w-4 ${saved ? 'fill-current' : ''}`} />
           </Button>
         </div>
 
