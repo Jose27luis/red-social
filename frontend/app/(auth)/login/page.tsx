@@ -75,7 +75,7 @@ export default function LoginPage() {
             <Input
               id="email"
               type="email"
-              placeholder="ejemplo@unamad.edu.pe"
+              aria-label="ejemplo@unamad.edu.pe"
               {...register('email')}
               className={errors.email ? 'border-destructive' : ''}
             />
