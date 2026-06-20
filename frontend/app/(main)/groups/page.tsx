@@ -68,7 +68,6 @@ export default function GroupsPage() {
         <CreateGroup />
       </div>
 
-      {/* Filter Tabs */}
       <div className="flex space-x-2 border-b border-border">
         <button
           onClick={() => setFilter('all')}
@@ -92,7 +91,6 @@ export default function GroupsPage() {
         </button>
       </div>
 
-      {/* Groups List */}
       {groups.length === 0 ? (
         <Card>
           <CardContent className="p-12 text-center">
