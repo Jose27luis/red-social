@@ -143,7 +143,6 @@ export default function CreateEvent() {
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Cover Image */}
           <div>
             <label className="text-sm font-medium mb-1 block">
               Imagen de Portada
