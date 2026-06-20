@@ -101,10 +101,8 @@ export default function UserProfilePage() {
         <h1 className="text-3xl font-bold">Perfil de Usuario</h1>
       </div>
 
-      {/* Profile Card */}
       <Card>
         <CardContent className="p-6">
-          {/* Header */}
           <div className="flex items-start justify-between mb-6">
             <div className="flex items-center space-x-4">
               <div className="relative">
@@ -172,7 +170,6 @@ export default function UserProfilePage() {
             )}
           </div>
 
-          {/* Info */}
           <div className="space-y-4">
             {profile?.bio && (
               <div>
@@ -221,7 +218,6 @@ export default function UserProfilePage() {
         </CardContent>
       </Card>
 
-      {/* User Stats */}
       <div className="grid grid-cols-3 gap-4">
         <Card>
           <CardContent className="p-4 text-center">
@@ -243,7 +239,6 @@ export default function UserProfilePage() {
         </Card>
       </div>
 
-      {/* User Posts */}
       <div>
         <h2 className="text-2xl font-bold mb-4">Publicaciones</h2>
         {postsLoading ? (
