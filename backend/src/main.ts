@@ -3,6 +3,8 @@ import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
+import { SpanishExceptionFilter } from './common/filters/spanish-exception.filter';
+import { spanishValidationFactory } from './common/i18n/spanish-validation';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -87,8 +89,11 @@ async function bootstrap() {
       whitelist: true,
       forbidNonWhitelisted: true,
       transform: true,
+      exceptionFactory: spanishValidationFactory,
     }),
   );
+
+  app.useGlobalFilters(new SpanishExceptionFilter());
 
   // Configuración de Swagger
   const config = new DocumentBuilder()
