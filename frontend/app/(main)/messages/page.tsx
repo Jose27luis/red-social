@@ -4,13 +4,12 @@ import { useState, useEffect, useRef, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { messagesApi } from '@/lib/api/endpoints';
 import { QUERY_KEYS } from '@/lib/constants';
-import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAuthStore } from '@/store/useAuthStore';
 import { getInitials } from '@/lib/utils';
-import { MessageCircle, Send, Circle } from 'lucide-react';
+import { MessageCircle, Send } from 'lucide-react';
 import useSocket from '@/hooks/useSocket';
 import { SafeHTML } from '@/components/SafeHTML';
 
@@ -73,6 +72,9 @@ export default function MessagesPage() {
   });
 
   const conversations = conversationsData?.data || [];
+  const activeConversation = conversations.find(
+    (conversation: Conversation) => conversation.user.id === selectedConversation
+  );
   const messages: Message[] = useMemo(
     () => (Array.isArray(messagesData?.data) ? messagesData?.data : []),
     [messagesData]
@@ -216,176 +218,175 @@ export default function MessagesPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="font-serif text-[27px] font-bold tracking-tight text-foreground">Mensajes</h1>
-        <div className="flex items-center gap-2">
-          <Circle
-            className={`h-3 w-3 ${isConnected ? 'fill-green-500 text-green-500' : 'fill-gray-400 text-gray-400'}`}
-          />
-          <span className="text-sm text-muted-foreground">
-            {isConnected ? 'Conectado' : 'Desconectado'}
+    <div className="flex h-[calc(100vh-7rem)] gap-5">
+      <div className="hidden w-[330px] flex-none flex-col overflow-hidden rounded-[15px] border border-border bg-card shadow-sm md:flex">
+        <div className="flex items-center justify-between border-b border-border p-4">
+          <h1 className="font-serif text-xl font-bold text-foreground">Mensajes</h1>
+          <span className="flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground">
+            <span className={`h-2 w-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-muted-foreground'}`} />
+            {isConnected ? 'En línea' : 'Sin conexión'}
           </span>
+        </div>
+        <div className="flex-1 overflow-y-auto">
+          {conversations.length === 0 ? (
+            <div className="p-8 text-center">
+              <MessageCircle className="mx-auto mb-3 h-10 w-10 text-muted-foreground" />
+              <p className="text-sm text-muted-foreground">No tienes conversaciones aún.</p>
+            </div>
+          ) : (
+            conversations.map((conversation: Conversation) => {
+              const isOnline = isUserOnline(conversation.user.id);
+              const isSelected = selectedConversation === conversation.user.id;
+              return (
+                <button
+                  key={conversation.user.id}
+                  onClick={() => setSelectedConversation(conversation.user.id)}
+                  className={`flex w-full items-center gap-3 border-b border-border/60 px-4 py-3 text-left transition-colors ${
+                    isSelected ? 'bg-accent' : 'hover:bg-muted'
+                  }`}
+                >
+                  <div className="relative flex-none">
+                    <Avatar className="h-11 w-11 rounded-xl">
+                      <AvatarImage src={conversation.user.profilePicture} />
+                      <AvatarFallback className="rounded-xl bg-gradient-to-br from-[#b01e54] to-[#e23e7d] text-[13px] font-bold text-white">
+                        {getInitials(conversation.user.firstName, conversation.user.lastName)}
+                      </AvatarFallback>
+                    </Avatar>
+                    {isOnline && (
+                      <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-card bg-green-500" />
+                    )}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="truncate text-[13.5px] font-semibold text-foreground">
+                        {conversation.user.firstName} {conversation.user.lastName}
+                      </span>
+                      {conversation.lastMessage && (
+                        <span className="flex-none text-[11px] text-muted-foreground">
+                          {new Date(conversation.lastMessage.createdAt).toLocaleTimeString('es-PE', {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
+                        </span>
+                      )}
+                    </div>
+                    <div className="mt-0.5 flex items-center justify-between gap-2">
+                      <span className="truncate text-[12.5px] text-muted-foreground">
+                        {conversation.lastMessage?.content || 'Sin mensajes'}
+                      </span>
+                      {(conversation.unreadCount ?? 0) > 0 && (
+                        <span className="flex h-[18px] min-w-[18px] flex-none items-center justify-center rounded-full bg-primary px-1.5 text-[11px] font-bold text-primary-foreground">
+                          {conversation.unreadCount}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </button>
+              );
+            })
+          )}
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-12rem)]">
-        {/* Conversations List */}
-        <div className="lg:col-span-1">
-          <Card className="h-full">
-            <CardContent className="p-4">
-              <h2 className="font-bold mb-4">Conversaciones</h2>
-
-              {conversations.length === 0 ? (
-                <div className="text-center py-12">
-                  <MessageCircle className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                  <p className="text-muted-foreground text-sm">
-                    No tienes conversaciones aún.
-                  </p>
+      <div className="flex flex-1 flex-col overflow-hidden rounded-[15px] border border-border bg-muted shadow-sm">
+        {!selectedConversation || !activeConversation ? (
+          <div className="flex flex-1 items-center justify-center bg-card">
+            <div className="text-center">
+              <MessageCircle className="mx-auto mb-4 h-16 w-16 text-muted-foreground" />
+              <h3 className="mb-2 text-lg font-medium">Selecciona una conversación</h3>
+              <p className="text-sm text-muted-foreground">
+                Elige una conversación de la lista para comenzar a chatear
+              </p>
+            </div>
+          </div>
+        ) : (
+          <>
+            <div className="flex h-16 flex-none items-center gap-3 border-b border-border bg-card px-5">
+              <Avatar className="h-10 w-10 rounded-[11px]">
+                <AvatarImage src={activeConversation.user.profilePicture} />
+                <AvatarFallback className="rounded-[11px] bg-gradient-to-br from-[#b01e54] to-[#e23e7d] text-xs font-bold text-white">
+                  {getInitials(activeConversation.user.firstName, activeConversation.user.lastName)}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1">
+                <div className="text-sm font-semibold text-foreground">
+                  {activeConversation.user.firstName} {activeConversation.user.lastName}
                 </div>
-              ) : (
-                <div className="space-y-2">
-                  {conversations.map((conversation: Conversation) => {
-                    const isOnline = isUserOnline(conversation.user.id);
-                    const isSelected = selectedConversation === conversation.user.id;
+                {isUserOnline(activeConversation.user.id) && (
+                  <div className="flex items-center gap-1.5 text-xs text-green-600">
+                    <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
+                    En línea
+                  </div>
+                )}
+              </div>
+            </div>
 
-                    return (
-                      <div
-                        key={conversation.user.id}
-                        onClick={() => setSelectedConversation(conversation.user.id)}
-                        className={`flex items-center space-x-3 p-3 rounded-lg cursor-pointer transition-colors ${
-                          isSelected ? 'bg-primary/10' : 'hover:bg-muted'
+            <div className="flex-1 space-y-3 overflow-y-auto px-6 py-5">
+              {messages.map((message) => {
+                const isMine = message.senderId === user?.id;
+                return (
+                  <div key={message.id} className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}>
+                    <div
+                      className={`max-w-[62%] px-4 py-2.5 text-[13.5px] leading-relaxed ${
+                        isMine
+                          ? 'rounded-2xl rounded-br-sm bg-primary text-primary-foreground'
+                          : 'rounded-2xl rounded-bl-sm border border-border bg-card text-foreground'
+                      }`}
+                    >
+                      <SafeHTML content={message.content} level="strict" className="break-words" />
+                      <p
+                        className={`mt-1 text-[10.5px] ${
+                          isMine ? 'text-primary-foreground/70' : 'text-muted-foreground'
                         }`}
                       >
-                        <div className="relative">
-                          <Avatar className="h-10 w-10">
-                            <AvatarImage src={conversation.user.profilePicture} />
-                            <AvatarFallback>
-                              {getInitials(
-                                conversation.user.firstName,
-                                conversation.user.lastName
-                              )}
-                            </AvatarFallback>
-                          </Avatar>
-                          {isOnline && (
-                            <Circle className="absolute bottom-0 right-0 h-3 w-3 fill-green-500 text-green-500 border-2 border-background" />
-                          )}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="font-medium truncate">
-                            {conversation.user.firstName} {conversation.user.lastName}
-                          </p>
-                          <p className="text-sm text-muted-foreground truncate">
-                            {conversation.lastMessage?.content || 'Sin mensajes'}
-                          </p>
-                        </div>
-                        {(conversation.unreadCount ?? 0) > 0 && (
-                          <span className="bg-primary text-primary-foreground text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                            {conversation.unreadCount}
-                          </span>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Messages Area */}
-        <div className="lg:col-span-2">
-          <Card className="h-full flex flex-col">
-            <CardContent className="p-6 flex-1 flex flex-col">
-              {!selectedConversation ? (
-                <div className="flex-1 flex items-center justify-center">
-                  <div className="text-center">
-                    <MessageCircle className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
-                    <h3 className="text-lg font-medium mb-2">
-                      Selecciona una conversación
-                    </h3>
-                    <p className="text-sm text-muted-foreground">
-                      Elige una conversación de la lista para comenzar a chatear
-                    </p>
-                  </div>
-                </div>
-              ) : (
-                <>
-                  {/* Messages List */}
-                  <div className="flex-1 overflow-y-auto mb-4 space-y-3">
-                    {messages.map((message) => {
-                      const isMine = message.senderId === user?.id;
-
-                      return (
-                        <div
-                          key={message.id}
-                          className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}
-                        >
-                          <div
-                            className={`max-w-[70%] rounded-lg px-4 py-2 ${
-                              isMine
-                                ? 'bg-primary text-primary-foreground'
-                                : 'bg-muted'
-                            }`}
-                          >
-                            <SafeHTML
-                              content={message.content}
-                              level="strict"
-                              className="text-sm break-words"
-                            />
-                            <p className="text-xs mt-1 opacity-70">
-                              {new Date(message.createdAt).toLocaleTimeString('es-PE', {
-                                hour: '2-digit',
-                                minute: '2-digit',
-                              })}
-                              {isMine && message.isRead && (
-                                <span className="ml-1">✓✓</span>
-                              )}
-                            </p>
-                          </div>
-                        </div>
-                      );
-                    })}
-                    <div ref={messagesEndRef} />
-
-                    {/* Typing Indicator */}
-                    {typingUsers.has(selectedConversation) && (
-                      <div className="flex justify-start">
-                        <div className="bg-muted rounded-lg px-4 py-2">
-                          <div className="flex space-x-1">
-                            <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                            <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                            <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Message Input */}
-                  <form onSubmit={handleSendMessage} className="border-t pt-4">
-                    <div className="flex space-x-2">
-                      <input
-                        type="text"
-                        value={messageContent}
-                        onChange={(e) => handleTyping(e.target.value)}
-                        placeholder="Escribe un mensaje..."
-                        className="flex-1 px-4 py-2 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                        maxLength={1000}
-                      />
-                      <Button
-                        type="submit"
-                        disabled={!messageContent.trim() || sendMessageMutation.isPending}
-                      >
-                        <Send className="h-4 w-4" />
-                      </Button>
+                        {new Date(message.createdAt).toLocaleTimeString('es-PE', {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                        {isMine && message.isRead && <span className="ml-1">✓✓</span>}
+                      </p>
                     </div>
-                  </form>
-                </>
+                  </div>
+                );
+              })}
+              <div ref={messagesEndRef} />
+
+              {typingUsers.has(selectedConversation) && (
+                <div className="flex justify-start">
+                  <div className="rounded-2xl border border-border bg-card px-4 py-2.5">
+                    <div className="flex gap-1">
+                      <span className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground" style={{ animationDelay: '0ms' }} />
+                      <span className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground" style={{ animationDelay: '150ms' }} />
+                      <span className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground" style={{ animationDelay: '300ms' }} />
+                    </div>
+                  </div>
+                </div>
               )}
-            </CardContent>
-          </Card>
-        </div>
+            </div>
+
+            <form
+              onSubmit={handleSendMessage}
+              className="flex flex-none items-center gap-2.5 border-t border-border bg-card px-5 py-3.5"
+            >
+              <input
+                type="text"
+                aria-label="Escribe un mensaje"
+                value={messageContent}
+                onChange={(e) => handleTyping(e.target.value)}
+                className="h-11 flex-1 rounded-xl border border-input bg-secondary px-4 text-sm text-foreground outline-none focus:ring-2 focus:ring-ring/30"
+                maxLength={1000}
+              />
+              <Button
+                type="submit"
+                size="icon"
+                disabled={!messageContent.trim() || sendMessageMutation.isPending}
+                className="h-11 w-11 rounded-xl"
+              >
+                <Send className="h-[18px] w-[18px]" />
+              </Button>
+            </form>
+          </>
+        )}
       </div>
     </div>
   );
