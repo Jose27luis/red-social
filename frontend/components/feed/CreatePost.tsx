@@ -150,12 +150,11 @@ export default function CreatePost({ groupId }: CreatePostProps) {
               <textarea
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
-                placeholder="¿Qué quieres compartir?"
+                aria-label="¿Qué quieres compartir?"
                 className="w-full min-h-[100px] p-3 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent resize-none"
                 disabled={isLoading}
               />
 
-              {/* Preview de imágenes */}
               {previewUrls.length > 0 && (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
                   {previewUrls.map((url, index) => (
@@ -193,7 +192,6 @@ export default function CreatePost({ groupId }: CreatePostProps) {
                     ))}
                   </select>
 
-                  {/* Botón para agregar imágenes */}
                   <input
                     type="file"
                     ref={fileInputRef}
