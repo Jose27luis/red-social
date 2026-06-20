@@ -68,12 +68,10 @@ export default function ResourceCard({ resource }: ResourceCardProps) {
     <Card className="hover:shadow-lg transition-shadow">
       <CardContent className="p-6">
         <div className="flex items-start space-x-4">
-          {/* File Icon */}
           <div className="flex-shrink-0">
             {getFileIcon()}
           </div>
 
-          {/* File Info */}
           <div className="flex-1 min-w-0">
             <h3 className="font-bold text-lg mb-1 truncate">{resource.title}</h3>
             <p className="text-sm text-muted-foreground mb-2 line-clamp-2">
@@ -104,7 +102,6 @@ export default function ResourceCard({ resource }: ResourceCardProps) {
               </div>
             </div>
 
-            {/* Actions */}
             <div className="flex space-x-2">
               <Button
                 size="sm"
