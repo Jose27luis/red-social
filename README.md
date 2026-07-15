@@ -68,7 +68,7 @@ Toda la documentación visual de este apartado — casos de uso, entidad-relaci�
 
 ### Casos de Uso
 
-Mermaid no tiene un tipo de diagrama UML de casos de uso nativo, así que se representa con `flowchart`: los actores como nodos rectangulares, los casos de uso como burbujas (`stadium shape`) dentro del límite del sistema, asociaciones como líneas simples y relaciones `«include»`/`«extend»` como líneas punteadas etiquetadas.
+Notación: los actores como nodos rectangulares, los casos de uso como burbujas dentro del límite del sistema, asociaciones como líneas simples y relaciones `«include»`/`«extend»` como líneas punteadas etiquetadas.
 
 #### Autenticación
 
@@ -94,8 +94,8 @@ flowchart LR
     Usuario --- UC1_6
     UC1_4 -.->|"«include»<br/>valida dominio @unamad.edu.pe"| UC1_1
 
-    classDef actor fill:#e8eefc,stroke:#4361ee,stroke-width:2px
-    classDef usecase fill:#fef6e4,stroke:#f4a261,stroke-width:1px
+    classDef actor fill:#e8eefc,stroke:#4361ee,stroke-width:2px,color:#14142b
+    classDef usecase fill:#fef6e4,stroke:#f4a261,stroke-width:1px,color:#14142b
     class Visitante,Usuario actor
     class UC1_1,UC1_2,UC1_3,UC1_4,UC1_5,UC1_6 usecase
 ```
@@ -120,8 +120,8 @@ flowchart LR
     Usuario --- UC2_4
     Usuario --- UC2_5
 
-    classDef actor fill:#e8eefc,stroke:#4361ee,stroke-width:2px
-    classDef usecase fill:#fef6e4,stroke:#f4a261,stroke-width:1px
+    classDef actor fill:#e8eefc,stroke:#4361ee,stroke-width:2px,color:#14142b
+    classDef usecase fill:#fef6e4,stroke:#f4a261,stroke-width:1px,color:#14142b
     class Usuario actor
     class UC2_1,UC2_2,UC2_3,UC2_4,UC2_5 usecase
 ```
@@ -154,8 +154,8 @@ flowchart LR
     Usuario --- UC3_8
     UC3_1 -.->|"«include»<br/>si tiene groupId"| UC3_9
 
-    classDef actor fill:#e8eefc,stroke:#4361ee,stroke-width:2px
-    classDef usecase fill:#fef6e4,stroke:#f4a261,stroke-width:1px
+    classDef actor fill:#e8eefc,stroke:#4361ee,stroke-width:2px,color:#14142b
+    classDef usecase fill:#fef6e4,stroke:#f4a261,stroke-width:1px,color:#14142b
     class Usuario actor
     class UC3_1,UC3_2,UC3_3,UC3_4,UC3_5,UC3_6,UC3_7,UC3_8,UC3_9 usecase
 ```
@@ -190,8 +190,8 @@ flowchart LR
     ModGrupo --- UC4_8
     ModGrupo --- UC4_9
 
-    classDef actor fill:#e8eefc,stroke:#4361ee,stroke-width:2px
-    classDef usecase fill:#fef6e4,stroke:#f4a261,stroke-width:1px
+    classDef actor fill:#e8eefc,stroke:#4361ee,stroke-width:2px,color:#14142b
+    classDef usecase fill:#fef6e4,stroke:#f4a261,stroke-width:1px,color:#14142b
     class Usuario,ModGrupo actor
     class UC4_1,UC4_2,UC4_3,UC4_4,UC4_5,UC4_6,UC4_7,UC4_8,UC4_9 usecase
 ```
@@ -222,8 +222,8 @@ flowchart LR
     Usuario --- UC5_6
     UC5_1 -.->|"«include»"| UC5_7
 
-    classDef actor fill:#e8eefc,stroke:#4361ee,stroke-width:2px
-    classDef usecase fill:#fef6e4,stroke:#f4a261,stroke-width:1px
+    classDef actor fill:#e8eefc,stroke:#4361ee,stroke-width:2px,color:#14142b
+    classDef usecase fill:#fef6e4,stroke:#f4a261,stroke-width:1px,color:#14142b
     class Usuario actor
     class UC5_1,UC5_2,UC5_3,UC5_4,UC5_5,UC5_6,UC5_7 usecase
 ```
@@ -252,8 +252,8 @@ flowchart LR
     Organizador --- UC6_2
     Organizador --- UC6_3
 
-    classDef actor fill:#e8eefc,stroke:#4361ee,stroke-width:2px
-    classDef usecase fill:#fef6e4,stroke:#f4a261,stroke-width:1px
+    classDef actor fill:#e8eefc,stroke:#4361ee,stroke-width:2px,color:#14142b
+    classDef usecase fill:#fef6e4,stroke:#f4a261,stroke-width:1px,color:#14142b
     class Usuario,Organizador actor
     class UC6_1,UC6_2,UC6_3,UC6_4,UC6_5,UC6_6 usecase
 ```
@@ -276,8 +276,8 @@ flowchart LR
     Usuario --- UC7_3
     UC7_1 -.->|"«include»"| UC7_4
 
-    classDef actor fill:#e8eefc,stroke:#4361ee,stroke-width:2px
-    classDef usecase fill:#fef6e4,stroke:#f4a261,stroke-width:1px
+    classDef actor fill:#e8eefc,stroke:#4361ee,stroke-width:2px,color:#14142b
+    classDef usecase fill:#fef6e4,stroke:#f4a261,stroke-width:1px,color:#14142b
     class Usuario actor
     class UC7_1,UC7_2,UC7_3,UC7_4 usecase
 ```
@@ -312,8 +312,8 @@ flowchart LR
     UC8_1 -.->|"«include»"| UC8_8
     UC8_1 -.->|"«include»"| UC8_9
 
-    classDef actor fill:#e8eefc,stroke:#4361ee,stroke-width:2px
-    classDef usecase fill:#fef6e4,stroke:#f4a261,stroke-width:1px
+    classDef actor fill:#e8eefc,stroke:#4361ee,stroke-width:2px,color:#14142b
+    classDef usecase fill:#fef6e4,stroke:#f4a261,stroke-width:1px,color:#14142b
     class Usuario,Gemini actor
     class UC8_1,UC8_2,UC8_3,UC8_4,UC8_5,UC8_6,UC8_7,UC8_8,UC8_9 usecase
 ```
@@ -338,8 +338,8 @@ flowchart LR
     Admin --- UC9_2
     Admin --- UC9_3
 
-    classDef actor fill:#e8eefc,stroke:#4361ee,stroke-width:2px
-    classDef usecase fill:#fef6e4,stroke:#f4a261,stroke-width:1px
+    classDef actor fill:#e8eefc,stroke:#4361ee,stroke-width:2px,color:#14142b
+    classDef usecase fill:#fef6e4,stroke:#f4a261,stroke-width:1px,color:#14142b
     class Usuario,Admin actor
     class UC9_1,UC9_2,UC9_3 usecase
 ```
@@ -348,7 +348,7 @@ flowchart LR
 
 ### Diagrama Entidad-Relación
 
-Basado 1:1 en `backend/prisma/schema.prisma` (18 modelos).
+Basado 1:1 en `backend/prisma/schema.prisma` (18 modelos). Aquí solo las relaciones — el detalle de columnas de cada tabla está más abajo, en el **diccionario de datos**, como texto normal (para poder hacer zoom y buscar con el navegador, algo que el diagrama en sí no permite).
 
 ```mermaid
 erDiagram
@@ -381,205 +381,224 @@ erDiagram
     Event ||--o{ EventAttendance : "tiene"
     TutorConversation ||--o{ TutorMessage : "contiene"
     TutorConversation ||--o{ TutorActionLog : "registra"
-
-    User {
-        string id PK
-        string email UK "dominio institucional @unamad.edu.pe"
-        string password "hash bcrypt, 12 rounds"
-        string firstName
-        string lastName
-        UserRole role "STUDENT, PROFESSOR, ADMIN, ALUMNI"
-        string department
-        string career
-        string profilePicture
-        string bio "maximo 500 caracteres"
-        string interests "array"
-        PrivacyLevel privacyLevel "PUBLIC, UNIVERSITY_ONLY, PRIVATE"
-        boolean isVerified
-        boolean isActive
-        string verificationToken
-        string resetPasswordToken
-        datetime resetPasswordExpires
-        string refreshToken "hash bcrypt"
-        datetime createdAt
-        datetime updatedAt
-    }
-
-    Post {
-        string id PK
-        string authorId FK
-        string content "maximo 3000 caracteres"
-        PostType type "QUESTION, DISCUSSION, RESOURCE, EVENT, ANNOUNCEMENT"
-        string images "array de URLs, maximo 10"
-        int likesCount
-        int commentsCount
-        boolean isEdited "editable solo dentro de 24h"
-        string groupId FK "opcional, null = feed general"
-        datetime createdAt
-        datetime updatedAt
-    }
-
-    Comment {
-        string id PK
-        string postId FK
-        string authorId FK
-        string content "maximo 1000 caracteres"
-        datetime createdAt
-        datetime updatedAt
-    }
-
-    Like {
-        string id PK
-        string postId FK
-        string userId FK
-        datetime createdAt
-    }
-
-    SavedPost {
-        string id PK
-        string postId FK
-        string userId FK
-        datetime createdAt
-    }
-
-    Group {
-        string id PK
-        string name
-        string description
-        GroupType type "PUBLIC, PRIVATE, INVITE_ONLY"
-        string creatorId FK
-        int membersCount "maximo 100"
-        string coverImage
-        datetime createdAt
-        datetime updatedAt
-    }
-
-    GroupMember {
-        string id PK
-        string groupId FK
-        string userId FK
-        GroupMemberRole role "ADMIN, MODERATOR, MEMBER"
-        datetime joinedAt
-    }
-
-    Message {
-        string id PK
-        string senderId FK
-        string receiverId FK
-        string content "maximo 1000 caracteres"
-        boolean isRead
-        datetime createdAt
-    }
-
-    Event {
-        string id PK
-        string title
-        string description
-        string organizerId FK
-        datetime startDate
-        datetime endDate
-        string location
-        int maxAttendees "default 500"
-        boolean isOnline
-        string qrCode "codigo unico generado al crear"
-        string coverImage
-        datetime createdAt
-        datetime updatedAt
-    }
-
-    EventAttendance {
-        string id PK
-        string eventId FK
-        string userId FK
-        boolean confirmed "true tras validar QR"
-        datetime createdAt
-    }
-
-    Resource {
-        string id PK
-        string uploaderId FK
-        string title
-        string description
-        string fileUrl
-        string fileType
-        int fileSize "bytes, maximo 50MB"
-        int downloadCount
-        datetime createdAt
-        datetime updatedAt
-    }
-
-    Notification {
-        string id PK
-        string recipientId FK
-        string senderId FK "opcional"
-        string type
-        string title
-        string message
-        boolean isRead
-        string link
-        datetime createdAt
-    }
-
-    Follow {
-        string id PK
-        string followerId FK
-        string followingId FK
-        datetime createdAt
-    }
-
-    Report {
-        string id PK
-        string reporterId FK
-        string reportedUserId FK "opcional"
-        string postId FK "opcional"
-        string reason
-        string description
-        string status "pending por defecto"
-        datetime createdAt
-        datetime updatedAt
-    }
-
-    AccessLog {
-        string id PK
-        string userId FK
-        string ipAddress
-        string userAgent
-        string device
-        string browser
-        string os
-        string country
-        string city
-        boolean success
-        string failReason
-        datetime createdAt
-    }
-
-    TutorConversation {
-        string id PK
-        string userId FK
-        string title
-        datetime createdAt
-        datetime updatedAt
-    }
-
-    TutorMessage {
-        string id PK
-        string conversationId FK
-        string role "user o assistant"
-        string content
-        datetime createdAt
-    }
-
-    TutorActionLog {
-        string id PK
-        string conversationId FK
-        string functionName
-        string parameters "JSON"
-        string result "JSON"
-        boolean success
-        datetime createdAt
-    }
 ```
+
+#### Diccionario de datos
+
+**Usuarios y autenticación**
+
+`User`
+
+| Campo | Tipo | Notas |
+|---|---|---|
+| id | string (PK) | UUID |
+| email | string (UK) | dominio institucional `@unamad.edu.pe` |
+| password | string | hash bcrypt, 12 rounds |
+| firstName / lastName | string | |
+| role | UserRole | STUDENT, PROFESSOR, ADMIN, ALUMNI |
+| department / career | string | opcionales |
+| profilePicture | string | opcional |
+| bio | string | máximo 500 caracteres |
+| interests | string[] | array de intereses académicos |
+| privacyLevel | PrivacyLevel | PUBLIC, UNIVERSITY_ONLY, PRIVATE |
+| isVerified / isActive | boolean | |
+| verificationToken | string | opcional |
+| resetPasswordToken / resetPasswordExpires | string / datetime | opcionales |
+| refreshToken | string | hash bcrypt, opcional |
+| createdAt / updatedAt | datetime | |
+
+**Publicaciones e interacción social**
+
+`Post`
+
+| Campo | Tipo | Notas |
+|---|---|---|
+| id | string (PK) | UUID |
+| authorId | string (FK → User) | |
+| content | string | máximo 3000 caracteres |
+| type | PostType | QUESTION, DISCUSSION, RESOURCE, EVENT, ANNOUNCEMENT |
+| images | string[] | URLs, máximo 10 |
+| likesCount / commentsCount | int | contadores desnormalizados |
+| isEdited | boolean | editable solo dentro de 24h |
+| groupId | string (FK → Group) | opcional, `null` = feed general |
+| createdAt / updatedAt | datetime | |
+
+`Comment`
+
+| Campo | Tipo | Notas |
+|---|---|---|
+| id | string (PK) | UUID |
+| postId | string (FK → Post) | |
+| authorId | string (FK → User) | |
+| content | string | máximo 1000 caracteres |
+| createdAt / updatedAt | datetime | |
+
+`Like` / `SavedPost`
+
+| Campo | Tipo | Notas |
+|---|---|---|
+| id | string (PK) | UUID |
+| postId | string (FK → Post) | |
+| userId | string (FK → User) | único por (postId, userId) |
+| createdAt | datetime | |
+
+`Follow`
+
+| Campo | Tipo | Notas |
+|---|---|---|
+| id | string (PK) | UUID |
+| followerId | string (FK → User) | quien sigue |
+| followingId | string (FK → User) | a quien sigue |
+| createdAt | datetime | único por (followerId, followingId) |
+
+**Grupos de estudio**
+
+`Group`
+
+| Campo | Tipo | Notas |
+|---|---|---|
+| id | string (PK) | UUID |
+| name / description | string | |
+| type | GroupType | PUBLIC, PRIVATE, INVITE_ONLY |
+| creatorId | string (FK → User) | |
+| membersCount | int | máximo 100 |
+| coverImage | string | opcional |
+| createdAt / updatedAt | datetime | |
+
+`GroupMember`
+
+| Campo | Tipo | Notas |
+|---|---|---|
+| id | string (PK) | UUID |
+| groupId | string (FK → Group) | |
+| userId | string (FK → User) | único por (groupId, userId) |
+| role | GroupMemberRole | ADMIN, MODERATOR, MEMBER |
+| joinedAt | datetime | |
+
+**Mensajería**
+
+`Message`
+
+| Campo | Tipo | Notas |
+|---|---|---|
+| id | string (PK) | UUID |
+| senderId / receiverId | string (FK → User) | |
+| content | string | máximo 1000 caracteres |
+| isRead | boolean | |
+| createdAt | datetime | |
+
+**Eventos académicos**
+
+`Event`
+
+| Campo | Tipo | Notas |
+|---|---|---|
+| id | string (PK) | UUID |
+| title / description | string | |
+| organizerId | string (FK → User) | |
+| startDate / endDate | datetime | |
+| location | string | opcional |
+| maxAttendees | int | default 500 |
+| isOnline | boolean | |
+| qrCode | string | código único generado al crear |
+| coverImage | string | opcional |
+| createdAt / updatedAt | datetime | |
+
+`EventAttendance`
+
+| Campo | Tipo | Notas |
+|---|---|---|
+| id | string (PK) | UUID |
+| eventId | string (FK → Event) | |
+| userId | string (FK → User) | único por (eventId, userId) |
+| confirmed | boolean | `true` tras validar el QR |
+| createdAt | datetime | |
+
+**Recursos académicos**
+
+`Resource`
+
+| Campo | Tipo | Notas |
+|---|---|---|
+| id | string (PK) | UUID |
+| uploaderId | string (FK → User) | |
+| title / description | string | description opcional |
+| fileUrl / fileType | string | |
+| fileSize | int | bytes, máximo 50MB |
+| downloadCount | int | |
+| createdAt / updatedAt | datetime | |
+
+**Notificaciones y moderación**
+
+`Notification`
+
+| Campo | Tipo | Notas |
+|---|---|---|
+| id | string (PK) | UUID |
+| recipientId | string (FK → User) | |
+| senderId | string (FK → User) | opcional |
+| type / title / message | string | |
+| isRead | boolean | |
+| link | string | opcional |
+| createdAt | datetime | |
+
+`Report` *(modelo en el esquema, sin controlador/servicio implementado — ver nota de honestidad técnica)*
+
+| Campo | Tipo | Notas |
+|---|---|---|
+| id | string (PK) | UUID |
+| reporterId | string (FK → User) | |
+| reportedUserId / postId | string (FK) | ambos opcionales |
+| reason / description | string | description opcional |
+| status | string | `pending` por defecto |
+| createdAt / updatedAt | datetime | |
+
+**Auditoría**
+
+`AccessLog`
+
+| Campo | Tipo | Notas |
+|---|---|---|
+| id | string (PK) | UUID |
+| userId | string (FK → User) | |
+| ipAddress / userAgent | string | |
+| device / browser / os | string | opcionales |
+| country / city | string | opcionales |
+| success | boolean | |
+| failReason | string | opcional |
+| createdAt | datetime | |
+
+**Tutor académico con IA**
+
+`TutorConversation`
+
+| Campo | Tipo | Notas |
+|---|---|---|
+| id | string (PK) | UUID |
+| userId | string (FK → User) | |
+| title | string | opcional |
+| createdAt / updatedAt | datetime | |
+
+`TutorMessage`
+
+| Campo | Tipo | Notas |
+|---|---|---|
+| id | string (PK) | UUID |
+| conversationId | string (FK → TutorConversation) | |
+| role | string | `user` o `assistant` |
+| content | string | |
+| createdAt | datetime | |
+
+`TutorActionLog`
+
+| Campo | Tipo | Notas |
+|---|---|---|
+| id | string (PK) | UUID |
+| conversationId | string (FK → TutorConversation) | |
+| functionName | string | p. ej. `searchUsers`, `sendMessage` |
+| parameters / result | string | JSON serializado |
+| success | boolean | |
+| createdAt | datetime | |
 
 ### Diagramas de Flujo
 
@@ -872,7 +891,8 @@ sequenceDiagram
     Ana->>FEA: Abre la aplicacion
     FEA->>GW: connect (handshake.auth.token = JWT)
     GW->>GW: jwtService.verifyAsync(token)
-    GW->>GW: onlineUsers.set(ana.id, socket.id); join("user:ana")
+    GW->>GW: onlineUsers.set(ana.id, socket.id)
+    GW->>GW: join sala "user:ana"
     GW-->>FEA: emit "online:users" [lista actual]
     GW-->>FEL: broadcast "user:online" { userId: ana.id }
 
